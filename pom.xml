@@ -16,6 +16,7 @@
 		<module>msa-board-common</module>
 		<module>msa-board-cores</module>
 		<module>msa-board-domains</module>
+		<module>msa-board-clients</module>
 	</modules>
 
 	<dependencies>
