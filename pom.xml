@@ -19,6 +19,7 @@
 		<module>msa-board-clients</module>
 		<module>msa-board-microservices</module>
 		<module>msa-board-clouds</module>
+		<module>msa-board-endpoint</module>
 	</modules>
 
 	<dependencies>
