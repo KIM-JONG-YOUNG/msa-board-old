@@ -17,6 +17,7 @@
 		<module>msa-board-cores</module>
 		<module>msa-board-domains</module>
 		<module>msa-board-clients</module>
+		<module>msa-board-microservices</module>
 	</modules>
 
 	<dependencies>
