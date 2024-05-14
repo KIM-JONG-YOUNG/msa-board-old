@@ -8,10 +8,20 @@
 	</parent>
 	<artifactId>msa-board-clouds</artifactId>
 	<packaging>pom</packaging>
-	
+
 	<modules>
 		<module>msa-board-cloud-config</module>
 		<module>msa-board-cloud-eureka</module>
 	</modules>
+
+	<build>
+		<plugins>
+			<!-- Spring Boot Excutable Jar -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 	
 </project>
