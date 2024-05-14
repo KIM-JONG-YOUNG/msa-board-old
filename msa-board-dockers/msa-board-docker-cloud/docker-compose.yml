@@ -1,0 +1,35 @@
+version: '3'
+
+networks:
+  msa-board-cloud-network:
+    name: msa-board-cloud-network
+    driver: bridge
+
+services:
+
+  msa-board-cloud-config:
+    build:
+      context: ../../msa-board-clouds/msa-board-cloud-config
+    image: msa-board-cloud-config
+    container_name: msa-board-cloud-config
+    hostname: msa-board-cloud-config
+    networks:
+      - msa-board-cloud-network
+    ports:
+      - 18888:8888
+    volumes:
+      - ../../msa-board-configs:/app/configs
+    command:
+      - "--spring.cloud.config.server.native.search-locations=/app/configs"
+
+  msa-board-cloud-eureka:
+    build:
+      context: ../../msa-board-clouds/msa-board-cloud-eureka
+    image: msa-board-cloud-eureka
+    container_name: msa-board-cloud-eureka
+    hostname: msa-board-cloud-eureka
+    networks:
+      - msa-board-cloud-network
+    ports:
+      - 18761:8761
+
