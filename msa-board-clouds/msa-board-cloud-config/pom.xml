@@ -3,14 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.jong</groupId>
-		<artifactId>msa-board</artifactId>
+		<artifactId>msa-board-clouds</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>msa-board-clouds</artifactId>
-	<packaging>pom</packaging>
-	
-	<modules>
-		<module>msa-board-cloud-config</module>
-	</modules>
-	
+	<artifactId>msa-board-cloud-config</artifactId>
 </project>
