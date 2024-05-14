@@ -7,4 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>msa-board-cloud-eureka</artifactId>
+
+	<dependencies>
+		<!-- Spring Cloud Eureka Server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>
