@@ -8,7 +8,11 @@
 	</parent>
 	<artifactId>msa-board-cores</artifactId>
 	<packaging>pom</packaging>
-	
+
+	<modules>
+		<module>msa-board-core-redis</module>
+	</modules>
+
 	<build>
 		<plugins>
 			<!-- Maven Jar 생셩 경로 지정 -->
@@ -28,6 +32,6 @@
 				</configuration>
 			</plugin>
 		</plugins>
-	</build>	
-	
+	</build>
+
 </project>
