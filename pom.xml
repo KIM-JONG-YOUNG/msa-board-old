@@ -12,6 +12,10 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
+	<modules>
+		<module>msa-board-common</module>
+	</modules>
+
 	<dependencies>
 		<!-- Lombok -->
 		<dependency>
