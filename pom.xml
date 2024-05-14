@@ -14,6 +14,7 @@
 
 	<modules>
 		<module>msa-board-common</module>
+		<module>msa-board-cores</module>
 	</modules>
 
 	<dependencies>
