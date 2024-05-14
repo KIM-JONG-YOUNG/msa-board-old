@@ -60,6 +60,12 @@
 				<artifactId>embedded-redis</artifactId>
 				<version>${embedded.redis.version}</version>
 			</dependency>
+			<!-- MSA Board Common -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
