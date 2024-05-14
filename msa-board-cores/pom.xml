@@ -8,4 +8,26 @@
 	</parent>
 	<artifactId>msa-board-cores</artifactId>
 	<packaging>pom</packaging>
+	
+	<build>
+		<plugins>
+			<!-- Maven Jar 생셩 경로 지정 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>../target</outputDirectory>
+				</configuration>
+			</plugin>
+			<!-- Spring Boot Excutable Jar 생성 스킵 -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>	
+	
 </project>
