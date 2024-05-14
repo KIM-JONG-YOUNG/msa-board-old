@@ -25,6 +25,8 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-cloud.version>2021.0.9</spring-cloud.version>
+		<spring-boot.redisson.version>3.17.7</spring-boot.redisson.version>
+		<embedded.redis.version>0.7.2</embedded.redis.version>
 	</properties>
 
 	<dependencies>
@@ -45,6 +47,18 @@
 				<version>${spring-cloud.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- Spring Boot Redisson -->
+			<dependency>
+				<groupId>org.redisson</groupId>
+				<artifactId>redisson-spring-boot-starter</artifactId>
+				<version>${spring-boot.redisson.version}</version>
+			</dependency>
+			<!-- Embedded Redis -->
+			<dependency>
+				<groupId>it.ozimov</groupId>
+				<artifactId>embedded-redis</artifactId>
+				<version>${embedded.redis.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
