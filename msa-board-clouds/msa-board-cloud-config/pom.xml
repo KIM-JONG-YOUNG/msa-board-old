@@ -7,4 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>msa-board-cloud-config</artifactId>
+
+	<dependencies>
+		<!-- Spring Cloud Config Server -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>
