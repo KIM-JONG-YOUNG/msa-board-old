@@ -14,6 +14,7 @@
 		<module>msa-board-core-kafka</module>
 		<module>msa-board-core-web</module>
 		<module>msa-board-core-persist</module>
+		<module>msa-board-core-transaction</module>
 	</modules>
 
 	<dependencies>

@@ -66,6 +66,18 @@
 				<artifactId>msa-board-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- MSA Board Redis Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-redis</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Persist Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-persist</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
