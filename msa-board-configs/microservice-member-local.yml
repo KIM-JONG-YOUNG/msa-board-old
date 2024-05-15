@@ -1,0 +1,89 @@
+# Service Port
+server:
+  port: 8001
+
+# Rest Error(1)
+  error:
+    whitelabel:
+      enabled: false
+
+# Rest Error(2)
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+      
+# Database
+  datasource:
+    hikari:
+      driver-class-name: org.mariadb.jdbc.Driver
+      jdbc-url: jdbc:mariadb://localhost:13306/microservice
+      username: root
+      password: root
+
+# Init SQL      
+  sql:
+    init:
+      mode: always
+      schema-locations: 
+        - classpath:sql/schema-member.sql
+      
+# JPA
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+ 
+# Kafka
+  kafka:
+    producer:
+      bootstrap-servers: localhost:19092
+    consumer:
+      bootstrap-servers: localhost:19092
+      auto-offset-reset: earliest
+      group-id: ${spring.application.name}
+      
+# Redis
+  redis:
+    host: localhost
+    port: 17617
+
+# Swagger
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+  cache:
+    disabled: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, env, refresh, beans, loggers
+        
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    status-page-url: http://localhost:${server.port}/swagger-ui/index.html
+    
+# Feign
+feign:
+  okhttp:
+    enabled: true
