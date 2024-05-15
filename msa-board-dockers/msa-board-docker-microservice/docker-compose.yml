@@ -1,0 +1,46 @@
+version: '3'
+
+networks:
+  msa-board-microservice-network:
+    name: msa-board-microservice-network
+    driver: bridge
+  msa-board-cloud-network:
+    name: msa-board-cloud-network
+    driver: bridge
+    external: true
+  msa-board-kafka-network:
+    name: msa-board-kafka-network
+    driver: bridge
+    external: true
+  msa-board-redis-network:
+    name: msa-board-redis-network
+    driver: bridge
+    external: true
+  msa-board-mariadb-network:
+    name: msa-board-mariadb-network
+    driver: bridge
+    external: true
+
+services:
+
+  msa-board-microservice-member:
+    build:
+      context: ../../msa-board-microservices/msa-board-microservice-member
+    image: msa-board-microservice-member
+    container_name: msa-board-microservice-member
+    hostname: msa-board-microservice-member
+    networks:
+      - msa-board-microservice-network
+      - msa-board-cloud-network
+      - msa-board-kafka-network
+      - msa-board-redis-network
+      - msa-board-mariadb-network
+    ports:
+      - 18001:8001
+    volumes:
+      - ./libs:/app/libs
+    command:
+      - "--spring.config.import=configserver:http://msa-board-cloud-config:8888"
+      - "--spring.profiles.active=docker"
+      - "--eureka.instance.instance-id=msa-board-microservice-member"
+      - "--eureka.instance.status-page-url=http://localhost:18001/swagger-ui/index.html"
