@@ -13,6 +13,7 @@
 		<module>msa-board-core-redis</module>
 		<module>msa-board-core-kafka</module>
 		<module>msa-board-core-web</module>
+		<module>msa-board-core-persist</module>
 	</modules>
 
 	<dependencies>
