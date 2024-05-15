@@ -29,6 +29,7 @@
 		<spring-boot.redisson.version>3.17.7</spring-boot.redisson.version>
 		<embedded.redis.version>0.7.2</embedded.redis.version>
 		<mapstruct.version>1.5.2.Final</mapstruct.version>
+		<jjwt.version>0.9.1</jjwt.version>
 	</properties>
 
 	<dependencies>
@@ -73,6 +74,12 @@
 				<groupId>org.mapstruct</groupId>
 				<artifactId>mapstruct</artifactId>
 				<version>${mapstruct.version}</version>
+			</dependency>
+			<!-- JWT -->
+			<dependency>
+				<groupId>io.jsonwebtoken</groupId>
+				<artifactId>jjwt</artifactId>
+				<version>${jjwt.version}</version>
 			</dependency>
 			<!-- MSA Board Common -->
 			<dependency>
