@@ -108,6 +108,18 @@
 				<artifactId>msa-board-core-validation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- MSA Board Member Domain -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-domain-member</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Post Domain -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-domain-post</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
