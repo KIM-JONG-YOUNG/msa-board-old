@@ -15,7 +15,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 @Configuration
-@EnableTransactionManagement
 @EntityScan(basePackages = {
 		"com.jong.msa.board.**.entity", 
 		"com.jong.msa.board.**.converter"	})
