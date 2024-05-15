@@ -208,9 +208,6 @@ public class MemberMicroserviceTest {
 
 		verify(service, times(1)).getMember(eq(entity.getId()));
 
-		System.out.println(firstResult.getResponse().getContentAsString());
-		System.out.println(secondResult.getResponse().getContentAsString());
-		
 		assertEquals(firstMember.getId(), secondMember.getId());
 		assertEquals(firstMember.getUsername(), secondMember.getUsername());
 		assertEquals(firstMember.getName(), secondMember.getName());
