@@ -48,4 +48,43 @@
 		</dependency>
 	</dependencies>
 
+	<build>
+		<plugins>
+			<!-- QClass 생성 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<annotationProcessors>
+						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+						<annotationProcessor>com.querydsl.apt.jpa.JPAAnnotationProcessor</annotationProcessor>
+					</annotationProcessors>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>com.querydsl</groupId>
+							<artifactId>querydsl-apt</artifactId>
+							<version>${querydsl.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>javax.annotation</groupId>
+							<artifactId>javax.annotation-api</artifactId>
+							<version>${javax-annotation.version}</version>
+						</path>
+						<dependency>
+							<groupId>javax.persistence</groupId>
+							<artifactId>javax.persistence-api</artifactId>
+							<version>${javax-persistence.version}</version>
+						</dependency>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
