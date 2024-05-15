@@ -9,6 +9,11 @@
 	<artifactId>msa-board-core-web</artifactId>
 
 	<dependencies>
+		<!-- MSA Board Common -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-common</artifactId>
+		</dependency>
 		<!-- Spring Boot WEB -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
