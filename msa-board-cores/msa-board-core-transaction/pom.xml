@@ -19,6 +19,18 @@
 			<groupId>com.jong</groupId>
 			<artifactId>msa-board-core-persist</artifactId>
 		</dependency>
+		<!-- Embedded Redis -->
+		<dependency>
+			<groupId>it.ozimov</groupId>
+			<artifactId>embedded-redis</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- H2 -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 </project>
