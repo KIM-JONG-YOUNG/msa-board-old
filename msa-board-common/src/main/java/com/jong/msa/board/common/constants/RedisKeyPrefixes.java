@@ -8,4 +8,6 @@ public final class RedisKeyPrefixes {
 	public static final String POST_KEY = "post::";
 	public static final String POST_LOCK_KEY = "post::lock::";
 
+	public static final String TOKENS_KEY = "tokens::";
+
 }
