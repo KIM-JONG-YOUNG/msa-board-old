@@ -127,6 +127,24 @@
 				<artifactId>msa-board-domain-post</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- MSA Board Member Client -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-client-member</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Post Client -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-client-post</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Search Client -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-client-search</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
