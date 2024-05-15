@@ -28,6 +28,7 @@
 		<springdoc.openapi-ui.version>1.7.0</springdoc.openapi-ui.version>
 		<spring-boot.redisson.version>3.17.7</spring-boot.redisson.version>
 		<embedded.redis.version>0.7.2</embedded.redis.version>
+		<mapstruct.version>1.5.2.Final</mapstruct.version>
 	</properties>
 
 	<dependencies>
@@ -66,6 +67,12 @@
 				<groupId>it.ozimov</groupId>
 				<artifactId>embedded-redis</artifactId>
 				<version>${embedded.redis.version}</version>
+			</dependency>
+			<!-- Mapstruct -->
+			<dependency>
+				<groupId>org.mapstruct</groupId>
+				<artifactId>mapstruct</artifactId>
+				<version>${mapstruct.version}</version>
 			</dependency>
 			<!-- MSA Board Common -->
 			<dependency>
