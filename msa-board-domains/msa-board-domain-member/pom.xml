@@ -6,5 +6,5 @@
 		<artifactId>msa-board-domains</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>msa-board-doamin-member</artifactId>
+	<artifactId>msa-board-domain-member</artifactId>
 </project>

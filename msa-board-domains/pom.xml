@@ -10,7 +10,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>msa-board-doamin-member</module>
+		<module>msa-board-domain-member</module>
 		<module>msa-board-domain-post</module>
 	</modules>
 	
