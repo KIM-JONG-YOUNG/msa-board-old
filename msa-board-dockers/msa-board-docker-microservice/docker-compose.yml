@@ -44,3 +44,25 @@ services:
       - "--spring.profiles.active=docker"
       - "--eureka.instance.instance-id=msa-board-microservice-member"
       - "--eureka.instance.status-page-url=http://localhost:18001/swagger-ui/index.html"
+      
+  msa-board-microservice-post:
+    build:
+      context: ../../msa-board-microservices/msa-board-microservice-post
+    image: msa-board-microservice-post
+    container_name: msa-board-microservice-post
+    hostname: msa-board-microservice-post
+    networks:
+      - msa-board-microservice-network
+      - msa-board-cloud-network
+      - msa-board-kafka-network
+      - msa-board-redis-network
+      - msa-board-mariadb-network
+    ports:
+      - 18002:8002
+    volumes:
+      - ./libs:/app/libs
+    command:
+      - "--spring.config.import=configserver:http://msa-board-cloud-config:8888"
+      - "--spring.profiles.active=docker"
+      - "--eureka.instance.instance-id=msa-board-microservice-post"
+      - "--eureka.instance.status-page-url=http://localhost:18002/swagger-ui/index.html"
