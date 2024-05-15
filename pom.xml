@@ -78,6 +78,12 @@
 				<artifactId>msa-board-core-persist</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- MSA Board WEB Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-web</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
