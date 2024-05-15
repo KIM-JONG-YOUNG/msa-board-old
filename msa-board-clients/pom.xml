@@ -8,4 +8,50 @@
 	</parent>
 	<artifactId>msa-board-clients</artifactId>
 	<packaging>pom</packaging>
+
+	<dependencies>
+		<!-- MSA Board Feign Core -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-core-feign</artifactId>
+		</dependency>
+		<!-- MSA Board Validation Core -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-core-validation</artifactId>
+		</dependency>
+		<!-- SpringDoc OpenAPI UI -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+		</dependency>
+		<!-- Spring Boot Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Maven Jar 생셩 경로 지정 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>../target</outputDirectory>
+				</configuration>
+			</plugin>
+			<!-- Spring Boot Excutable Jar 생성 스킵 -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>

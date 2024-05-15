@@ -25,6 +25,7 @@
 	<properties>
 		<java.version>1.8</java.version>
 		<spring-cloud.version>2021.0.9</spring-cloud.version>
+		<springdoc.openapi-ui.version>1.7.0</springdoc.openapi-ui.version>
 		<spring-boot.redisson.version>3.17.7</spring-boot.redisson.version>
 		<embedded.redis.version>0.7.2</embedded.redis.version>
 	</properties>
@@ -47,6 +48,12 @@
 				<version>${spring-cloud.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<!-- SpringDoc OpenAPI UI -->
+			<dependency>
+				<groupId>org.springdoc</groupId>
+				<artifactId>springdoc-openapi-ui</artifactId>
+				<version>${springdoc.openapi-ui.version}</version>
 			</dependency>
 			<!-- Spring Boot Redisson -->
 			<dependency>
