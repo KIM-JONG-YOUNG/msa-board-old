@@ -9,6 +9,10 @@
 	<artifactId>msa-board-microservices</artifactId>
 	<packaging>pom</packaging>
 
+	<modules>
+		<module>msa-board-microservice-member</module>
+	</modules>
+
 	<dependencies>
 		<!-- MSA Board Transaction Core -->
 		<dependency>
