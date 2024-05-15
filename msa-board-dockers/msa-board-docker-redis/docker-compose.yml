@@ -1,0 +1,98 @@
+version: '3'
+
+networks:
+  msa-board-redis-network:
+    name: msa-board-redis-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.10.0/24
+    
+services:
+
+  msa-board-redis-node-1:
+    image: redis:7
+    container_name: msa-board-redis-node-1
+    hostname: msa-board-redis-node-1
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+    networks:
+      msa-board-redis-network:
+        ipv4_address: 10.10.10.10
+    command: > 
+      redis-server 
+      	--cluster-enabled yes
+      	--cluster-config-file nodes.conf
+      	--cluster-node-timeout 3000
+      	--appendonly yes
+
+  msa-board-redis-node-2:
+    image: redis:7
+    container_name: msa-board-redis-node-2
+    hostname: msa-board-redis-node-2
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+    networks:
+      msa-board-redis-network:
+        ipv4_address: 10.10.10.20
+    command: > 
+      redis-server 
+      	--cluster-enabled yes
+      	--cluster-config-file nodes.conf
+      	--cluster-node-timeout 3000
+      	--appendonly yes
+
+  msa-board-redis-node-3:
+    image: redis:7
+    container_name: msa-board-redis-node-3
+    hostname: msa-board-redis-node-3
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+    networks:
+      msa-board-redis-network:
+        ipv4_address: 10.10.10.30
+    command: > 
+      redis-server 
+      	--cluster-enabled yes
+      	--cluster-config-file nodes.conf
+      	--cluster-node-timeout 3000
+      	--appendonly yes
+
+  msa-board-redis-cluster:
+    image: redis:7
+    container_name: msa-board-redis-cluster
+    hostname: msa-board-redis-cluster
+    networks:
+      - msa-board-redis-network
+    command: >
+      redis-cli 
+      	--cluster create 
+      	--cluster-yes 
+      	--cluster-replicas 0
+      	10.10.10.10:6379
+      	10.10.10.20:6379
+      	10.10.10.30:6379
+    depends_on:
+      - msa-board-redis-node-1
+      - msa-board-redis-node-2
+      - msa-board-redis-node-3 
+
+  msa-board-redis-predixy:
+    image: haandol/predixy:latest
+    container_name: msa-board-redis-predixy
+    hostname: msa-board-redis-predixy
+    networks:
+      - msa-board-redis-network
+    ports:
+      - 17617:7617
+    volumes:
+      - ./cluster.conf:/etc/predixy/conf/cluster.conf
+    depends_on:
+      - msa-board-redis-node-1
+      - msa-board-redis-node-2
+      - msa-board-redis-node-3 
+      - msa-board-redis-cluster 
+

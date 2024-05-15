@@ -1,0 +1,92 @@
+version: '3'
+
+networks:
+  msa-board-kafka-network:
+    name: msa-board-kafka-network
+    driver: bridge
+
+services:
+
+  msa-board-zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.1
+    container_name: msa-board-zookeeper
+    hostname: msa-board-zookeeper
+    networks:
+      - msa-board-kafka-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - LOG_DIR=/logs
+
+  msa-board-kafka-node-1:
+    image: confluentinc/cp-kafka:5.3.1
+    container_name: msa-board-kafka-node-1
+    hostname: msa-board-kafka-node-1
+    networks:
+      - msa-board-kafka-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=msa-board-zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:19092
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://msa-board-kafka-node-1:9092,EXTERNAL://localhost:19092
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_NUM_PARTITIONS=1
+      - KAFKA_LOG_DIRS=/logs
+    ports:
+      - 19092:19092
+    depends_on:
+      - msa-board-zookeeper
+
+  msa-board-kafka-node-2:
+    image: confluentinc/cp-kafka:5.3.1
+    container_name: msa-board-kafka-node-2
+    hostname: msa-board-kafka-node-2
+    networks:
+      - msa-board-kafka-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - KAFKA_BROKER_ID=2
+      - KAFKA_ZOOKEEPER_CONNECT=msa-board-zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:29092
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://msa-board-kafka-node-2:9092,EXTERNAL://localhost:29092
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_NUM_PARTITIONS=1
+      - KAFKA_LOG_DIRS=/logs
+    ports:
+      - 29092:29092
+    depends_on:
+      - msa-board-zookeeper
+
+  msa-board-kafka-node-3:
+    image: confluentinc/cp-kafka:5.3.1
+    container_name: msa-board-kafka-node-3
+    hostname: msa-board-kafka-node-3
+    networks:
+      - msa-board-kafka-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - KAFKA_BROKER_ID=3
+      - KAFKA_ZOOKEEPER_CONNECT=msa-board-zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=INTERNAL://0.0.0.0:9092,EXTERNAL://0.0.0.0:39092
+      - KAFKA_ADVERTISED_LISTENERS=INTERNAL://msa-board-kafka-node-3:9092,EXTERNAL://localhost:39092
+      - KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_NUM_PARTITIONS=1
+      - KAFKA_LOG_DIRS=/logs
+    ports:
+      - 39092:39092
+    depends_on:
+      - msa-board-zookeeper

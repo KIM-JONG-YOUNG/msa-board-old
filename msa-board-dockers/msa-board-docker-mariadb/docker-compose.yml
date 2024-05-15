@@ -1,0 +1,59 @@
+version: '3'
+
+networks:
+  msa-board-mariadb-network:
+    name: msa-board-mariadb-network
+    driver: bridge
+
+services:
+
+  msa-board-mariadb-member:
+    image: mariadb:10.3
+    container_name: msa-board-mariadb-member
+    hostname: msa-board-mariadb-member
+    networks:
+      - msa-board-mariadb-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - MYSQL_DATABASE=microservice
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 13306:3306
+    command: 
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+
+  msa-board-mariadb-post:
+    image: mariadb:10.3
+    container_name: msa-board-mariadb-post
+    hostname: msa-board-mariadb-post
+    networks:
+      - msa-board-mariadb-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - MYSQL_DATABASE=microservice
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 23306:3306
+    command: 
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+      
+  msa-board-mariadb-search:
+    image: mariadb:10.3
+    container_name: msa-board-mariadb-search
+    hostname: msa-board-mariadb-search
+    networks:
+      - msa-board-mariadb-network
+    environment:
+      - TZ=Asia/Seoul
+      - LC_ALL=C.UTF-8
+      - MYSQL_DATABASE=microservice
+      - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - 33306:3306
+    command: 
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
