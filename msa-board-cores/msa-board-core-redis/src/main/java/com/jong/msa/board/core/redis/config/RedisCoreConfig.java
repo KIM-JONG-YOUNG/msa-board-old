@@ -30,8 +30,7 @@ public class RedisCoreConfig {
 
 		org.redisson.config.Config config = new Config();
 
-		config.useSingleServer().setAddress(
-				new StringBuilder("redis://").append(host).append(":").append(port).toString());
+		config.useSingleServer().setAddress(String.format("redis://%s:%s", host, port));
 		
 		return Redisson.create(config);
 	}
