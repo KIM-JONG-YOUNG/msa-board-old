@@ -11,6 +11,7 @@
 
 	<modules>
 		<module>msa-board-doamin-member</module>
+		<module>msa-board-domain-post</module>
 	</modules>
 	
 	<dependencies>
