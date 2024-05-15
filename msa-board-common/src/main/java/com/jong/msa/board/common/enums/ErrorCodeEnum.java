@@ -36,4 +36,15 @@ public interface ErrorCodeEnum {
 		private final String message;
 	}
 
+	@Getter
+	@RequiredArgsConstructor
+	public static enum PostErrorCode implements ErrorCodeEnum {
+
+		NOT_FOUND_POST("POST-001", "존재하지 않는 게시글입니다."), 
+		NOT_FOUND_POST_WRITER("POST-002", "존재하지 않는 작성자입니다.");
+
+		private final String code;
+		private final String message;
+	}
+
 }
