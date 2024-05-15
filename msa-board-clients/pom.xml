@@ -11,6 +11,7 @@
 
 	<modules>
 		<module>msa-board-client-member</module>
+		<module>msa-board-client-post</module>
 	</modules>
 
 	<dependencies>
