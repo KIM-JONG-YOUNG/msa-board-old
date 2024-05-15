@@ -8,4 +8,80 @@
 	</parent>
 	<artifactId>msa-board-domains</artifactId>
 	<packaging>pom</packaging>
+
+	<dependencies>
+		<!-- MSA Board Persist Core -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-core-persist</artifactId>
+		</dependency>
+		<!-- Spring Boot Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- H2 -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- QClass 생성 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<encoding>UTF-8</encoding>
+					<annotationProcessors>
+						<annotationProcessor>lombok.launch.AnnotationProcessorHider$AnnotationProcessor</annotationProcessor>
+						<annotationProcessor>com.querydsl.apt.jpa.JPAAnnotationProcessor</annotationProcessor>
+					</annotationProcessors>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>com.querydsl</groupId>
+							<artifactId>querydsl-apt</artifactId>
+							<version>${querydsl.version}</version>
+						</path>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+						<path>
+							<groupId>javax.annotation</groupId>
+							<artifactId>javax.annotation-api</artifactId>
+							<version>${javax-annotation.version}</version>
+						</path>
+						<dependency>
+							<groupId>javax.persistence</groupId>
+							<artifactId>javax.persistence-api</artifactId>
+							<version>${javax-persistence.version}</version>
+						</dependency>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			<!-- Maven Jar 생셩 경로 지정 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<outputDirectory>../target</outputDirectory>
+				</configuration>
+			</plugin>
+			<!-- Spring Boot Excutable Jar 생성 스킵 -->
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 </project>
