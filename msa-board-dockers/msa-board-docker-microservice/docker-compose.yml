@@ -66,3 +66,25 @@ services:
       - "--spring.profiles.active=docker"
       - "--eureka.instance.instance-id=msa-board-microservice-post"
       - "--eureka.instance.status-page-url=http://localhost:18002/swagger-ui/index.html"
+      
+  msa-board-microservice-search:
+    build:
+      context: ../../msa-board-microservices/msa-board-microservice-search
+    image: msa-board-microservice-search
+    container_name: msa-board-microservice-search
+    hostname: msa-board-microservice-search
+    networks:
+      - msa-board-microservice-network
+      - msa-board-cloud-network
+      - msa-board-kafka-network
+      - msa-board-redis-network
+      - msa-board-mariadb-network
+    ports:
+      - 18003:8003
+    volumes:
+      - ./libs:/app/libs
+    command:
+      - "--spring.config.import=configserver:http://msa-board-cloud-config:8888"
+      - "--spring.profiles.active=docker"
+      - "--eureka.instance.instance-id=msa-board-microservice-search"
+      - "--eureka.instance.status-page-url=http://localhost:18003/swagger-ui/index.html"
