@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.jong</groupId>
+		<artifactId>msa-board-microservices</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>msa-board-microservice-search</artifactId>
+
+	<dependencies>
+		<!-- MSA Board Member Domain -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-domain-member</artifactId>
+		</dependency>
+		<!-- MSA Board Post Domain -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-domain-post</artifactId>
+		</dependency>
+		<!-- MSA Board Search Client -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-client-search</artifactId>
+		</dependency>
+	</dependencies>
+	
+</project>

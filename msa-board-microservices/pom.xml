@@ -12,6 +12,7 @@
 	<modules>
 		<module>msa-board-microservice-member</module>
 		<module>msa-board-microservice-post</module>
+		<module>msa-board-microservice-search</module>
 	</modules>
 
 	<dependencies>
