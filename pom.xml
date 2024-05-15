@@ -66,6 +66,12 @@
 				<artifactId>msa-board-common</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<!-- MSA Board Kafka Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-kafka</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<!-- MSA Board Redis Core -->
 			<dependency>
 				<groupId>com.jong</groupId>
@@ -82,6 +88,24 @@
 			<dependency>
 				<groupId>com.jong</groupId>
 				<artifactId>msa-board-core-web</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Transaction Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-transaction</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Feign Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-feign</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Validation Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-validation</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 		</dependencies>
