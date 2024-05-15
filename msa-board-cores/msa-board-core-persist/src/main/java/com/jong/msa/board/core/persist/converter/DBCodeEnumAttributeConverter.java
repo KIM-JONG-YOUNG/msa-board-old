@@ -6,6 +6,8 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import com.jong.msa.board.common.enums.DBCodeEnum;
+import com.jong.msa.board.common.enums.DBCodeEnum.Gender;
+import com.jong.msa.board.common.enums.DBCodeEnum.Group;
 import com.jong.msa.board.common.enums.DBCodeEnum.State;
 
 import lombok.AccessLevel;
@@ -30,6 +32,22 @@ public abstract class DBCodeEnumAttributeConverter<E extends Enum<E> & DBCodeEnu
 				.orElseThrow(() -> new EnumConstantNotPresentException(enumType, (String) dbData));
 	}
 	
+	@Converter(autoApply = true)
+	public static class GenderConverter extends DBCodeEnumAttributeConverter<Gender, Character> {
+
+		protected GenderConverter() {
+			super(Gender.class);
+		}
+	}
+
+	@Converter(autoApply = true)
+	public static class GroupConverter extends DBCodeEnumAttributeConverter<Group, Integer> {
+
+		protected GroupConverter() {
+			super(Group.class);
+		}
+	}
+
 	@Converter(autoApply = true)
 	public static class StateConverter extends DBCodeEnumAttributeConverter<State, Integer> {
 
