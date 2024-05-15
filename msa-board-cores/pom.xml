@@ -16,6 +16,7 @@
 		<module>msa-board-core-persist</module>
 		<module>msa-board-core-transaction</module>
 		<module>msa-board-core-feign</module>
+		<module>msa-board-core-validation</module>
 	</modules>
 
 	<dependencies>
