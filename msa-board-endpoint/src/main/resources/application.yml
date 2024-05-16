@@ -1,6 +1,6 @@
 spring:
   application:
-    name: msa-board-endpoint
+    name: endpoint-msa-board
   config:
     import: optional:configserver:http://localhost:8888
   profiles:
