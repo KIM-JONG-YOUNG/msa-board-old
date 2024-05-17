@@ -17,6 +17,7 @@
 		<module>msa-board-core-transaction</module>
 		<module>msa-board-core-feign</module>
 		<module>msa-board-core-validation</module>
+		<module>msa-board-core-security</module>
 	</modules>
 
 	<dependencies>
