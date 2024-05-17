@@ -1,0 +1,15 @@
+# Redis      
+spring:
+  redis:
+    host: localhost
+    port: 6379
+
+# JWT    
+jwt:
+  accessToken:
+    secretKey: access-token-secretkey
+    expireSeconds: 600
+  refreshToken:
+    secretKey: refresh-token-secretkey
+    expireSeconds: 6000
+    
