@@ -50,3 +50,26 @@ services:
       - "--eureka.instance.instance-id=msa-board-endpoint-admin"
       - "--eureka.instance.status-page-url=http://localhost:18000/swagger-ui/index.html"
       
+  msa-board-endpoint-user:
+    build:
+      context: ../../msa-board-endpoints/msa-board-endpoint-user
+    image: msa-board-endpoint-user
+    container_name: msa-board-endpoint-user
+    hostname: msa-board-endpoint-user
+    networks:
+      - msa-board-endpoint-network
+      - msa-board-microservice-network
+      - msa-board-cloud-network
+      - msa-board-kafka-network
+      - msa-board-redis-network
+      - msa-board-mariadb-network
+    ports:
+      - 19000:9000
+    volumes:
+      - ./libs:/app/libs
+    command:
+      - "--spring.config.import=configserver:http://msa-board-cloud-config:8888"
+      - "--spring.profiles.active=docker"
+      - "--eureka.instance.instance-id=msa-board-endpoint-user"
+      - "--eureka.instance.status-page-url=http://localhost:19000/swagger-ui/index.html"
+      
