@@ -1,0 +1,61 @@
+# Service Port
+server:
+  port: 8000
+
+# Rest Error(1) 
+  error:
+    whitelabel:
+      enabled: false
+
+# Rest Error(2)
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+      
+# Redis
+  redis:
+    host: msa-board-redis-predixy
+    port: 7617
+
+# Swagger
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+  cache:
+    disabled: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, env, refresh, beans, loggers
+        
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://msa-board-cloud-eureka:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+    
+# Feign
+feign:
+  okhttp:
+    enabled: true
+
+# JWT    
+jwt:
+  accessToken:
+    secretKey: access-token-secretkey
+    expireSeconds: 600
+  refreshToken:
+    secretKey: refresh-token-secretkey
+    expireSeconds: 6000
+    
