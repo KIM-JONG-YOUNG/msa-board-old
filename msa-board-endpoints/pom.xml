@@ -9,6 +9,10 @@
 	<artifactId>msa-board-endpoints</artifactId>
 	<packaging>pom</packaging>
 
+	<modules>
+		<module>msa-board-endpoint-admin</module>
+	</modules>
+
 	<dependencies>
 		<!-- MSA Board Security Core -->
 		<dependency>
