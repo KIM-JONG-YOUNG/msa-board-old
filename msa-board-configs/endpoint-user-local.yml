@@ -1,0 +1,64 @@
+# Service Port
+server:
+  port: 9000
+
+# Rest Error(1) 
+  error:
+    whitelabel:
+      enabled: false
+
+# Rest Error(2)
+spring:
+  mvc:
+    throw-exception-if-no-handler-found: true
+  web:
+    resources:
+      add-mappings: false
+      
+# Redis
+  redis:
+    host: localhost
+    port: 17617
+
+# Swagger
+springdoc:
+  swagger-ui:
+    operations-sorter: alpha
+    tags-sorter: alpha
+  cache:
+    disabled: true
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, env, refresh, beans, loggers
+        
+# Eureka Client
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    status-page-url: http://localhost:${server.port}/swagger-ui/index.html
+
+# Feign
+feign:
+  okhttp:
+    enabled: true
+
+# JWT    
+jwt:
+  accessToken:
+    secretKey: access-token-secretkey
+    expireSeconds: 600
+  refreshToken:
+    secretKey: refresh-token-secretkey
+    expireSeconds: 6000
+    
