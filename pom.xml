@@ -20,6 +20,7 @@
 		<module>msa-board-microservices</module>
 		<module>msa-board-clouds</module>
 		<module>msa-board-endpoint</module>
+		<module>msa-board-endpoints</module>
 	</modules>
 
 	<properties>
@@ -127,6 +128,12 @@
 			<dependency>
 				<groupId>com.jong</groupId>
 				<artifactId>msa-board-core-validation</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Security Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-core-security</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<!-- MSA Board Member Domain -->
