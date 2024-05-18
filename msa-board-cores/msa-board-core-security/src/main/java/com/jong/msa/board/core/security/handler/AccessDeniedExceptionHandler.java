@@ -18,7 +18,7 @@ import com.jong.msa.board.core.web.response.ErrorResponse;
 
 @Order(Ordered.LOWEST_PRECEDENCE + 1)
 @RestControllerAdvice
-public class SecurityErrorResponseHandler {
+public class AccessDeniedExceptionHandler {
 
 	@ExceptionHandler(AccessDeniedException.class)
 	ResponseEntity<ErrorResponse> handleAccessDeniedException(
