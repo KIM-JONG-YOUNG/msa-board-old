@@ -44,7 +44,7 @@ export default function LoginForm(prop: {
           <div className="col-xl-8 mb-3">
             <label className="form-label subheading">Username</label>
             <input type="text" className="form-control" placeholder="Username..." {...usernameRegister} />
-            {errors.username && <span className='text-danger'>{errors.username.message}</span>}
+            {errors.username && <div className='text-danger'>{errors.username.message}</div>}
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export default function LoginForm(prop: {
           <div className="col-xl-8 mb-3">
             <label className="form-label subheading">Password</label>
             <input type="password" className="form-control" placeholder="Password..."  {...passwordRegister} />
-            {errors.password && <span className='text-danger'>{errors.password.message}</span>}
+            {errors.password && <div className='text-danger'>{errors.password.message}</div>}
           </div>
         </div>
 
