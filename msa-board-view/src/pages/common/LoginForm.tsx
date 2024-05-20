@@ -12,12 +12,8 @@ export default function LoginForm(prop: {
   loginType: LOGIN_TYPE
 }) {
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>({
-    mode: "onBlur",
-    defaultValues: {
-      username: "",
-      password: ""
-    }
+  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormInputs>({ 
+    mode: "onBlur" 
   });
   const usernameRegister = register("username", {
     required: "계정은 비어있을 수 없습니다.",
