@@ -30,13 +30,13 @@ export default function LoginForm(prop: {
     required: "비밀번호는 비어있을 수 없습니다."
   });
 
-  const login = (loginForm: LoginFormInputs) => {
-    console.log("Login Form Data: ", loginForm);
+  const login = (loginFormData: LoginFormInputs) => {
+    console.log("Login Form Data: ", loginFormData);
   }
 
   return (
     // <!-- Login Member -->
-    <section className="resume-section" id="loginAdminForm">
+    <section className="resume-section">
       <div className="resume-section-content">
 
         <h1 className="mb-4">
