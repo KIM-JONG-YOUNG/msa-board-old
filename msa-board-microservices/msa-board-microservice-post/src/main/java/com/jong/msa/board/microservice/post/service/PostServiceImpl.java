@@ -4,6 +4,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.redis.aspect.RedisCaching;
 import com.jong.msa.board.core.redis.aspect.RedisRemove;
 import com.jong.msa.board.core.transaction.aspect.DistributeTransaction;
+import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.domain.post.entity.PostEntity;
 import com.jong.msa.board.domain.post.repository.PostRepository;
 import com.jong.msa.board.microservice.post.event.PostSaveEvent;
@@ -49,7 +51,8 @@ public class PostServiceImpl implements PostService {
 			String errorCode = e.getErrorResponse().getErrorCode();
 			
 			throw (MemberErrorCode.NOT_FOUND_MEMBER.getCode().equals(errorCode)) 
-				? PostServiceException.notFoundPostWriter() : e; 
+				? PostServiceException.notFoundPostWriter() 
+				: RestServiceException.uncheckedError(HttpStatus.BAD_GATEWAY);
 		}
 	}
 	
