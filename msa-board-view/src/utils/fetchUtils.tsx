@@ -7,13 +7,13 @@ export interface IFetchOption {
   readonly body?: BodyInit,
 }
 
-export interface IFetchResult {
+export interface IFetchResponse {
   readonly status: number,
   readonly headers: HeadersInit,
   readonly body: any
 }
 
-export async function fetchData(option: IFetchOption): Promise<IFetchResult> {
+export async function fetchData(option: IFetchOption): Promise<IFetchResponse> {
 
   const response = await fetch(
     !!option.query ? `${option.url}?${option.query}` : option.url, 
@@ -41,7 +41,7 @@ export async function fetchData(option: IFetchOption): Promise<IFetchResult> {
   }
 }
 
-export function fetchDataInAuth(option: IFetchOption): Promise<IFetchResult> {
+export function fetchDataInAuth(option: IFetchOption): Promise<IFetchResponse> {
 
   const accessToken = sessionStorage.getItem("Access-Token");
 
