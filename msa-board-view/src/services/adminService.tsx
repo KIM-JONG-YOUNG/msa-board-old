@@ -1,5 +1,5 @@
 import { fetchData, fetchDataInAuth } from "../utils/fetchUtils";
-import { GROUP, GENDER, STATE } from './../constants/Constants';
+import { GROUP, GENDER, STATE, MEMBER_SORT, ORDER } from './../constants/Constants';
 
 const endpointURL = "http://localhost:8000";
 
@@ -37,7 +37,8 @@ export interface IAdminSearchMemberParam {
     state: keyof typeof STATE,
     offset: number,
     limit: number,
-    
+    sort: keyof typeof MEMBER_SORT,
+    order: keyof typeof ORDER
 }
 
 export interface IAdminWritePostParam {
@@ -52,6 +53,18 @@ export interface IAdminModifyPostParam {
 }
 
 export interface IAdminSearchPostParam {
+    title: string,
+    content: string,
+    writerUsername: string,
+    createdDateTimeFrom: string,
+    createdDateTimeTo: string,
+    updatedDateTimeFrom: string,
+    updatedDateTimeTo: string,
+    state: keyof typeof STATE,
+    offset: number,
+    limit: number,
+    sort: keyof typeof MEMBER_SORT,
+    order: keyof typeof ORDER
 }
 
 export const adminService = {
@@ -96,7 +109,7 @@ export const adminService = {
     },
     modifyAdmin: (param: IAdminModifyParam) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins`,
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -105,7 +118,7 @@ export const adminService = {
     },
     modifyAdminPassword: (param: IAdminModifyPasswordParam) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/password`,
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -114,7 +127,7 @@ export const adminService = {
     },
     modifyUser: (userId: string, param: IAdminModifyUserParam) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/users/${userId}`,
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -123,7 +136,7 @@ export const adminService = {
     },
     getMember: (memberId: string) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/members/${memberId}`,
             method: "GET",
             headers: { "Accept": "application/json" }
@@ -135,7 +148,7 @@ export const adminService = {
 
         Object.entries(param).forEach(([key, value]) => urlParam.append(key, value))
         
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/members`,
             method: "GET",
             headers: { "Accept": "application/json" },
@@ -144,7 +157,7 @@ export const adminService = {
     },
     writePost: (param: IAdminWritePostParam) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts`,
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -153,7 +166,7 @@ export const adminService = {
     },
     modifyPost: (postId: string, param: IAdminWritePostParam) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts${postId}`,
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
@@ -162,7 +175,7 @@ export const adminService = {
     },
     getPost: (postId: string) => {
 
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts/${postId}`,
             method: "GET",
             headers: { "Accept": "application/json" }
@@ -174,7 +187,7 @@ export const adminService = {
 
         Object.entries(param).forEach(([key, value]) => urlParam.append(key, value))
         
-        return fetchData({
+        return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts`,
             method: "GET",
             headers: { "Accept": "application/json" },
