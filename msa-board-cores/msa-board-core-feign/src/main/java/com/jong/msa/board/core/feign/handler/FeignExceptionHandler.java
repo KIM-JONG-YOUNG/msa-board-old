@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.jong.msa.board.common.enums.ErrorCodeEnum.CommonErrorCode;
+import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
 import feign.FeignException;
@@ -18,6 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class FeignExceptionHandler {
 
+	@ExceptionHandler(FeignServiceException.class)
+	ResponseEntity<ErrorResponse> handleFeignServiceException(FeignServiceException e) {
+
+		return ResponseEntity.status(e.status())
+				.body(e.getErrorResponse());
+	}
+	
 	@ExceptionHandler(FeignException.class)
 	ResponseEntity<ErrorResponse> handleFeignException(FeignException e) {
 
