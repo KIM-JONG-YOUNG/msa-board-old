@@ -9,10 +9,10 @@
 	<artifactId>msa-board-core-kafka</artifactId>
 
 	<dependencies>
-		<!-- Spring Boot Logging -->
+		<!-- Spring Boot Starter -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-logging</artifactId>
+			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 		<!-- Spring Kafka -->
 		<dependency>
