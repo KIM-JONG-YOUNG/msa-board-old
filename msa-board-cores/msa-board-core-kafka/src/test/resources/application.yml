@@ -3,13 +3,13 @@ spring:
     producer:
       bootstrap-servers: localhost:9092
       properties:
-        max.block.ms: 2000
-        delivery.timeout.ms: 2000
-        request.timeout.ms: 1000
-        retry.backoff.ms: 1000
+        max.block.ms: 2000          # Broker로부터 메시지 전송에 대한 Metadata를 받기까지 최대 대기 시간           
+        delivery.timeout.ms: 2000   # Broker로부터 메시지 전송 실패를 판단하기 위한 최대 대기 시간  
+        request.timeout.ms: 1000    # Broker로 보낸 요청의 최대 대기 시간 
+        retry.backoff.ms: 1000      # 전송 실패 시 재전송을 위한 대기 시간 
     consumer:
       bootstrap-servers: localhost:9092
       auto-offset-reset: earliest
       group-id: test-application 
       properties:
-        retry.backoff.ms: 1000
+        retry.backoff.ms: 1000      # 메시지 소비 실패 시 재전송을 위한 대기 시간
