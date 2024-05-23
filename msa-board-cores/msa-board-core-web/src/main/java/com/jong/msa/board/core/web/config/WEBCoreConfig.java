@@ -7,11 +7,11 @@ import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
@@ -20,7 +20,6 @@ import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import com.jong.msa.board.common.constants.DateTimeFormats;
 
-@EnableWebMvc
 @Configuration
 @ServletComponentScan(basePackages = "com.jong.msa.board.**.filter")
 public class WEBCoreConfig implements WebMvcConfigurer {
@@ -48,6 +47,7 @@ public class WEBCoreConfig implements WebMvcConfigurer {
 				.featuresToDisable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)	// 매핑되지 않은 필드가 존재 시 오류를 발생시키지 않음 
 				.serializationInclusion(JsonInclude.Include.NON_NULL)					// Null 값 필드는 json으로 변환하지 않음  
 				.serializationInclusion(JsonInclude.Include.NON_EMPTY)					// 비어있는 값 필드는 json으로 변환하지 않음 
+				.modules(new JavaTimeModule())
 				.serializers(new LocalTimeSerializer(timeFormatter))
 		        .serializers(new LocalDateSerializer(dateFormatter))
 		        .serializers(new LocalDateTimeSerializer(dateTimeFormatter))
