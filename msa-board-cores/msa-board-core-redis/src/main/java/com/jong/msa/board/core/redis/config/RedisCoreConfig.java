@@ -3,7 +3,10 @@ package com.jong.msa.board.core.redis.config;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -13,24 +16,24 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
+@EnableConfigurationProperties(RedisProperties.class)
 public class RedisCoreConfig {
 
 	@Bean 
-	RedisConnectionFactory redisConnectionFactory(
-			@Value("${spring.redis.host}") String host, 
-			@Value("${spring.redis.port}") int port) {
+	RedisConnectionFactory redisConnectionFactory(RedisProperties properties) {
 		
-		return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
+
+		return new LettuceConnectionFactory(new RedisStandaloneConfiguration(
+				properties.getHost(), properties.getPort()));
 	}
 
 	@Bean
-	RedissonClient redissonClient(
-			@Value("${spring.redis.host}") String host, 
-			@Value("${spring.redis.port}") int port) {
-
+	RedissonClient redissonClient(RedisProperties properties) {
+		
 		org.redisson.config.Config config = new Config();
 
-		config.useSingleServer().setAddress(String.format("redis://%s:%s", host, port));
+		config.useSingleServer().setAddress(
+				String.format("redis://%s:%s", properties.getHost(), properties.getPort()));
 		
 		return Redisson.create(config);
 	}
