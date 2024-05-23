@@ -46,10 +46,17 @@ spring:
   kafka:
     producer:
       bootstrap-servers: msa-board-kafka-node-3:9092
+      properties:
+        max.block.ms: 60000
+        delivery.timeout.ms: 60000
+        request.timeout.ms: 30000
+        retry.backoff.ms: 1000
     consumer:
       bootstrap-servers: msa-board-kafka-node-3:9092
       auto-offset-reset: earliest
       group-id: ${spring.application.name}
+      properties:
+        retry.backoff.ms: 1000
       
 # Redis
   redis:
