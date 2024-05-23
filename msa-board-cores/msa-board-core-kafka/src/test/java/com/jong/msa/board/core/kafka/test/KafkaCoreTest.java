@@ -9,7 +9,6 @@ import java.util.Arrays;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -69,12 +68,10 @@ public class KafkaCoreTest {
 		});
 	}
 	
-	// 테스트 시간이 최소 60초 이상 소요 
-	@Disabled
 	@Test
 	void 존재하지_않는_Topic_전송_오류_처리_테스트() {
 
-		assertThrows(KafkaException.class, () -> kafkaTemplate.send("not-exists-topic", "존재하지 않는 토픽으로 전송하는 메시지"));
+		assertThrows(KafkaException.class, () -> kafkaTemplate.send("not-exists-topic", "존재하지 않는 토픽으로 전송하는 메시지").get());
 		
 		verify(producerErrorHandler, timeout(5000)).onError(any(), any(), any());
 	}
@@ -90,7 +87,7 @@ public class KafkaCoreTest {
 
 			IntStream.range(0, messageSize).forEach(i -> messageBuilder.append("A"));
 			
-			kafkaTemplate.send(KafkaCoreTest.TEST_TOPIC, messageBuilder.toString());
+			kafkaTemplate.send(KafkaCoreTest.TEST_TOPIC, messageBuilder.toString()).get();
 		});
 
 		verify(producerErrorHandler, timeout(5000)).onError(any(), any(), any());
