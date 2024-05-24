@@ -20,8 +20,8 @@ import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.common.enums.DBCodeEnum.Gender;
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.Gender;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
 import com.jong.msa.board.domain.post.entity.PostEntity;

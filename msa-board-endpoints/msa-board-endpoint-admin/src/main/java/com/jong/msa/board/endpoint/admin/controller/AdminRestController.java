@@ -1,6 +1,5 @@
 package com.jong.msa.board.endpoint.admin.controller;
 
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -23,13 +22,10 @@ import com.jong.msa.board.client.search.request.SearchMemberRequest;
 import com.jong.msa.board.client.search.request.SearchPostRequest;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
-import com.jong.msa.board.common.constants.DateTimeFormats;
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
-import com.jong.msa.board.common.enums.ErrorCodeEnum.TokenErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.core.security.exception.RevokedJwtException;
 import com.jong.msa.board.core.security.service.TokenService;
-import com.jong.msa.board.core.security.service.TokenService.TokenGenerateResult;
-import com.jong.msa.board.core.security.service.TokenService.TokenValidResult;
 import com.jong.msa.board.core.security.utils.SecurityContextUtils;
 import com.jong.msa.board.core.validation.utils.BindingResultUtils;
 import com.jong.msa.board.core.web.exception.RestServiceException;
@@ -44,13 +40,13 @@ import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
 public class AdminRestController implements AdminOperations {
-
-	private final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DateTimeFormats.DATE_TIME_FORMAT);
 
 	private final Validator validator;
 	
@@ -86,15 +82,9 @@ public class AdminRestController implements AdminOperations {
 				if (member.getGroup() != Group.ADMIN) {
 					throw AdminServiceException.notAdminGroupUsername();
 				} else {
-					
-					TokenGenerateResult accessTokenResult = tokenService.generateAccessToken(member.getId(), member.getGroup()); 
-					TokenGenerateResult refreshTokenResult = tokenService.generateRefreshToken(member.getId());
-
 					return ResponseEntity.status(HttpStatus.NO_CONTENT)
-							.header("Access-Token", accessTokenResult.getToken())
-							.header("Refresh-Token", refreshTokenResult.getToken())
-							.header("Access-Token-Expired-Time", DATE_TIME_FORMATTER.format(accessTokenResult.getExpiredTime()))
-							.header("Refresh-Token-Expired-Time", DATE_TIME_FORMATTER.format(refreshTokenResult.getExpiredTime()))
+							.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
+							.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
 							.build();
 				}
 			}
@@ -112,37 +102,28 @@ public class AdminRestController implements AdminOperations {
 	@Override
 	public ResponseEntity<Void> refreshAdmin(String refreshToken) {
 
-		TokenValidResult validResult = tokenService.validateRefreshToken(refreshToken);
-		
-		if (validResult.isValid()) {
+		try {
 
-			MemberDetailsResponse member = memberFeignClient.getMember(validResult.getId()).getBody();
+			MemberDetailsResponse member = tokenService.validateRefreshToken(refreshToken, 
+					id -> memberFeignClient.getMember(id).getBody());
 
-			TokenGenerateResult accessTokenResult = tokenService.generateAccessToken(member.getId(), member.getGroup()); 
-			TokenGenerateResult refreshTokenResult = tokenService.generateRefreshToken(member.getId());
+			if (member.getGroup() != Group.ADMIN) {
+				throw AdminServiceException.notAdminGroupRefreshToken();
+			} else {
 
-			tokenService.revokeRefreshToken(refreshToken);
+				tokenService.revokeRefreshToken(refreshToken);
 
-			return ResponseEntity.status(HttpStatus.NO_CONTENT)
-					.header("Access-Token", accessTokenResult.getToken())
-					.header("Refresh-Token", refreshTokenResult.getToken())
-					.header("Access-Token-Expired-Time", DATE_TIME_FORMATTER.format(accessTokenResult.getExpiredTime()))
-					.header("Refresh-Token-Expired-Time", DATE_TIME_FORMATTER.format(refreshTokenResult.getExpiredTime()))
-					.build();
-		} else {
-
-			TokenErrorCode tokenErrorCode = validResult.getErrorCode();
-
-			switch (tokenErrorCode) {
-			case EXPIRED_REFRESH_TOKEN:
-				throw AdminServiceException.expiredRefreshToken();
-			case REVOKED_REFRESH_TOKEN:
-				throw AdminServiceException.revokeRefreshToken();
-			case INVALID_REFRESH_TOKEN:
-				throw AdminServiceException.invalidRefreshToken();
-			default:
-				throw RestServiceException.uncheckedError(HttpStatus.INTERNAL_SERVER_ERROR);
+				return ResponseEntity.status(HttpStatus.NO_CONTENT)
+						.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
+						.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
+						.build();
 			}
+		} catch (ExpiredJwtException e) {
+			throw AdminServiceException.expiredRefreshToken();
+		} catch (RevokedJwtException e) {
+			throw AdminServiceException.revokeRefreshToken();
+		} catch (JwtException e) {
+			throw AdminServiceException.invalidRefreshToken();
 		}
 	}
 

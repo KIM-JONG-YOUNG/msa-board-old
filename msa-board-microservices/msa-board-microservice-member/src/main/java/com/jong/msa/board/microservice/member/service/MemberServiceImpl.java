@@ -13,7 +13,7 @@ import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.core.redis.aspect.RedisCaching;
 import com.jong.msa.board.core.redis.aspect.RedisRemove;
 import com.jong.msa.board.core.transaction.aspect.DistributeTransaction;

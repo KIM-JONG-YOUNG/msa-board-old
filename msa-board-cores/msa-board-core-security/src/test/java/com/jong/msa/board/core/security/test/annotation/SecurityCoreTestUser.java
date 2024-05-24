@@ -14,7 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
 
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
 
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = SecurityCoreTestUser.ContextFactory.class)

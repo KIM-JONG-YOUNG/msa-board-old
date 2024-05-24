@@ -3,8 +3,8 @@ package com.jong.msa.board.client.post.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;

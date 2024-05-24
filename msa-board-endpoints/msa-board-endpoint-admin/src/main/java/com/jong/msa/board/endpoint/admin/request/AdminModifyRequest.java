@@ -1,6 +1,6 @@
 package com.jong.msa.board.endpoint.admin.request;
 
-import com.jong.msa.board.common.enums.DBCodeEnum.Gender;
+import com.jong.msa.board.common.enums.CodeEnum.Gender;
 import com.jong.msa.board.core.validation.annotation.StringValidate;
 import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
 import com.jong.msa.board.core.validation.annotation.StringValidate.PatternCheck;

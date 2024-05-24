@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.jong.msa.board.common.enums.ErrorCodeEnum.CommonErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
 import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -31,7 +31,7 @@ public class FeignExceptionHandler {
 
 		log.error(e.getMessage(), e);
 
-		CommonErrorCode errorCode = CommonErrorCode.UNCHECKED_ERROR;
+		ErrorCode errorCode = ErrorCode.UNCHECKED_ERROR;
 		
 		return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
 				.body(ErrorResponse.builder()

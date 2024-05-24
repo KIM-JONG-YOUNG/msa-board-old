@@ -19,9 +19,9 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.jong.msa.board.common.enums.DBCodeEnum.Gender;
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum.Gender;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.core.persist.test.entity.PersistCoreTestEntity;
 import com.jong.msa.board.core.persist.test.repository.PersistCoreTestRepository;
 

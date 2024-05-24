@@ -14,7 +14,7 @@ import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.ErrorCodeEnum.MemberErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
 import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.redis.aspect.RedisCaching;
 import com.jong.msa.board.core.redis.aspect.RedisRemove;
@@ -50,7 +50,7 @@ public class PostServiceImpl implements PostService {
 			
 			String errorCode = e.getErrorResponse().getErrorCode();
 			
-			throw (MemberErrorCode.NOT_FOUND_MEMBER.getCode().equals(errorCode)) 
+			throw (ErrorCode.NOT_FOUND_MEMBER.getCode().equals(errorCode)) 
 				? PostServiceException.notFoundPostWriter() 
 				: RestServiceException.uncheckedError(HttpStatus.BAD_GATEWAY);
 		}

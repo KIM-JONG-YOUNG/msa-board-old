@@ -39,8 +39,8 @@ import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
-import com.jong.msa.board.common.enums.ErrorCodeEnum.MemberErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 import com.jong.msa.board.domain.post.entity.PostEntity;
@@ -90,7 +90,7 @@ public class PostMicroserviceTest {
 
 		when(memberFeignClient.getMember(eq(notExistsWriterId))).thenThrow(
 				new FeignServiceException(404, ErrorResponse.builder()
-						.errorCode(MemberErrorCode.NOT_FOUND_MEMBER.getCode())
+						.errorCode(ErrorCode.NOT_FOUND_MEMBER.getCode())
 						.build()));
 
 		CreatePostRequest successRequest = CreatePostRequest.builder()

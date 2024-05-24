@@ -17,9 +17,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
+import com.jong.msa.board.core.security.exception.RevokedJwtException;
 import com.jong.msa.board.core.security.service.TokenService;
-import com.jong.msa.board.core.security.service.TokenService.TokenValidResult;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -36,21 +38,28 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
 		if (StringUtils.hasText(accessToken)) {
 
-			TokenValidResult validResult = tokenService.validateAccessToken(accessToken);
-			
-			if (validResult.isValid()) {
+			try {
 
-				String roleName = new StringBuilder("ROLE_").append(validResult.getGroup()).toString();
-						
-				GrantedAuthority authority = new SimpleGrantedAuthority(roleName);
+				Authentication authentication = tokenService.validateAccessToken(accessToken, (id, group) -> {
 
-				Authentication authentication = new UsernamePasswordAuthenticationToken(validResult.getId(), null, Arrays.asList(authority));
-				
+					String roleName = new StringBuilder("ROLE_").append(group).toString();
+					
+					GrantedAuthority authority = new SimpleGrantedAuthority(roleName);
+
+					return new UsernamePasswordAuthenticationToken(id, null, Arrays.asList(authority));
+				});
+
 				SecurityContextHolder.getContext().setAuthentication(authentication);
 
-			} else {
-				request.setAttribute("tokenErrorCode", validResult.getErrorCode());
+			} catch (ExpiredJwtException e) {
+				request.setAttribute("tokenErrorCode", ErrorCode.EXPIRED_ACCESS_TOKEN);
+			} catch (RevokedJwtException e) {
+				request.setAttribute("tokenErrorCode", ErrorCode.REVOKED_ACCESS_TOKEN);
+			} catch (Exception e) {
+				request.setAttribute("tokenErrorCode", ErrorCode.INVALID_ACCESS_TOKEN);
 			}
+		} else {
+			request.setAttribute("tokenErrorCode", ErrorCode.UNAUTHORIZED_MEMBER);
 		}
 
 		filterChain.doFilter(request, response);

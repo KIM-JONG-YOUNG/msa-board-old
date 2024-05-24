@@ -16,7 +16,7 @@ import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;

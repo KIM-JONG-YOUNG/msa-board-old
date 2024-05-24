@@ -4,21 +4,27 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
-import com.jong.msa.board.common.enums.ErrorCodeEnum.TokenErrorCode;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.core.security.config.SecurityConfig.TokenProperties;
+import com.jong.msa.board.core.security.exception.RevokedJwtException;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TokenServiceImpl implements TokenService {
@@ -27,7 +33,7 @@ public class TokenServiceImpl implements TokenService {
 
 	private final RedisTemplate<String, String> redisTemplate;
 
-	private TokenGenerateResult generateToken(UUID id, Group group, String secretKey, long expireSeconds) {
+	private String generateToken(UUID id, Group group, String secretKey, long expireSeconds) {
 
 		LocalDateTime now = LocalDateTime.now();
 		LocalDateTime expireTime = now.plusSeconds(expireSeconds);
@@ -48,14 +54,11 @@ public class TokenServiceImpl implements TokenService {
 		redisTemplate.opsForSet().add(cachingKey, token);
 		redisTemplate.expire(cachingKey, cachingTime, TimeUnit.SECONDS);
 		
-		return TokenGenerateResult.builder()
-				.token(token)
-				.expiredTime(expireTime)
-				.build();
+		return token;
 	}
 	
 	@Override
-	public TokenGenerateResult generateAccessToken(UUID id, Group group) {
+	public String generateAccessToken(UUID id, Group group) {
 		
 		return generateToken(id, group, 
 				properties.getAccessToken().getSecretKey(), 
@@ -63,7 +66,7 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public TokenGenerateResult generateRefreshToken(UUID id) {
+	public String generateRefreshToken(UUID id) {
 
 		return generateToken(id, null, 
 				properties.getRefreshToken().getSecretKey(), 
@@ -71,8 +74,11 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public TokenValidResult validateAccessToken(String accessToken) {
+	public <T> T validateAccessToken(String accessToken, BiFunction<UUID, Group, T> afterFunction) {
 		
+		UUID id = null;
+		Group group = null;
+
 		try {
 
 			Claims claims = Jwts.parser()
@@ -80,72 +86,80 @@ public class TokenServiceImpl implements TokenService {
 					.parseClaimsJws(accessToken)
 					.getBody();
 			
-			UUID id = UUID.fromString(claims.get("id", String.class));
-			Group group = Group.valueOf(claims.get("group", String.class));
+			id = UUID.fromString(claims.get("id", String.class));
+			group = Group.valueOf(claims.get("group", String.class));
 			
-			String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
-
-			if (redisTemplate.opsForSet().isMember(cachingKey, accessToken)) {
-				return TokenValidResult.builder().id(id).group(group).build();
-			} else {
-				return TokenValidResult.builder().errorCode(TokenErrorCode.REVOKED_ACCESS_TOKEN).build();
-			}
 		} catch (ExpiredJwtException e) {
-			return TokenValidResult.builder().errorCode(TokenErrorCode.EXPIRED_ACCESS_TOKEN).build();
+			throw new ExpiredJwtException(e.getHeader(), e.getClaims(), "만료된 Access Token 입니다.", e);
 		} catch (Exception e) {
-			return TokenValidResult.builder().errorCode(TokenErrorCode.INVALID_ACCESS_TOKEN).build();
+			throw new MalformedJwtException("유효하지 않은 Access Token 입니다.", e);
+		}
+
+		String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
+
+		if (!redisTemplate.opsForSet().isMember(cachingKey, accessToken)) {
+			throw new RevokedJwtException("사용할 수 없는 Access Token 입니다.");
+		} else {
+			return afterFunction.apply(id, group);
 		}
 	}
 
 	@Override
-	public TokenValidResult validateRefreshToken(String refreshToken) {
+	public <T> T validateRefreshToken(String accessToken, Function<UUID, T> afterFunction) {
 		
+		UUID id = null;
+
 		try {
 
 			Claims claims = Jwts.parser()
-					.setSigningKey(properties.getRefreshToken().getSecretKey())
-					.parseClaimsJws(refreshToken)
+					.setSigningKey(properties.getAccessToken().getSecretKey())
+					.parseClaimsJws(accessToken)
 					.getBody();
 			
-			UUID id = UUID.fromString(claims.get("id", String.class));
+			id = UUID.fromString(claims.get("id", String.class));
 			
-			String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
-
-			if (redisTemplate.opsForSet().isMember(cachingKey, refreshToken)) {
-				return TokenValidResult.builder().id(id).build();
-			} else {
-				return TokenValidResult.builder().errorCode(TokenErrorCode.REVOKED_REFRESH_TOKEN).build();
-			}
 		} catch (ExpiredJwtException e) {
-			return TokenValidResult.builder().errorCode(TokenErrorCode.EXPIRED_REFRESH_TOKEN).build();
+			throw new ExpiredJwtException(e.getHeader(), e.getClaims(), "만료된 Refresh Token 입니다.", e);
 		} catch (Exception e) {
-			return TokenValidResult.builder().errorCode(TokenErrorCode.INVALID_REFRESH_TOKEN).build();
+			throw new MalformedJwtException("유효하지 않은 Refresh Token 입니다.", e);
+		}
+
+		String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
+
+		if (!redisTemplate.opsForSet().isMember(cachingKey, accessToken)) {
+			throw new RevokedJwtException("사용할 수 없는 Refresh Token 입니다.");
+		} else {
+			return afterFunction.apply(id);
 		}
 	}
 
 	@Override
 	public void revokeAccessToken(String accessToken) {
 
-		TokenValidResult validResult = validateAccessToken(accessToken);
-		
-		if (validResult.isValid()) {
-			
-			String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(validResult.getId()).toString();
+		try {
+
+			String cachingKey = validateAccessToken(accessToken,
+					(id, group) -> new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString());
 
 			redisTemplate.opsForSet().remove(cachingKey, accessToken);
+
+		} catch (JwtException e) {
+			log.warn(e.getMessage());
 		}
 	}
 
 	@Override
 	public void revokeRefreshToken(String refreshToken) {
 
-		TokenValidResult validResult = validateRefreshToken(refreshToken);
-		
-		if (validResult.isValid()) {
-			
-			String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(validResult.getId()).toString();
+		try {
+
+			String cachingKey = validateRefreshToken(refreshToken,
+					id -> new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString());
 
 			redisTemplate.opsForSet().remove(cachingKey, refreshToken);
+
+		} catch (JwtException e) {
+			log.warn(e.getMessage());
 		}
 	}
 

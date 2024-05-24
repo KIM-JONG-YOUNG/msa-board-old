@@ -3,9 +3,6 @@ package com.jong.msa.board.common.enums;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * 검색 시 정렬을 위한 Enum의 인터페이스 
- */
 public interface SortEnum {
 	
 	Order getDefaultOrder();
@@ -40,7 +37,6 @@ public interface SortEnum {
 		UPDATED_DATE_TIME(Order.DESC);
 		
 		private final Order defaultOrder;
-		
 	}
 
 }

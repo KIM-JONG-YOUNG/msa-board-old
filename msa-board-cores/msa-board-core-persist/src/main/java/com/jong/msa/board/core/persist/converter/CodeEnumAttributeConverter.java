@@ -5,16 +5,16 @@ import java.util.EnumSet;
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
-import com.jong.msa.board.common.enums.DBCodeEnum;
-import com.jong.msa.board.common.enums.DBCodeEnum.Gender;
-import com.jong.msa.board.common.enums.DBCodeEnum.Group;
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum;
+import com.jong.msa.board.common.enums.CodeEnum.Gender;
+import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class DBCodeEnumAttributeConverter<E extends Enum<E> & DBCodeEnum<V>, V> implements AttributeConverter<E, V> {
+public abstract class CodeEnumAttributeConverter<E extends Enum<E> & CodeEnum<V>, V> implements AttributeConverter<E, V> {
  
 	private final Class<E> enumType;
 	
@@ -33,7 +33,7 @@ public abstract class DBCodeEnumAttributeConverter<E extends Enum<E> & DBCodeEnu
 	}
 	
 	@Converter(autoApply = true)
-	public static class GenderConverter extends DBCodeEnumAttributeConverter<Gender, Character> {
+	public static class GenderConverter extends CodeEnumAttributeConverter<Gender, Character> {
 
 		protected GenderConverter() {
 			super(Gender.class);
@@ -41,7 +41,7 @@ public abstract class DBCodeEnumAttributeConverter<E extends Enum<E> & DBCodeEnu
 	}
 
 	@Converter(autoApply = true)
-	public static class GroupConverter extends DBCodeEnumAttributeConverter<Group, Integer> {
+	public static class GroupConverter extends CodeEnumAttributeConverter<Group, Integer> {
 
 		protected GroupConverter() {
 			super(Group.class);
@@ -49,7 +49,7 @@ public abstract class DBCodeEnumAttributeConverter<E extends Enum<E> & DBCodeEnu
 	}
 
 	@Converter(autoApply = true)
-	public static class StateConverter extends DBCodeEnumAttributeConverter<State, Integer> {
+	public static class StateConverter extends CodeEnumAttributeConverter<State, Integer> {
 
 		protected StateConverter() {
 			super(State.class);

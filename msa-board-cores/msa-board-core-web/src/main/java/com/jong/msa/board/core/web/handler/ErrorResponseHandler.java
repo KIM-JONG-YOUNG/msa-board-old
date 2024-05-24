@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.jong.msa.board.common.enums.ErrorCodeEnum;
+import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -28,7 +28,7 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(RestServiceException.class)
 	ResponseEntity<Object> handleRestServiceException(RestServiceException e) {
 
-		ErrorCodeEnum errorCode = e.getErrorCode();
+		ErrorCode errorCode = e.getErrorCode();
 		
 		List<ErrorResponse.Details> errorList = e.getErrorList().stream()
 				.map(error -> (error instanceof FieldError) 

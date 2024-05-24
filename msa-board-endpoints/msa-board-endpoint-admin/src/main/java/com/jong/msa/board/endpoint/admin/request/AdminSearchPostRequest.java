@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
-import com.jong.msa.board.common.enums.DBCodeEnum.State;
+import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.common.enums.SortEnum.Order;
 import com.jong.msa.board.common.enums.SortEnum.PostSort;
 import com.jong.msa.board.core.validation.annotation.BetweenDate;
