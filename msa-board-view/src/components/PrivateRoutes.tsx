@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { GROUP } from "../constants/Constants";
+import { GROUP } from "../constants/constants";
 
 export function PrivateAuthRouter(prop: {
   permitGroups: Array<keyof typeof GROUP>
@@ -15,6 +15,10 @@ export function PrivateAuthRouter(prop: {
     isAuth = (!group);
   } else {
     // 로그인이 되어 있을 경우 
+    for (let i = 0; i < prop.permitGroups.length; i++) {
+      isAuth = prop.permitGroups[i] === group
+      break;
+    }
     prop.permitGroups.forEach(x => isAuth = (!isAuth && x === group));
   }
 

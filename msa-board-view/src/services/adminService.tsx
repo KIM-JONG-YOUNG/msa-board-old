@@ -1,5 +1,6 @@
-import { fetchData, fetchDataInAuth } from "../utils/fetchUtils";
-import { GROUP, GENDER, STATE, MEMBER_SORT, ORDER } from './../constants/Constants';
+import { IFetchResponse, fetchData, fetchDataInAuth } from "../utils/fetchUtils";
+import { GENDER, GROUP, MEMBER_SORT, ORDER, POST_SORT, STATE } from '../constants/constants';
+import { getRefreshToken } from "../utils/tokenUtils";
 
 const endpointURL = "http://localhost:8000";
 
@@ -63,13 +64,13 @@ export interface IAdminSearchPostParam {
     state: keyof typeof STATE,
     offset: number,
     limit: number,
-    sort: keyof typeof MEMBER_SORT,
+    sort: keyof typeof POST_SORT,
     order: keyof typeof ORDER
 }
 
 export const adminService = {
 
-    loginAdmin: (param: IAdminLoginParam) => {
+    loginAdmin: (param: IAdminLoginParam): Promise<IFetchResponse> => {
 
         return fetchData({
             url: `${endpointURL}/apis/admins/login`,
@@ -78,16 +79,16 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    logoutAdmin: () => {
+    logoutAdmin: (): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/logout`,
             method: "POST"
         });
     },
-    refreshAdmin: () => {
+    refreshAdmin: (): Promise<IFetchResponse> => {
 
-        const refreshToken = sessionStorage.getItem("Refresh-Token");
+        const refreshToken = getRefreshToken();
 
         if (!refreshToken) {
             return Promise.reject(new Error("Refresh Token이 존재하지 않습니다."));
@@ -99,7 +100,7 @@ export const adminService = {
             });    
         }
     },
-    getAdmin: () => {
+    getAdmin: (): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins`,
@@ -107,7 +108,7 @@ export const adminService = {
             headers: { "Accept": "application/json" },
         });
     },
-    modifyAdmin: (param: IAdminModifyParam) => {
+    modifyAdmin: (param: IAdminModifyParam): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins`,
@@ -116,7 +117,7 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    modifyAdminPassword: (param: IAdminModifyPasswordParam) => {
+    modifyAdminPassword: (param: IAdminModifyPasswordParam): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/password`,
@@ -125,7 +126,7 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    modifyUser: (userId: string, param: IAdminModifyUserParam) => {
+    modifyUser: (userId: string, param: IAdminModifyUserParam): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/users/${userId}`,
@@ -134,7 +135,7 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    getMember: (memberId: string) => {
+    getMember: (memberId: string): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/members/${memberId}`,
@@ -142,7 +143,7 @@ export const adminService = {
             headers: { "Accept": "application/json" }
         });
     },
-    searchMemberList: (param: IAdminSearchMemberParam) => {
+    searchMemberList: (param: IAdminSearchMemberParam): Promise<IFetchResponse> => {
 
         const urlParam = new URLSearchParams();
 
@@ -155,7 +156,7 @@ export const adminService = {
             query: urlParam.toString()
         });
     },
-    writePost: (param: IAdminWritePostParam) => {
+    writePost: (param: IAdminWritePostParam): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts`,
@@ -164,7 +165,7 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    modifyPost: (postId: string, param: IAdminWritePostParam) => {
+    modifyPost: (postId: string, param: IAdminWritePostParam): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts${postId}`,
@@ -173,7 +174,7 @@ export const adminService = {
             body: JSON.stringify(param)
         });
     },
-    getPost: (postId: string) => {
+    getPost: (postId: string): Promise<IFetchResponse> => {
 
         return fetchDataInAuth({
             url: `${endpointURL}/apis/admins/posts/${postId}`,
@@ -181,7 +182,7 @@ export const adminService = {
             headers: { "Accept": "application/json" }
         });
     },
-    searchPostList: (param: IAdminSearchPostParam) => {
+    searchPostList: (param: IAdminSearchPostParam): Promise<IFetchResponse> => {
 
         const urlParam = new URLSearchParams();
 

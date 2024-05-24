@@ -1,3 +1,4 @@
+import { getAccessToken } from "./tokenUtils";
 
 export interface IFetchOption {
   readonly url: string,
@@ -10,7 +11,28 @@ export interface IFetchOption {
 export interface IFetchResponse {
   readonly status: number,
   readonly headers: HeadersInit,
-  readonly body: any
+  readonly body?: BodyInit
+  readonly error?: IFetchErrorResponse
+}
+
+export interface IFetchErrorResponse {
+  readonly errorCode: string,
+  readonly errorMessage: string,
+  readonly errorDetailsList?: Array<IFetchErrorResponseDetails>
+}
+
+export interface IFetchErrorResponseDetails {
+  readonly field?: string,
+  readonly message: string,
+}
+
+function parse(responseText: string) {
+
+  try {
+    return JSON.parse(responseText);
+  } catch (error) {
+    return null;
+  }
 }
 
 export async function fetchData(option: IFetchOption): Promise<IFetchResponse> {
@@ -23,27 +45,31 @@ export async function fetchData(option: IFetchOption): Promise<IFetchResponse> {
       body: option.body,
     });
   const responseStatus = response.status;
-  const responseHeader = Object.fromEntries(new Headers(response.headers));
+  const responseHeaders = Object.fromEntries(new Headers(response.headers));
   const responseText = await response.text();
+  const responseBody = parse(responseText);
 
-  try {
+  const fetchResponse: IFetchResponse = {
+    status: responseStatus,
+    headers: responseHeaders
+  };
+
+  if (response.ok) {
     return {
-      status: responseStatus,
-      headers: responseHeader,
-      body: JSON.parse(responseText)
-    };   
-  } catch (error) {
+      ...fetchResponse,
+      body: (!!responseBody) ? responseBody : responseText
+    }
+  } else {
     return {
-      status: responseStatus,
-      headers: responseHeader,
-      body: responseText
-    };   
+      ...fetchResponse,
+      error: (!!responseBody) ? responseBody : responseText
+    }
   }
 }
 
 export function fetchDataInAuth(option: IFetchOption): Promise<IFetchResponse> {
 
-  const accessToken = sessionStorage.getItem("Access-Token");
+  const accessToken = getAccessToken();
 
   if (!accessToken) {
     return Promise.reject(new Error("인증되지 않은 회원입니다."));
@@ -57,3 +83,4 @@ export function fetchDataInAuth(option: IFetchOption): Promise<IFetchResponse> {
     });
   }
 }
+
