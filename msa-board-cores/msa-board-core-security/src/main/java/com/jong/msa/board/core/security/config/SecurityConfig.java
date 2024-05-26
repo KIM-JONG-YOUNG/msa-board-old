@@ -34,7 +34,8 @@ public class SecurityConfig {
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		
 		return http
-                .csrf(csrf -> csrf.disable())
+				.csrf(csrf -> csrf.disable())
+				.cors(cors -> cors.disable())
                 .httpBasic(basic -> basic.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -52,7 +52,6 @@ public interface UserOperations {
 			@RequestHeader(name = "Access-Token") String accessToken);
 
 	@Operation(summary = "일반 회원 토큰 재발급")
-	@PreAuthorize("hasRole('ROLE_USER')")
 	@PostMapping(value = "/apis/users/refresh",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> refreshUser(

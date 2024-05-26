@@ -14,7 +14,7 @@ public interface TokenService {
 
 	public <T> T validateAccessToken(String accessToken, BiFunction<UUID, Group, T> afterFunction);
 
-	public <T> T validateRefreshToken(String accessToken, Function<UUID, T> afterFunction);
+	public <T> T validateRefreshToken(String refreshToken, Function<UUID, T> afterFunction);
 
 	public void revokeAccessToken(String accessToken);
 
@@ -23,3 +23,6 @@ public interface TokenService {
 	public void revokeTokenAll(UUID id);
 
 }
+
+
+

@@ -25,7 +25,7 @@ public class AccessDeniedExceptionHandler {
 
 		if (errorCode == null) {
 			status = HttpStatus.FORBIDDEN;
-			errorCode = ErrorCode.NOT_ACCESSIBLE_MEMBER;
+			errorCode = ErrorCode.INACCESSIBLE_URL;
 		}
 
 		return ResponseEntity.status(status)

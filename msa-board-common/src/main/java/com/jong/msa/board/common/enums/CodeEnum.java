@@ -39,7 +39,8 @@ public interface CodeEnum<V> {
 	public static enum ErrorCode implements CodeEnum<String> {
 
 		INVALID_PARAMETER("COMMON-001", "파라미터가 유효하지 않습니다."), 
-		UNCHECKED_ERROR("COMMON-999", "시스템에 오류가 발생했습니다."),
+		INACCESSIBLE_URL("COMMON-002", "접근할 수 없는 URL입니다."),
+		UNCHECKED_ERROR("COMMON-003", "시스템에 오류가 발생했습니다."),
 
 		NOT_FOUND_MEMBER("MEMBER-001", "존재하지 않는 회원입니다."), 
 		NOT_FOUND_MEMBER_USERNAME("MEMBER-002", "존재하지 않는 계정입니다."),
@@ -48,8 +49,6 @@ public interface CodeEnum<V> {
 		NOT_ADMIN_GROUP_MEMBER_USERNAME("MEMBER-005", "관리자 회원의 계정이 아닙니다."),
 		NOT_USER_GROUP_MEMBER_USERNAME("MEMBER-006", "일반 회원의 계정이 아닙니다."),
 		NOT_USER_GROUP_MEMBER("MEMBER-007", "일반 회원이 아닙니다."), 
-		UNAUTHORIZED_MEMBER("MEMBER-008", "인증되지 않은 회원입니다."),
-		NOT_ACCESSIBLE_MEMBER("MEMBER-009", "접근할 수 없는 회원입니다."),
 
 		NOT_FOUND_POST("POST-001", "존재하지 않는 게시글입니다."), 
 		NOT_FOUND_POST_WRITER("POST-002", "존재하지 않는 작성자입니다."),

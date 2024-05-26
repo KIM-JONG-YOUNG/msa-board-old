@@ -58,8 +58,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 			} catch (Exception e) {
 				request.setAttribute("tokenErrorCode", ErrorCode.INVALID_ACCESS_TOKEN);
 			}
-		} else {
-			request.setAttribute("tokenErrorCode", ErrorCode.UNAUTHORIZED_MEMBER);
 		}
 
 		filterChain.doFilter(request, response);

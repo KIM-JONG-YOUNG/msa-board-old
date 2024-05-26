@@ -47,9 +47,7 @@ public class TokenServiceImpl implements TokenService {
 				.compact();
 
 		String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
-		long cachingTime = Math.max(
-				redisTemplate.getExpire(cachingKey, TimeUnit.SECONDS), 
-				properties.getAccessToken().getExpireSeconds());
+		long cachingTime = Math.max(redisTemplate.getExpire(cachingKey, TimeUnit.SECONDS), expireSeconds);
 		
 		redisTemplate.opsForSet().add(cachingKey, token);
 		redisTemplate.expire(cachingKey, cachingTime, TimeUnit.SECONDS);
@@ -105,15 +103,15 @@ public class TokenServiceImpl implements TokenService {
 	}
 
 	@Override
-	public <T> T validateRefreshToken(String accessToken, Function<UUID, T> afterFunction) {
+	public <T> T validateRefreshToken(String refreshToken, Function<UUID, T> afterFunction) {
 		
 		UUID id = null;
 
 		try {
 
 			Claims claims = Jwts.parser()
-					.setSigningKey(properties.getAccessToken().getSecretKey())
-					.parseClaimsJws(accessToken)
+					.setSigningKey(properties.getRefreshToken().getSecretKey())
+					.parseClaimsJws(refreshToken)
 					.getBody();
 			
 			id = UUID.fromString(claims.get("id", String.class));
@@ -126,7 +124,7 @@ public class TokenServiceImpl implements TokenService {
 
 		String cachingKey = new StringBuilder(RedisKeyPrefixes.TOKENS_KEY).append(id).toString(); 
 
-		if (!redisTemplate.opsForSet().isMember(cachingKey, accessToken)) {
+		if (!redisTemplate.opsForSet().isMember(cachingKey, refreshToken)) {
 			throw new RevokedJwtException("사용할 수 없는 Refresh Token 입니다.");
 		} else {
 			return afterFunction.apply(id);

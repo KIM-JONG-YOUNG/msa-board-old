@@ -47,7 +47,6 @@ public interface AdminOperations {
 			@RequestHeader(name = "Access-Token") String accessToken);
 
 	@Operation(summary = "관리자 회원 토큰 재발급")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping(value = "/apis/admins/refresh",
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<Void> refreshAdmin(
