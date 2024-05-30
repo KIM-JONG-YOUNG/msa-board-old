@@ -6,7 +6,7 @@ export function MemberRouter(prop: {
     element: React.ReactElement
     group: keyof typeof GROUP
     redirectURL: string
-}): React.ReactElement {
+}) {
 
     const currentAccessToken = sessionUtils.getAccessToken();
     const currentGroup = sessionUtils.getGroup();
@@ -18,7 +18,7 @@ export function MemberRouter(prop: {
 export function AnonymousRouter(prop: {
     element: React.ReactElement
     redirectURL: string
-}): React.ReactElement {
+}) {
 
     const currentAccessToken = sessionUtils.getAccessToken();
     const currentGroup = sessionUtils.getGroup();
