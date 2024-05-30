@@ -3,7 +3,7 @@ import Navigation from './pages/common/Navigation';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorPage from './pages/common/ErrorPage';
 import AccountLoginForm from './pages/account/AccountLoginForm';
-import { AnonymousRouter, MemberRouter } from 'msa-board-view-common/src/components/ProtectRouter';
+import { NotAdminRounter } from './pages/common/AdminRounter';
 
 export default function App() {
 
@@ -13,11 +13,7 @@ export default function App() {
                 <Navigation />
                 <ErrorBoundary FallbackComponent={ ErrorPage }>
                     <Routes>
-                        <Route path="/login/form" element={ 
-                            <AnonymousRouter 
-                                element={ <AccountLoginForm /> }
-                                redirectURL="/login/form" />
-                        } />
+                        <Route path="/login/form" element={ <NotAdminRounter element={ <AccountLoginForm /> } /> } />
                     </Routes>
                 </ErrorBoundary>
             </div>

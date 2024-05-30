@@ -96,7 +96,7 @@ export default function AccountLoginForm() {
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Username</label>
-							<input type="text" className="form-control" placeholder="Example input placeholder" { ...usernameRegister } />
+							<input type="text" className="form-control" { ...usernameRegister } />
 							{!!errors.username && <div className="text-danger">{ errors.username.message }</div>}
 						</div>
 					</div>
@@ -104,7 +104,7 @@ export default function AccountLoginForm() {
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Password</label>
-							<input type="password" className="form-control" placeholder="Another input placeholder" { ...passwordRegister } />
+							<input type="password" className="form-control" { ...passwordRegister } />
 							{!!errors.password && <div className="text-danger">{ errors.password.message }</div>}
 						</div>
 					</div>
