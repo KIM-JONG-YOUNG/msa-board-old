@@ -2,84 +2,81 @@ import { ERROR_CODE } from "../constants/constants"
 import * as sessionUtils from "./sessionUtils"
 
 export interface IFetchOption {
-  url: string
-  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
-  headers: HeadersInit
-  param?: URLSearchParams
-  body?: BodyInit
+    readonly url: string
+    readonly method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+    readonly headers?: HeadersInit
+    readonly param?: URLSearchParams
+    readonly body?: BodyInit
 }
 
 export interface IFetchErrorDetails {
-  readonly field?: string
-  readonly message: string
+    readonly field?: string
+    readonly message: string
 }
 
 export interface IFetchErrorResponse {
-  readonly errorCode: typeof ERROR_CODE[keyof typeof ERROR_CODE]
-  readonly errorMessage: string
-  readonly errorDetailsList?: IFetchErrorDetails[]
+    readonly errorCode: typeof ERROR_CODE[keyof typeof ERROR_CODE]
+    readonly errorMessage: string
+    readonly errorDetailsList?: IFetchErrorDetails[]
 }
 
 export async function fetchData(fetchOption: IFetchOption): Promise<Response> {
 
-  const url = (!!fetchOption.param)
-    ? `${fetchOption.url}?${fetchOption.param.toString()}`
-    : fetchOption.url
+    const url = (!!fetchOption.param)
+        ? `${fetchOption.url}?${fetchOption.param.toString()}`
+        : fetchOption.url
 
-  return fetch(url, {
-    method: fetchOption.method,
-    headers: fetchOption.headers,
-    body: fetchOption.body
-  }).then(response => {
+    return fetch(url, {
+        method: fetchOption.method,
+        headers: fetchOption.headers,
+        body: fetchOption.body
+    }).then(response => {
 
-    if (response.ok) {
-      return response;
-    } else {
-      throw response.json();
-    }
-  })
+        if (response.ok) {
+            return response;
+        } else {
+            throw response.json();
+        }
+    });
 }
 
-export async function fetchDataInAuth(
-  fetchOption: IFetchOption, refreshURL: string): Promise<Response> {
-
-  return fetchData({ 
-    ...fetchOption,
-    headers: {
-      ...fetchOption.headers,
-      "Access-Token": sessionUtils.getAccessToken()
-    }
-  }).catch((errorResponse: IFetchErrorResponse) => {
-
-    if (errorResponse.errorCode === ERROR_CODE.EXPIRED_ACCESS_TOKEN) {
-
-      return fetchData({
-        url: refreshURL,
-        method: "POST",
-        headers: { 
-          "Refresh-Token": sessionUtils.getRefreshToken() 
-        }
-      }).then(response => {
-
-        const accessToken = response.headers.get("Access-Token");
-        const refreshToken = response.headers.get("Refresh-Token");
-
-        (!!accessToken) && sessionUtils.setAccessToken(accessToken);
-        (!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
-
-      }).catch(() => errorResponse);
-    
-    } else {
-      throw errorResponse;
-    }
-  }).then(() => {
+export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: string): Promise<Response> {
 
     return fetchData({ 
-      ...fetchOption,
-      headers: {
-        ...fetchOption.headers,
-        "Access-Token": sessionUtils.getAccessToken()
-      }
+        ...fetchOption,
+        headers: {
+            ...fetchOption.headers,
+            "Access-Token": sessionUtils.getAccessToken()
+        }
+    }).catch((errorResponse: IFetchErrorResponse) => {
+
+        if (errorResponse.errorCode === ERROR_CODE.EXPIRED_ACCESS_TOKEN) {
+
+            return fetchData({
+                url: refreshURL,
+                method: "POST",
+                headers: { "Refresh-Token": sessionUtils.getRefreshToken() }
+            }).then(response => {
+
+                const accessToken = response.headers.get("Access-Token");
+                const refreshToken = response.headers.get("Refresh-Token");
+
+                (!!accessToken) && sessionUtils.setAccessToken(accessToken);
+                (!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
+
+            }).catch(() => errorResponse);
+      
+        } else {
+            throw errorResponse;
+        }
+    }).then(() => {
+
+        return fetchData({ 
+            ...fetchOption,
+            headers: {
+                ...fetchOption.headers,
+                "Access-Token": sessionUtils.getAccessToken()
+            }
+        });
     });
-  });
 }
