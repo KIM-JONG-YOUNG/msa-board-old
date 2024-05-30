@@ -1,0 +1,16 @@
+{
+  "name": "msa-board-views",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "workspaces": [
+    "msa-board-view-common",
+    "msa-board-view-admin",
+    "msa-board-view-user"
+  ],
+  "scripts": {
+    "common": "yarn workspace msa-board-view-common",
+    "admin": "yarn workspace msa-board-view-admin",
+    "user": "yarn workspace msa-board-view-user"
+  }
+}
