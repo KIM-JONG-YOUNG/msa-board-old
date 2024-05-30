@@ -1,26 +1,26 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Navigation from './pages/common/Navigation';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorPage from './pages/common/ErrorPage';
+import AccountLoginForm from './pages/account/AccountLoginForm';
+import { AnonymousRouter, MemberRouter } from 'msa-board-view-common/src/components/ProtectRouter';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+export default function App() {
+
+    return (
+        <BrowserRouter>
+            <div className="container-fluid p-0">
+                <Navigation />
+                <ErrorBoundary FallbackComponent={ ErrorPage }>
+                    <Routes>
+                        <Route path="/login/form" element={ 
+                            <AnonymousRouter 
+                                element={ <AccountLoginForm /> }
+                                redirectURL="/login/form" />
+                        } />
+                    </Routes>
+                </ErrorBoundary>
+            </div>
+        </BrowserRouter>
+    );
 }
-
-export default App;
