@@ -30,12 +30,12 @@ export async function fetchData(fetchOption: IFetchOption): Promise<Response> {
         method: fetchOption.method,
         headers: fetchOption.headers,
         body: fetchOption.body
-    }).then(response => {
+    }).then(async (response: Response) => {
 
         if (response.ok) {
             return response;
         } else {
-            throw response.json();
+            throw await response.json();
         }
     });
 }
@@ -64,8 +64,9 @@ export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: str
                 (!!accessToken) && sessionUtils.setAccessToken(accessToken);
                 (!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
 
-            }).catch(() => errorResponse);
-
+            }).catch(() => {
+                throw errorResponse;
+            });
         } else {
             throw errorResponse;
         }
