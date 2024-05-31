@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react"
 
-export default function usePagination(
-    initPageRows: number,
-    initPageGroupSize: number
-) {
+export default function usePagination(prop: {
+    pageRows: number,
+    pageGroupSize: number
+}) {
 
     const [page, setPage] = useState(0);
-    const [pageRows, setPageRows] = useState(initPageRows);
+    const [pageRows, setPageRows] = useState(prop.pageRows);
     const [pageGroup, setPageGroup] = useState(0);
-    const [pageGroupSize, setPageGroupSize] = useState(initPageGroupSize);
+    const [pageGroupSize, setPageGroupSize] = useState(prop.pageGroupSize);
     const [totalPage, setTotalPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
 
