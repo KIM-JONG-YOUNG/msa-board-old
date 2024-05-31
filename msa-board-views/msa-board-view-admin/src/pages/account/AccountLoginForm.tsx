@@ -8,8 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
 
 export interface IAccountLoginForm {
-	username: string
-	password: string
+	readonly username: string
+	readonly password: string
 }
 
 export default function AccountLoginForm() {
@@ -43,13 +43,14 @@ export default function AccountLoginForm() {
 		adminService.loginAdmin({
 			username: formData.username,
 			password: formData.password
-		}).then(response => {
+		}).then((response: Response) => {
 
 			const accessToken = response.headers.get("Access-Token");
 			const refreshToken = response.headers.get("Refresh-Token");
 
 			(!!accessToken) && sessionUtils.setAccessToken(accessToken);
 			(!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
+			sessionUtils.setGroup("ADMIN");
 
 			navigate("/main");
 
@@ -67,7 +68,7 @@ export default function AccountLoginForm() {
 				case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
 				case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
 					return setError("username", { message: errorResponse.errorMessage });
-
+					
 				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
 					return setError("password", { message: errorResponse.errorMessage });
 
@@ -79,7 +80,7 @@ export default function AccountLoginForm() {
 	};
 
 	return (
-		// <!-- Login Member -->
+		// <!-- Login Admin -->
 		<section className="resume-section">
 			<div className="resume-section-content">
 

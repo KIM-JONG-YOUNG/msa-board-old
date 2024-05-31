@@ -10,6 +10,7 @@ export default function ErrorPage(prop: FallbackProps) {
 			<div className="resume-section-content">
 				<h1 className="mb-4">
 					Error
+					<span className="text-primary">Page</span>
 				</h1>
 			</div>
 		</section>

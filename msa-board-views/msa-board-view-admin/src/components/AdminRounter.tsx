@@ -5,7 +5,7 @@ export function AdminRounter(prop: {
     element: React.ReactElement
 }) {
 
-    return <MemberRouter group="ADMIN" element={prop.element} redirectURL="/login/form" />;
+    return <MemberRouter group="ADMIN" element={prop.element} redirectURL="/account/login/form" />;
 }
 
 export function NotAdminRounter(prop: {

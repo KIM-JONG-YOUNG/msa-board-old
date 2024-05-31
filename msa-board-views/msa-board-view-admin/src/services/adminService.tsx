@@ -153,7 +153,9 @@ export function searchMemberList(param: IAdminSearchMemberParam): Promise<Respon
 
     const urlParam = new URLSearchParams();
 
-    Object.entries(param).forEach(([key, value]) => urlParam.append(key, value))
+    Object.entries(param)
+        .filter(([key, value]) => (!!value))
+        .forEach(([key, value]) => urlParam.append(key, value))
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/members`,
@@ -196,7 +198,9 @@ export function searchPostList(param: IAdminSearchPostParam): Promise<Response> 
 
     const urlParam = new URLSearchParams();
 
-    Object.entries(param).forEach(([key, value]) => urlParam.append(key, value))
+    Object.entries(param)
+        .filter(([key, value]) => (!!value))
+        .forEach(([key, value]) => urlParam.append(key, value))
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts`,
