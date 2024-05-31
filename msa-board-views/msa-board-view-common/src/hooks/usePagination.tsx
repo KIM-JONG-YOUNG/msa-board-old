@@ -13,16 +13,16 @@ export default function usePagination(
     const [totalCount, setTotalCount] = useState(0);
 
     const getPageList = (): number[] => {
-      
+
         if (pageGroup > 0 && pageGroupSize > 0 && totalPage > 0) {
 
             const startPage = (pageGroup - 1) * pageGroupSize;
             const pageCount = ((startPage + pageGroupSize) > totalPage)
-                ? totalPage - startPage 
-                : pageGroupSize; 
+                ? totalPage - startPage
+                : pageGroupSize;
 
             return Array.from({ length: pageCount }, (_, i) => startPage + i + 1);
-            
+
         } else {
             return [];
         }

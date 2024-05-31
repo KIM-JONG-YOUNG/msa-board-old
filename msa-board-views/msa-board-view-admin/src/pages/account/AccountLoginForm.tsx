@@ -58,7 +58,6 @@ export default function AccountLoginForm() {
 			switch (errorResponse.errorCode) {
 
 				case ERROR_CODE.INVALID_PARAMETER:
-					
 					return (!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
 						.forEach((error: IFetchErrorDetails) => {
 							(error.field === "username") && setError(error.field, { message: error.message });
@@ -67,11 +66,9 @@ export default function AccountLoginForm() {
 
 				case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
 				case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
-					
 					return setError("username", { message: errorResponse.errorMessage });
 
 				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
-					
 					return setError("password", { message: errorResponse.errorMessage });
 
 				default:
@@ -79,14 +76,14 @@ export default function AccountLoginForm() {
 			}
 
 		}).catch(showBoundary);
-	}; 
+	};
 
 	return (
 		// <!-- Login Member -->
 		<section className="resume-section">
 			<div className="resume-section-content">
 
-				<form onSubmit={ handleSubmit(onSubmit) }>
+				<form onSubmit={handleSubmit(onSubmit)}>
 
 					<h1 className="mb-4">
 						Login
@@ -96,16 +93,16 @@ export default function AccountLoginForm() {
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Username</label>
-							<input type="text" className="form-control" { ...usernameRegister } />
-							{!!errors.username && <div className="text-danger">{ errors.username.message }</div>}
+							<input type="text" className="form-control" placeholder="Username..." {...usernameRegister} />
+							{!!errors.username && <div className="text-danger">{errors.username.message}</div>}
 						</div>
 					</div>
 
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Password</label>
-							<input type="password" className="form-control" { ...passwordRegister } />
-							{!!errors.password && <div className="text-danger">{ errors.password.message }</div>}
+							<input type="password" className="form-control" placeholder="Password..." {...passwordRegister} />
+							{!!errors.password && <div className="text-danger">{errors.password.message}</div>}
 						</div>
 					</div>
 
@@ -119,6 +116,5 @@ export default function AccountLoginForm() {
 
 			</div>
 		</section>
-
 	);
 }

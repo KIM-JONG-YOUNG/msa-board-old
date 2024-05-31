@@ -6,7 +6,7 @@ export function setAccessToken(accessToken: string): void {
 }
 
 export function setRefreshToken(refreshToken: string): void {
-  
+
     (!!refreshToken) && sessionStorage.setItem("refreshToken", refreshToken);
 }
 

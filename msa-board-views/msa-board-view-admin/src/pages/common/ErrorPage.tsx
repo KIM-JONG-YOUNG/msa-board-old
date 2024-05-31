@@ -2,10 +2,10 @@ import { FallbackProps } from "react-error-boundary";
 
 export default function ErrorPage(prop: FallbackProps) {
 
-    console.log(prop.error);
+	console.log(prop.error);
 
-    return (
-        // <!-- Error -->
+	return (
+		// <!-- Error -->
 		<section className="resume-section">
 			<div className="resume-section-content">
 				<h1 className="mb-4">
@@ -13,5 +13,5 @@ export default function ErrorPage(prop: FallbackProps) {
 				</h1>
 			</div>
 		</section>
-    );
+	);
 }

@@ -42,7 +42,7 @@ export async function fetchData(fetchOption: IFetchOption): Promise<Response> {
 
 export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: string): Promise<Response> {
 
-    return fetchData({ 
+    return fetchData({
         ...fetchOption,
         headers: {
             ...fetchOption.headers,
@@ -65,13 +65,13 @@ export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: str
                 (!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
 
             }).catch(() => errorResponse);
-      
+
         } else {
             throw errorResponse;
         }
     }).then(() => {
 
-        return fetchData({ 
+        return fetchData({
             ...fetchOption,
             headers: {
                 ...fetchOption.headers,

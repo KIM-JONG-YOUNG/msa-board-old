@@ -7,11 +7,11 @@ export const GENDER = {
     MAIL: "남자",
     FEMAIL: "여자"
 } as const
- 
+
 export const STATE = {
     ACTIVE: "활성화",
     DEACTIVE: "비활성화"
-} as const 
+} as const
 
 export const EMAIL_DOMAIN = {
     EXAMPLE_DOMAIN: "example.com",
@@ -42,11 +42,11 @@ export const ORDER = {
 } as const
 
 export const ERROR_CODE = {
-    
+
     INVALID_PARAMETER: "COMMON-001",
     INACCESSIBLE_URL: "COMMON-002",
     UNCHECKED_ERROR: "COMMON-003",
-    
+
     NOT_FOUND_MEMBER: "MEMBER-001",
     NOT_FOUND_MEMBER_USERNAME: "MEMBER-002",
     DUPLICATED_MEMBER_USERNAME: "MEMBER-003",
@@ -63,7 +63,7 @@ export const ERROR_CODE = {
     EXPIRED_ACCESS_TOKEN: "TOKEN-001",
     REVOKED_ACCESS_TOKEN: "TOKEN-002",
     INVALID_ACCESS_TOKEN: "TOKEN-003",
-    
+
     EXPIRED_REFRESH_TOKEN: "TOKEN-004",
     REVOKED_REFRESH_TOKEN: "TOKEN-005",
     INVALID_REFRESH_TOKEN: "TOKEN-006",

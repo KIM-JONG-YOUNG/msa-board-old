@@ -11,9 +11,9 @@ export default function App() {
         <BrowserRouter>
             <div className="container-fluid p-0">
                 <Navigation />
-                <ErrorBoundary FallbackComponent={ ErrorPage }>
+                <ErrorBoundary FallbackComponent={ErrorPage}>
                     <Routes>
-                        <Route path="/login/form" element={ <NotAdminRounter element={ <AccountLoginForm /> } /> } />
+                        <Route path="/login/form" element={<NotAdminRounter element={<AccountLoginForm />} />} />
                     </Routes>
                 </ErrorBoundary>
             </div>
