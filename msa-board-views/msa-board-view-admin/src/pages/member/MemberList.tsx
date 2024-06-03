@@ -8,6 +8,7 @@ import usePaging from "msa-board-view-common/src/hooks/usePaging";
 import * as adminService from "../../services/adminService";
 import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
 import useLoading from "msa-board-view-common/src/hooks/useLoading";
+import { useNavigate } from 'react-router-dom';
 
 export type MemberListSearchFormInputs = {
 	readonly username?: string
@@ -45,6 +46,7 @@ export default function MemberList() {
 	} = useForm<MemberListSearchFormInputs>({ mode: "onBlur" });
 	const { showBoundary } = useErrorBoundary();
 	const [, setLoading] = useLoading();
+	const navigate = useNavigate();
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [memberList, setMemberList] = useState<MemberInfos[]>([]);
 	const {
@@ -162,7 +164,7 @@ export default function MemberList() {
 							<tbody>
 								{
 									(!!memberList) && memberList.map((member, i) =>
-										<tr key={member.id}>
+										<tr key={member.id} onClick={() => navigate(`/member/details/${member.id}`)}>
 											<th scope="row">{i + 1 + (getValues("offset") || 0)}</th>
 											<td>{member.username}</td>
 											<td>{member.name}</td>

@@ -1,8 +1,9 @@
 import { FallbackProps } from "react-error-boundary";
 
-export default function ErrorPage(prop: FallbackProps) {
-
-	console.log(prop.error);
+export default function ErrorPage({
+	error,
+	resetErrorBoundary
+}: FallbackProps) {
 
 	return (
 		// <!-- Error -->
