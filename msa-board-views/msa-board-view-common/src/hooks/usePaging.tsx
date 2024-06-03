@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react"
 
-export default function usePagination(prop: {
-    pageRows: number,
-    pageGroupSize: number
-}) {
+export type UsePagingProps = {
+    initPageRows: number
+    initPageGroupSize: number
+}
+
+export default function usePaging({
+    initPageRows,
+    initPageGroupSize
+}: UsePagingProps) {
 
     const [page, setPage] = useState(0);
-    const [pageRows, setPageRows] = useState(prop.pageRows);
+    const [pageRows, setPageRows] = useState(initPageRows);
+    const [pageGroupSize, setPageGroupSize] = useState(initPageGroupSize);    
     const [pageGroup, setPageGroup] = useState(0);
-    const [pageGroupSize, setPageGroupSize] = useState(prop.pageGroupSize);
-    const [totalPage, setTotalPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
+    const [totalPage, setTotalPage] = useState(0);
+    const [startPage, setStartPage] = useState(0);
+    const [endPage, setEndPage] = useState(0);
 
     const getPageList = (): number[] => {
 
@@ -42,7 +49,15 @@ export default function usePagination(prop: {
             setPageGroup(0);
         }
 
-    }, [page, pageRows, pageGroupSize, totalCount]);
+        if (pageGroup > 0 && totalPage > 0) {
+            setStartPage((pageGroup - 1) * pageGroupSize + 1);
+            setEndPage(Math.min(totalPage, pageGroup * pageGroupSize))
+        } else {
+            setStartPage(0); 
+            setEndPage(0); 
+        }
+
+    }, [page, pageRows, pageGroup, pageGroupSize, totalPage, totalCount]);
 
     return {
         page: page,
@@ -51,6 +66,8 @@ export default function usePagination(prop: {
         pageGroupSize: pageGroupSize,
         totalPage: totalPage,
         totalCount: totalCount,
+        startPage: startPage,
+        endPage: endPage,
         setPage: setPage,
         setPageRows: setPageRows,
         setPageGroupSize: setPageGroupSize,
