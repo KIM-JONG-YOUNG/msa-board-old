@@ -37,6 +37,9 @@ export default function MemberDetails() {
 	const [, setLoading] = useLoading();
 	const [memberInfos, setMemberInfos] = useState<MemberInfos>();
 
+	const groupRegister = register("group");
+	const stateRegister = register("state");
+
 	const onSubmit = (formData: UserModifyFormInputs) => {
 
 		setLoading(true);
@@ -147,26 +150,42 @@ export default function MemberDetails() {
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Group</label>
-							<select id="inputState" className="form-select">
-								{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-							</select>
+							{
+								(memberInfos?.group === "USER") 
+									? <select className="form-select" {...groupRegister}>
+										{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+									</select>
+									: <input type="text" className="form-control" disabled value={
+										(!!memberInfos?.group) ? GROUP[memberInfos.group] : ""
+									} />
+							}
+							
 						</div>
 					</div>
 
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">State</label>
-							<select id="inputState" className="form-select">
-								{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-							</select>
+							{
+								(memberInfos?.group === "USER") 
+									? <select className="form-select" {...stateRegister}>
+										{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+									</select>
+									: <input type="text" className="form-control" disabled value={
+										(!!memberInfos?.state) ? STATE[memberInfos.state] : ""	
+									} />
+							}
 						</div>
 					</div>
 
-					<div className="row">
-						<div className="col-xl-8 mt-3">
-							<button type="submit" className="btn btn-info w-100">Modify</button>
-						</div>
-					</div>
+					{
+						(memberInfos?.group === "USER") && 
+							<div className="row">
+								<div className="col-xl-8 mt-3">
+									<button type="submit" className="btn btn-info w-100">Modify</button>
+								</div>
+							</div>
+					}
 
 				</form>
 
