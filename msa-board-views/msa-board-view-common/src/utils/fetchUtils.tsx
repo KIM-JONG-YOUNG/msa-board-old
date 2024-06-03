@@ -1,7 +1,7 @@
 import { ERROR_CODE } from "../constants/constants"
 import * as sessionUtils from "./sessionUtils"
 
-export interface IFetchOption {
+export type FetchOption = {
     readonly url: string
     readonly method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
     readonly headers?: HeadersInit
@@ -9,18 +9,18 @@ export interface IFetchOption {
     readonly body?: BodyInit
 }
 
-export interface IFetchErrorDetails {
+export type FetchErrorDetails = {
     readonly field?: string
     readonly message: string
 }
 
-export interface IFetchErrorResponse {
+export type FetchErrorResponse = {
     readonly errorCode: typeof ERROR_CODE[keyof typeof ERROR_CODE]
     readonly errorMessage: string
-    readonly errorDetailsList?: IFetchErrorDetails[]
+    readonly errorDetailsList?: FetchErrorDetails[]
 }
 
-export async function fetchData(fetchOption: IFetchOption): Promise<Response> {
+export async function fetchData(fetchOption: FetchOption): Promise<Response> {
 
     const url = (!!fetchOption.param)
         ? `${fetchOption.url}?${fetchOption.param.toString()}`
@@ -40,7 +40,7 @@ export async function fetchData(fetchOption: IFetchOption): Promise<Response> {
     });
 }
 
-export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: string): Promise<Response> {
+export async function fetchDataInAuth(fetchOption: FetchOption, refreshURL: string): Promise<Response> {
 
     return fetchData({
         ...fetchOption,
@@ -48,7 +48,7 @@ export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: str
             ...fetchOption.headers,
             "Access-Token": sessionUtils.getAccessToken()
         }
-    }).catch((errorResponse: IFetchErrorResponse) => {
+    }).catch((errorResponse: FetchErrorResponse) => {
 
         if (errorResponse.errorCode === ERROR_CODE.EXPIRED_ACCESS_TOKEN) {
 
@@ -64,20 +64,16 @@ export async function fetchDataInAuth(fetchOption: IFetchOption, refreshURL: str
                 (!!accessToken) && sessionUtils.setAccessToken(accessToken);
                 (!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
 
-            }).catch(() => {
-                throw errorResponse;
-            });
+            }).then(() => fetchData({
+                ...fetchOption,
+                headers: {
+                    ...fetchOption.headers,
+                    "Access-Token": sessionUtils.getAccessToken()
+                }                    
+            }));
+            
         } else {
             throw errorResponse;
         }
-    }).then(() => {
-
-        return fetchData({
-            ...fetchOption,
-            headers: {
-                ...fetchOption.headers,
-                "Access-Token": sessionUtils.getAccessToken()
-            }
-        });
     });
 }

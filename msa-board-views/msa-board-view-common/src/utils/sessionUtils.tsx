@@ -41,5 +41,4 @@ export function initSessionInfo(): void {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
     sessionStorage.removeItem("group");
-
 }
