@@ -1,13 +1,14 @@
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
-import { IFetchErrorDetails, IFetchErrorResponse } from 'msa-board-view-common/src/utils/fetchUtils';
+import { useNavigate } from "react-router-dom";
+import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
+import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import useLoading from 'msa-board-view-common/src/hooks/useLoading';
 
 import * as adminService from "../../services/adminService";
 import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
-import { useNavigate } from "react-router-dom";
-import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
 
-export interface IAccountLoginForm {
+export type AccountLoginFormInputs = {
 	readonly username: string
 	readonly password: string
 }
@@ -19,26 +20,23 @@ export default function AccountLoginForm() {
 		setError,
 		handleSubmit,
 		formState: { errors }
-	} = useForm<IAccountLoginForm>({ mode: "onBlur" });
+	} = useForm<AccountLoginFormInputs>({ mode: "onBlur" });
 	const { showBoundary } = useErrorBoundary();
 	const navigate = useNavigate();
+	const [, setLoading] = useLoading();
 
 	const usernameRegister = register("username", {
 		required: "계정은 비어있을 수 없습니다.",
-		max: {
-			value: 30,
-			message: "계정이 30자를 초과할 수 없습니다."
-		},
-		pattern: {
-			value: /^[a-zA-Z0-9]+$/,
-			message: "계정이 형식에 맞지 않습니다."
-		}
+		max: { value: 30, message: "계정이 30자를 초과할 수 없습니다." },
+		pattern: { value: /^[a-zA-Z0-9]+$/, message: "계정이 형식에 맞지 않습니다." }
 	});
 	const passwordRegister = register("password", {
 		required: "비밀번호는 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: IAccountLoginForm) => {
+	const onSubmit = (formData: AccountLoginFormInputs) => {
+
+		setLoading(true);
 
 		adminService.loginAdmin({
 			username: formData.username,
@@ -50,33 +48,36 @@ export default function AccountLoginForm() {
 
 			(!!accessToken) && sessionUtils.setAccessToken(accessToken);
 			(!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
+
 			sessionUtils.setGroup("ADMIN");
 
 			navigate("/main");
 
-		}).catch((errorResponse: IFetchErrorResponse) => {
+		}).catch((errorResponse: FetchErrorResponse) => {
 
 			switch (errorResponse.errorCode) {
-
 				case ERROR_CODE.INVALID_PARAMETER:
-					return (!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: IFetchErrorDetails) => {
+					(!!errorResponse.errorDetailsList) && errorResponse?.errorDetailsList
+						.forEach((error: FetchErrorDetails) => {
 							(error.field === "username") && setError(error.field, { message: error.message });
 							(error.field === "password") && setError(error.field, { message: error.message });
 						});
+					break;
 
 				case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
 				case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
-					return setError("username", { message: errorResponse.errorMessage });
-					
+					setError("username", { message: errorResponse.errorMessage });
+					break;
+
 				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
-					return setError("password", { message: errorResponse.errorMessage });
+					setError("password", { message: errorResponse.errorMessage });
+					break;
 
 				default:
 					throw errorResponse;
 			}
 
-		}).catch(showBoundary);
+		}).catch(showBoundary).finally(() => setLoading(false));
 	};
 
 	return (

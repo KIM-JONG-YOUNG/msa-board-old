@@ -2,13 +2,14 @@ import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
 
 import { useNavigate } from "react-router-dom";
-import { EMAIL_DOMAIN, ERROR_CODE, GENDER } from "msa-board-view-common/src/constants/constants";
-import { IFetchErrorDetails, IFetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
+import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import useLoading from "msa-board-view-common/src/hooks/useLoading";
+
 import * as adminService from "../../services/adminService";
 import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
-import { useEffect, useState } from "react";
 
-export interface IAccountPasswordModifyForm {
+export type AccountPasswordModifyFormInputs = {
 	readonly currentPassword: string
 	readonly newPassword: string
 }
@@ -20,9 +21,10 @@ export default function AccountPasswordModifyForm() {
 		setError,
 		handleSubmit,
 		formState: { errors }
-	} = useForm<IAccountPasswordModifyForm>({ mode: "onBlur" });
+	} = useForm<AccountPasswordModifyFormInputs>({ mode: "onBlur" });
 	const { showBoundary } = useErrorBoundary();
 	const navigate = useNavigate();
+	const [, setLoading] = useLoading();
 
 	const currentPasswordRegister = register("currentPassword", {
 		required: "현재 비밀번호는 비어있을 수 없습니다."
@@ -31,39 +33,42 @@ export default function AccountPasswordModifyForm() {
 		required: "새로운 비밀번호는 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: IAccountPasswordModifyForm) => {
+	const onSubmit = (formData: AccountPasswordModifyFormInputs) => {
 
 		adminService.modifyAdminPassword({
 			currentPassword: formData.currentPassword,
 			newPassword: formData.newPassword
-		}).then((response: Response) => {
+		}).then(() => {
 
 			sessionUtils.initSessionInfo();
 			navigate("/account/login/form");
 
-		}).catch((errorResponse: IFetchErrorResponse) => {
+		}).catch((errorResponse: FetchErrorResponse) => {
 
 			switch (errorResponse.errorCode) {
 
 				case ERROR_CODE.INVALID_PARAMETER:
-					return (!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: IFetchErrorDetails) => {
+					(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
+						.forEach((error: FetchErrorDetails) => {
 							(error.field === "currentPassword") && setError(error.field, { message: error.message });
 							(error.field === "newPassword") && setError(error.field, { message: error.message });
 						});
+					break;
 
 				case ERROR_CODE.NOT_FOUND_MEMBER:
 					sessionUtils.initSessionInfo();
-					return navigate("/account/login/form");
+					navigate("/account/login/form");
+					break;
 
 				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
-					return setError("currentPassword", { message: errorResponse.errorMessage });
+					setError("currentPassword", { message: errorResponse.errorMessage });
+					break;
 
 				default:
 					throw errorResponse;
 			}
 
-		}).catch(showBoundary);
+		}).catch(showBoundary).finally(() => setLoading(false));
 	};
 
 	return (

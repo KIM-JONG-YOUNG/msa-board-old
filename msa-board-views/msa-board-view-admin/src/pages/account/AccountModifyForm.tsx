@@ -1,19 +1,28 @@
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
-
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { EMAIL_DOMAIN, ERROR_CODE, GENDER } from "msa-board-view-common/src/constants/constants";
-import { IFetchErrorDetails, IFetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import useLoading from "msa-board-view-common/src/hooks/useLoading";
+import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+
 import * as adminService from "../../services/adminService";
 import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
-import { useEffect, useState } from "react";
 
-export interface IAccountModifyForm {
+export type AccountModifyFormInputs = {
 	readonly name: string
 	readonly gender: keyof typeof GENDER
 	readonly emailUsername: string
-	readonly emailDomain: keyof typeof EMAIL_DOMAIN
+	readonly emailDomain: typeof EMAIL_DOMAIN[keyof typeof EMAIL_DOMAIN]
 }
+
+export type AccountInfos = {
+	readonly username: string
+	readonly name: string
+	readonly gender: keyof typeof GENDER
+	readonly email: string
+}
+
 
 export default function AccountModifyForm() {
 
@@ -23,92 +32,112 @@ export default function AccountModifyForm() {
 		setError,
 		handleSubmit,
 		formState: { errors }
-	} = useForm<IAccountModifyForm>({ mode: "onBlur" });
+	} = useForm<AccountModifyFormInputs>({ mode: "onBlur" });
 	const { showBoundary } = useErrorBoundary();
 	const navigate = useNavigate();
+	const [, setLoading] = useLoading();
 
-	const [username, setUsername] = useState("");
+	const [accountInfos, setAccountInfos] = useState<AccountInfos>();
+
 	const nameRegister = register("name", {
 		required: "이름은 비어있을 수 없습니다.",
-		max: {
-			value: 30,
-			message: "이름이 30자를 초과할 수 없습니다."
-		}
+		max: { value: 30, message: "이름이 30자를 초과할 수 없습니다." }
 	});
-	const genderRegister = {
-		...register("gender", {
-			required: "성별은 비어있을 수 없습니다."
-		}),
-		defaultValue: undefined
-	};
+	const genderRegister = register("gender", {
+		required: "성별은 비어있을 수 없습니다."
+	});
 	const emailUsernameRegister = register("emailUsername", {
 		required: "이메일 계정은 비어있을 수 없습니다.",
-		max: {
-			value: 30,
-			message: "이메일 계정이 30자를 초과할 수 없습니다."
-		},
-		pattern: {
-			value: /^[a-zA-Z0-9]+$/,
-			message: "이메일 계정이 형식에 맞지 않습니다."
-		}
+		max: { value: 30, message: "이메일 계정이 30자를 초과할 수 없습니다." },
+		pattern: { value: /^[a-zA-Z0-9]+$/, message: "이메일 계정이 형식에 맞지 않습니다." }
 	});
-	const emailDomainRegister = {
-		...register("emailDomain", {
-			required: "이메일 도메인은 비어있을 수 없습니다.",
-		}),
-		defaultValue: undefined
-	};
+	const emailDomainRegister = register("emailDomain", {
+		required: "이메일 도메인은 비어있을 수 없습니다."
+	});
 
-	const onSubmit = (formData: IAccountModifyForm) => {
+	const onSubmit = (formData: AccountModifyFormInputs) => {
+
+		setLoading(true);
 
 		adminService.modifyAdmin({
 			name: formData.name,
 			gender: formData.gender,
 			email: `${formData.emailUsername}@${formData.emailDomain}`
-		}).catch((errorResponse: IFetchErrorResponse) => {
+		}).catch((errorResponse: FetchErrorResponse) => {
 
 			switch (errorResponse.errorCode) {
 
 				case ERROR_CODE.INVALID_PARAMETER:
-					return (!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: IFetchErrorDetails) => {
+					(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
+						.forEach((error: FetchErrorDetails) => {
 							(error.field === "name") && setError(error.field, { message: error.message });
 							(error.field === "gender") && setError(error.field, { message: error.message });
 							(error.field === "email") && setError("emailUsername", { message: error.message });
 						});
+					break;
 
 				case ERROR_CODE.NOT_FOUND_MEMBER:
 					sessionUtils.initSessionInfo();
-					return navigate("/account/login/form");
+					navigate("/account/login/form");
+					break;
 
 				default:
 					throw errorResponse;
 			}
 
-		}).catch(showBoundary);
+		}).catch(showBoundary).finally(() => setLoading(false));
 	};
 
 	useEffect(() => {
-		
+	
+		console.log(accountInfos)
+
+		if (!!accountInfos) {
+
+			setValue("name", accountInfos.name);
+			setValue("gender", accountInfos.gender);
+
+			const emailAddress = accountInfos.email.split("@");
+
+			setValue("emailUsername", emailAddress[0]);
+
+			switch (emailAddress[1]) {
+				case EMAIL_DOMAIN.EXAMPLE_DOMAIN:
+				case EMAIL_DOMAIN.NAVER_DOMAIN:
+				case EMAIL_DOMAIN.GMAIL_DOMAIN:
+					setValue("emailDomain", emailAddress[1]);
+					break;
+			}
+		}
+
+	}, [accountInfos]);
+
+	useEffect(() => {
+
+		setLoading(true);
+
 		adminService.getAdmin().then(async (response: Response) => {
 
 			const admin = await response.json();
 
-			("username" in admin) && setUsername(admin?.username);
-			("name" in admin) && setValue("name", admin?.name);
-			("gender" in admin) && setValue("gender", admin?.gender);
-			
-			if ("email" in admin) {
+			setAccountInfos(admin);
 
-				const email = admin?.email;
+		}).catch((errorResponse: FetchErrorResponse) => {
 
-				setValue("emailUsername", (!!email) ? email.split("@")[0] : "");
-				setValue("emailDomain", (!!email) ? email.split("@")[1] : "");
+			switch (errorResponse.errorCode) {
+
+				case ERROR_CODE.NOT_FOUND_MEMBER:
+					sessionUtils.initSessionInfo();
+					navigate("/account/login/form");
+					break;
+
+				default:
+					throw errorResponse;
 			}
 
-		}).catch(showBoundary);
+		}).catch(showBoundary).finally(() => setLoading(false));
 
-	}, [setValue, showBoundary]);
+	}, []);
 
 	return (
 		// <!-- Modify Admin -->
@@ -123,7 +152,7 @@ export default function AccountModifyForm() {
 				<div className="row">
 					<div className="col-xl-8 mb-3">
 						<label className="form-label subheading">Username</label>
-						<input type="text" className="form-control" disabled value={username} />
+						<input type="text" className="form-control" disabled value={accountInfos?.username || ""} />
 					</div>
 				</div>
 
@@ -158,7 +187,7 @@ export default function AccountModifyForm() {
 								<input type="text" className="form-control" placeholder="Email..." {...emailUsernameRegister} />
 								<span className="input-group-text">@</span>
 								<select className="form-select" {...emailDomainRegister}>
-									{Object.entries(EMAIL_DOMAIN).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+									{Object.entries(EMAIL_DOMAIN).map(([key, value]) => <option key={key} value={value}>{value}</option>)}
 								</select>
 							</div>
 							{!!errors.emailUsername && <div className="text-danger">{errors.emailUsername.message}</div>}
