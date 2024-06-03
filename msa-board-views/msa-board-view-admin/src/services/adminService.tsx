@@ -1,38 +1,39 @@
 import { GENDER, GROUP, MEMBER_SORT, ORDER, POST_SORT, STATE } from 'msa-board-view-common/src/constants/constants';
-import { IFetchOption } from 'msa-board-view-common/src/utils/fetchUtils';
+import { FetchOption } from 'msa-board-view-common/src/utils/fetchUtils'; 
+
 import * as fetchUtils from 'msa-board-view-common/src/utils/fetchUtils';
 import * as sessionUtils from 'msa-board-view-common/src/utils/sessionUtils';
 
-export interface IAdminLoginParam {
+export type AdminLoginParams = {
     readonly username: string
     readonly password: string
 }
 
-export interface IAdminModifyParam {
+export type AdminModifyParams = {
     readonly name: string
     readonly gender: keyof typeof GENDER
     readonly email: string
 }
 
-export interface IAdminModifyPasswordParam {
+export type AdminModifyPasswordParams = {
     readonly currentPassword: string
     readonly newPassword: string
 }
 
-export interface IAdminModifyUserParam {
+export type AdminModifyUserParams = {
     readonly group: keyof typeof GROUP
     readonly state: keyof typeof STATE
 }
 
-export interface IAdminSearchMemberParam {
+export type AdminSearchMemberParams = {
     readonly username?: string
     readonly name?: string
     readonly gender?: keyof typeof GENDER
     readonly email?: string
-    readonly createdDateTimeFrom?: string
-    readonly createdDateTimeTo?: string
-    readonly updatedDateTimeFrom?: string
-    readonly updatedDateTimeTo?: string
+    readonly createdDateFrom?: string
+    readonly createdDateTo?: string
+    readonly updatedDateFrom?: string
+    readonly updatedDateTo?: string
     readonly group?: keyof typeof GROUP
     readonly state?: keyof typeof STATE
     readonly offset?: number
@@ -41,25 +42,25 @@ export interface IAdminSearchMemberParam {
     readonly order?: keyof typeof ORDER
 }
 
-export interface IAdminWritePostParam {
+export type AdminWritePostParams = {
     readonly title: string
     readonly content: string
 }
 
-export interface IAdminModifyPostParam {
+export type AdminModifyPostParams = {
     readonly title: string
     readonly content: string
     readonly state: keyof typeof STATE
 }
 
-export interface IAdminSearchPostParam {
+export type AdminSearchPostParams = {
     readonly title?: string
     readonly content?: string
     readonly writerUsername?: string
-    readonly createdDateTimeFrom?: string
-    readonly createdDateTimeTo?: string
-    readonly updatedDateTimeFrom?: string
-    readonly updatedDateTimeTo?: string
+    readonly createdDateFrom?: string
+    readonly createdDateTo?: string
+    readonly updatedDateFrom?: string
+    readonly updatedDateTo?: string
     readonly state?: keyof typeof STATE
     readonly offset?: number
     readonly limit?: number
@@ -69,12 +70,12 @@ export interface IAdminSearchPostParam {
 
 const endpointURL = "http://localhost:8000";
 
-export function fetchDataInAdmin(fetchOption: IFetchOption): Promise<Response> {
+export function fetchDataInAdmin(fetchOption: fetchUtils.FetchOption): Promise<Response> {
 
     return fetchUtils.fetchDataInAuth(fetchOption, `${endpointURL}/apis/admins/refresh`);
 }
 
-export function loginAdmin(param: IAdminLoginParam): Promise<Response> {
+export function loginAdmin(param: AdminLoginParams): Promise<Response> {
 
     return fetchUtils.fetchData({
         url: `${endpointURL}/apis/admins/login`,
@@ -92,15 +93,6 @@ export function logoutAdmin(): Promise<Response> {
     });
 }
 
-export function refreshAdmin(): Promise<Response> {
-
-    return fetchUtils.fetchData({
-        url: `${endpointURL}/apis/admins/refresh`,
-        method: "POST",
-        headers: { "Refresh-Token": sessionUtils.getRefreshToken() }
-    });
-}
-
 export function getAdmin(): Promise<Response> {
 
     return fetchDataInAdmin({
@@ -110,7 +102,7 @@ export function getAdmin(): Promise<Response> {
     });
 }
 
-export function modifyAdmin(param: IAdminModifyParam): Promise<Response> {
+export function modifyAdmin(param: AdminModifyParams): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins`,
@@ -120,7 +112,7 @@ export function modifyAdmin(param: IAdminModifyParam): Promise<Response> {
     });
 }
 
-export function modifyAdminPassword(param: IAdminModifyPasswordParam): Promise<Response> {
+export function modifyAdminPassword(param: AdminModifyPasswordParams): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/password`,
@@ -130,7 +122,7 @@ export function modifyAdminPassword(param: IAdminModifyPasswordParam): Promise<R
     });
 }
 
-export function modifyUser(userId: string, param: IAdminModifyUserParam): Promise<Response> {
+export function modifyUser(userId: string, param: AdminModifyUserParams): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/users/${userId}`,
@@ -149,12 +141,13 @@ export function getMember(memberId: string): Promise<Response> {
     });
 }
 
-export function searchMemberList(param: IAdminSearchMemberParam): Promise<Response> {
+export function searchMemberList(param: AdminSearchMemberParams): Promise<Response> {
 
     const urlParam = new URLSearchParams();
 
     Object.entries(param)
         .filter(([key, value]) => (!!value))
+        .map(([key, value]) => ([key, String(value)]))
         .forEach(([key, value]) => urlParam.append(key, value))
 
     return fetchDataInAdmin({
@@ -165,7 +158,7 @@ export function searchMemberList(param: IAdminSearchMemberParam): Promise<Respon
     });
 }
 
-export function writePost(param: IAdminWritePostParam): Promise<Response> {
+export function writePost(param: AdminWritePostParams): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts`,
@@ -175,7 +168,7 @@ export function writePost(param: IAdminWritePostParam): Promise<Response> {
     });
 }
 
-export function modifyPost(postId: string, param: IAdminWritePostParam): Promise<Response> {
+export function modifyPost(postId: string, param: AdminWritePostParams): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts${postId}`,
@@ -194,12 +187,13 @@ export function getPost(postId: string): Promise<Response> {
     });
 }
 
-export function searchPostList(param: IAdminSearchPostParam): Promise<Response> {
+export function searchPostList(param: AdminSearchPostParams): Promise<Response> {
 
     const urlParam = new URLSearchParams();
 
     Object.entries(param)
         .filter(([key, value]) => (!!value))
+        .map(([key, value]) => ([key, String(value)]))
         .forEach(([key, value]) => urlParam.append(key, value))
 
     return fetchDataInAdmin({
