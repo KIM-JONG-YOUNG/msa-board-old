@@ -8,7 +8,7 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
-import com.jong.msa.board.common.constants.DateTimeFormats;
+import com.jong.msa.board.common.constants.Patterns;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +16,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class JavaTimeParamConverter<T> implements Converter<String, T> {
 
-    protected final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.TIME_FORMAT);
-    protected final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.DATE_FORMAT);
-    protected final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.DATE_TIME_FORMAT);
+    protected final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(Patterns.TIME_FORMAT);
+    protected final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Patterns.DATE_FORMAT);
+    protected final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Patterns.DATE_TIME_FORMAT);
     
 	@Component
 	public static class LocalTimeParamConverter extends JavaTimeParamConverter<LocalTime> {

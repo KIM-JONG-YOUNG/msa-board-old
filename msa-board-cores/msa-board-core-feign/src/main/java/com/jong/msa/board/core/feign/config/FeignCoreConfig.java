@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.common.constants.DateTimeFormats;
+import com.jong.msa.board.common.constants.Patterns;
 import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -38,9 +38,9 @@ public class FeignCoreConfig {
 
 			DateTimeFormatterRegistrar localDateTimeRegistrar = new DateTimeFormatterRegistrar();
 
-			localDateTimeRegistrar.setTimeFormatter(DateTimeFormatter.ofPattern(DateTimeFormats.TIME_FORMAT));
-			localDateTimeRegistrar.setDateFormatter(DateTimeFormatter.ofPattern(DateTimeFormats.DATE_FORMAT));
-			localDateTimeRegistrar.setDateTimeFormatter(DateTimeFormatter.ofPattern(DateTimeFormats.DATE_TIME_FORMAT));
+			localDateTimeRegistrar.setTimeFormatter(DateTimeFormatter.ofPattern(Patterns.TIME_FORMAT));
+			localDateTimeRegistrar.setDateFormatter(DateTimeFormatter.ofPattern(Patterns.DATE_FORMAT));
+			localDateTimeRegistrar.setDateTimeFormatter(DateTimeFormatter.ofPattern(Patterns.DATE_TIME_FORMAT));
 
 			localDateTimeRegistrar.registerFormatters(registry);
 		};

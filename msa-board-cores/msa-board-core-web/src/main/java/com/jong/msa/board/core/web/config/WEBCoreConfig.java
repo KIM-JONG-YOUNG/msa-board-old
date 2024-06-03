@@ -18,7 +18,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
-import com.jong.msa.board.common.constants.DateTimeFormats;
+import com.jong.msa.board.common.constants.Patterns;
 
 @Configuration
 @ServletComponentScan(basePackages = "com.jong.msa.board.**.filter")
@@ -38,9 +38,9 @@ public class WEBCoreConfig implements WebMvcConfigurer {
 	Jackson2ObjectMapperBuilderCustomizer customizer() {
 
 		// objectMapper 날짜 변환 형식 지정 
-		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.TIME_FORMAT);
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.DATE_FORMAT);
-		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DateTimeFormats.DATE_TIME_FORMAT);
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(Patterns.TIME_FORMAT);
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(Patterns.DATE_FORMAT);
+		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(Patterns.DATE_TIME_FORMAT);
 		
 		return builder-> builder
 				.featuresToDisable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)	// 기본 자료형에 null 값으로 매핑되어도 오류를 발생시키지 않음 

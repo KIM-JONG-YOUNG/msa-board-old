@@ -1,5 +1,6 @@
 package com.jong.msa.board.client.member.request;
 
+import com.jong.msa.board.common.constants.Patterns;
 import com.jong.msa.board.common.enums.CodeEnum.Gender;
 import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.common.enums.CodeEnum.State;
@@ -36,9 +37,7 @@ public class ModifyMemberRequest {
 	@StringValidate(
 			blankCheck = @BlankCheck(nullable = true, message = "이메일은 비어있을 수 없습니다."),
 			sizeCheck = @SizeCheck(max = 60, message = "이메일은 60자를 초과할 수 없습니다."),
-			patternCheck = @PatternCheck(
-					regexp = "^[0-9a-zA-Z-_.]+@[0-9a-zA-Z-_.]+.[a-zA-Z]{2,3}$", 
-					message = "이메일이 형식에 맞지 않습니다."))
+			patternCheck = @PatternCheck(regexp = Patterns.EMAIL_PATTERN, message = "이메일이 형식에 맞지 않습니다."))
 	private String email;
 	
 	@Schema(description = "그룹", example = "ADMIN")

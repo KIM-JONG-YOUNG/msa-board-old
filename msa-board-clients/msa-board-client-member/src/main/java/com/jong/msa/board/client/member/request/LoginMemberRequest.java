@@ -1,5 +1,6 @@
 package com.jong.msa.board.client.member.request;
 
+import com.jong.msa.board.common.constants.Patterns;
 import com.jong.msa.board.core.validation.annotation.StringValidate;
 import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
 import com.jong.msa.board.core.validation.annotation.StringValidate.PatternCheck;
@@ -24,7 +25,7 @@ public class LoginMemberRequest {
 	@StringValidate(
 			blankCheck = @BlankCheck(message = "계정은 비어있을 수 없습니다."),
 			sizeCheck = @SizeCheck(max = 30, message = "계정은 30자를 초과할 수 없습니다."),
-			patternCheck = @PatternCheck(regexp = "^[a-zA-Z0-9]+$", message = "계정이 형식에 맞지 않습니다."))
+			patternCheck = @PatternCheck(regexp = Patterns.USERNAME_PATTERN, message = "계정이 형식에 맞지 않습니다."))
 	private String username;
 	
 	@Schema(description = "비밀번호" , example = "password")
