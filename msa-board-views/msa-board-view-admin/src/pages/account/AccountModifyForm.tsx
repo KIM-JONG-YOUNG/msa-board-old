@@ -152,7 +152,7 @@ export default function AccountModifyForm() {
 				<div className="row">
 					<div className="col-xl-8 mb-3">
 						<label className="form-label subheading">Username</label>
-						<input type="text" className="form-control" disabled value={accountInfos?.username || ""} />
+						<input type="text" className="form-control" disabled value={accountInfos?.username} />
 					</div>
 				</div>
 
