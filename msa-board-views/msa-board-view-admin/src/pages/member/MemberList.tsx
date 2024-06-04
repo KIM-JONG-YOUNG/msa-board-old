@@ -47,7 +47,6 @@ export default function MemberList() {
 		register,
 		setError,
 		getValues,
-		formState: { errors },
 		control
 	} = useForm<MemberListSearchFormInputs>({ mode: "onBlur" });
 	const { showBoundary } = useErrorBoundary();
@@ -185,7 +184,7 @@ export default function MemberList() {
 							<tbody>
 								{
 									(!!memberList) && memberList.map((member, i) =>
-										<tr key={member.id} onClick={() => navigate(`/member/details/${member.id}`)}>
+										<tr key={member.id} onClick={() => navigate(`/member/${member.id}/details`)}>
 											<th scope="row">{i + 1 + (getValues("offset") || 0)}</th>
 											<td>{member.username}</td>
 											<td>{member.name}</td>

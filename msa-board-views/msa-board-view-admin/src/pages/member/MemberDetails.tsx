@@ -42,8 +42,7 @@ export default function MemberDetails() {
 
 	const onSubmit = (formData: UserModifyFormInputs) => {
 
-		setLoading(true);
-
+		(!!id) && setLoading(true);
 		(!!id) && adminService.modifyUser(id, {
 			group: formData.group,
 			state: formData.state
@@ -84,6 +83,7 @@ export default function MemberDetails() {
 
 		setLoading(true);
 
+		(!!id) && setLoading(true);
 		(!!id) && adminService.getMember(id).then(async (response: Response) => {
 
 			const member = await response.json();
