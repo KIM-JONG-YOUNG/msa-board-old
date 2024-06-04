@@ -171,12 +171,23 @@ export function writePost(param: AdminWritePostParams): Promise<Response> {
 export function modifyPost(postId: string, param: AdminWritePostParams): Promise<Response> {
 
     return fetchDataInAdmin({
-        url: `${endpointURL}/apis/admins/posts${postId}`,
+        url: `${endpointURL}/apis/admins/posts/${postId}`,
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(param)
     });
 }
+
+export function modifyPostState(postId: string, state: keyof typeof STATE): Promise<Response> {
+
+    return fetchDataInAdmin({
+        url: `${endpointURL}/apis/admins/posts/${postId}/state`,
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: `"${state}"`
+    });
+}
+
 
 export function getPost(postId: string): Promise<Response> {
 
