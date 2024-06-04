@@ -8,6 +8,7 @@ import useLoading from "msa-board-view-common/src/hooks/useLoading";
 
 import * as adminService from "../../services/adminService";
 import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
+import { useCallback } from "react";
 
 export type AccountPasswordModifyFormInputs = {
 	readonly currentPassword: string
@@ -16,60 +17,73 @@ export type AccountPasswordModifyFormInputs = {
 
 export default function AccountPasswordModifyForm() {
 
+	const navigate = useNavigate();
+	const { showBoundary } = useErrorBoundary();
+	const { loadingCallback } = useLoading();
+	
 	const {
 		register,
 		setError,
 		handleSubmit,
 		formState: { errors }
 	} = useForm<AccountPasswordModifyFormInputs>({ mode: "onBlur" });
-	const { showBoundary } = useErrorBoundary();
-	const navigate = useNavigate();
-	const [, setLoading] = useLoading();
 
-	const currentPasswordRegister = register("currentPassword", {
-		required: "현재 비밀번호는 비어있을 수 없습니다."
+	const currentPasswordRegister = register("currentPassword", { 
+		required: "현재 비밀번호는 비어있을 수 없습니다." 
 	});
 	const newPasswordRegister = register("newPassword", {
 		required: "새로운 비밀번호는 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: AccountPasswordModifyFormInputs) => {
+	const onSubmitSuccessHandler = useCallback(() => {
 
-		adminService.modifyAdminPassword({
-			currentPassword: formData.currentPassword,
-			newPassword: formData.newPassword
-		}).then(() => {
+		sessionUtils.initSessionInfo();
+		navigate("/account/login/form");
 
-			sessionUtils.initSessionInfo();
-			navigate("/account/login/form");
+	}, [navigate]);
+	
+	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
-		}).catch((errorResponse: FetchErrorResponse) => {
+		const errorCode = errorResponse.errorCode;
+		const errorMessage = errorResponse.errorMessage;
+		const errorDetailsList = errorResponse.errorDetailsList || [];
 
-			switch (errorResponse.errorCode) {
+		switch (errorCode) {
 
-				case ERROR_CODE.INVALID_PARAMETER:
-					(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: FetchErrorDetails) => {
-							(error.field === "currentPassword") && setError(error.field, { message: error.message });
-							(error.field === "newPassword") && setError(error.field, { message: error.message });
-						});
-					break;
+			case ERROR_CODE.INVALID_PARAMETER:
+				errorDetailsList.forEach((error: FetchErrorDetails) => {
+					(error.field === "currentPassword") && setError(error.field, { message: error.message });
+					(error.field === "newPassword") && setError(error.field, { message: error.message });
+				});
+				break;
 
-				case ERROR_CODE.NOT_FOUND_MEMBER:
-					sessionUtils.initSessionInfo();
-					navigate("/account/login/form");
-					break;
+			case ERROR_CODE.NOT_FOUND_MEMBER:
+				sessionUtils.initSessionInfo();
+				navigate("/account/login/form");
+				break;
 
-				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
-					setError("currentPassword", { message: errorResponse.errorMessage });
-					break;
+			case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
+				setError("currentPassword", { message: errorMessage });
+				break;
 
-				default:
-					throw errorResponse;
-			}
+			default:
+				throw errorResponse;
+		}
 
-		}).catch(showBoundary).finally(() => setLoading(false));
-	};
+	}, [navigate, setError]);
+	
+	const onSubmit = useCallback((formData: AccountPasswordModifyFormInputs) => {
+
+		loadingCallback(() => adminService
+			.modifyAdminPassword({
+				currentPassword: formData.currentPassword,
+				newPassword: formData.newPassword
+			})
+			.then(onSubmitSuccessHandler)
+			.catch(onSubmitErrorHandler)
+			.catch(showBoundary));
+
+	}, [loadingCallback, onSubmitSuccessHandler, onSubmitErrorHandler, showBoundary]);
 
 	return (
 		// <!-- Modify Admin Password -->

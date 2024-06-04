@@ -21,7 +21,7 @@ export function MemberRouter({
     const currentAccessToken = sessionUtils.getAccessToken();
     const currentGroup = sessionUtils.getGroup();
 
-    return (!!currentAccessToken && !!currentGroup && group === currentGroup) ? element : <Navigate to={redirectURL} />
+    return (!!currentAccessToken && currentGroup === group) ? element : <Navigate to={redirectURL} />
 };
 
 export function AnonymousRouter({

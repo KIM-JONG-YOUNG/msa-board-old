@@ -1,8 +1,10 @@
+import { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router-dom";
-import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
+
 import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
 import useLoading from 'msa-board-view-common/src/hooks/useLoading';
 
 import * as adminService from "../../services/adminService";
@@ -15,16 +17,17 @@ export type AccountLoginFormInputs = {
 
 export default function AccountLoginForm() {
 
-	const {
-		register,
-		setError,
-		handleSubmit,
-		formState: { errors }
-	} = useForm<AccountLoginFormInputs>({ mode: "onBlur" });
-	const { showBoundary } = useErrorBoundary();
 	const navigate = useNavigate();
-	const [, setLoading] = useLoading();
-
+	const { showBoundary } = useErrorBoundary();
+	const { loadingCallback } = useLoading();
+	
+	const { 
+		register, 
+		setError, 
+		handleSubmit, 
+		formState: { errors } 
+	} = useForm<AccountLoginFormInputs>({ mode: "onBlur" });
+	
 	const usernameRegister = register("username", {
 		required: "계정은 비어있을 수 없습니다.",
 		max: { value: 30, message: "계정이 30자를 초과할 수 없습니다." },
@@ -34,51 +37,55 @@ export default function AccountLoginForm() {
 		required: "비밀번호는 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: AccountLoginFormInputs) => {
+	const onSubmitSuccessHandler = useCallback((response: Response) => {
+	
+		sessionUtils.setAccessToken(response.headers.get("Access-Token") || "");
+		sessionUtils.setRefreshToken(response.headers.get("Refresh-Token") || "");
+		sessionUtils.setGroup("ADMIN");
 
-		setLoading(true);
+		navigate("/main");
 
-		adminService.loginAdmin({
-			username: formData.username,
-			password: formData.password
-		}).then((response: Response) => {
+	}, [navigate]);
 
-			const accessToken = response.headers.get("Access-Token");
-			const refreshToken = response.headers.get("Refresh-Token");
+	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
-			(!!accessToken) && sessionUtils.setAccessToken(accessToken);
-			(!!refreshToken) && sessionUtils.setRefreshToken(refreshToken);
+		const errorCode = errorResponse.errorCode;
+		const errorMessage = errorResponse.errorMessage;
+		const errorDetailsList = errorResponse.errorDetailsList || [];
 
-			sessionUtils.setGroup("ADMIN");
+		switch (errorCode) {
 
-			navigate("/main");
+			case ERROR_CODE.INVALID_PARAMETER:
+				errorDetailsList.forEach((error: FetchErrorDetails) => {
+					(error.field === "username") && setError(error.field, { message: error.message });
+					(error.field === "password") && setError(error.field, { message: error.message });
+				});
+				break;
 
-		}).catch((errorResponse: FetchErrorResponse) => {
+			case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
+			case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
+				setError("username", { message: errorMessage });
+				break;
 
-			switch (errorResponse.errorCode) {
-				case ERROR_CODE.INVALID_PARAMETER:
-					(!!errorResponse.errorDetailsList) && errorResponse?.errorDetailsList
-						.forEach((error: FetchErrorDetails) => {
-							(error.field === "username") && setError(error.field, { message: error.message });
-							(error.field === "password") && setError(error.field, { message: error.message });
-						});
-					break;
+			case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
+				setError("password", { message: errorMessage });
+				break;
 
-				case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
-				case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
-					setError("username", { message: errorResponse.errorMessage });
-					break;
+			default:
+				throw errorResponse;
+		}
+		
+	}, [setError]);
 
-				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
-					setError("password", { message: errorResponse.errorMessage });
-					break;
+	const onSubmit = useCallback((formData: AccountLoginFormInputs) => {
 
-				default:
-					throw errorResponse;
-			}
-
-		}).catch(showBoundary).finally(() => setLoading(false));
-	};
+		loadingCallback(() => adminService
+			.loginAdmin(formData)
+			.then(onSubmitSuccessHandler)
+			.catch(onSubmitErrorHandler)
+			.catch(showBoundary));
+			
+	}, [loadingCallback, onSubmitSuccessHandler, onSubmitErrorHandler, showBoundary]);
 
 	return (
 		// <!-- Login Admin -->

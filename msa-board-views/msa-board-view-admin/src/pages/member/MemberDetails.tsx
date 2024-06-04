@@ -1,19 +1,20 @@
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
 import { ERROR_CODE, GENDER, GROUP, STATE } from "msa-board-view-common/src/constants/constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import * as adminService from "../../services/adminService";
 import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
 import useLoading from "msa-board-view-common/src/hooks/useLoading";
 import { useParams, useNavigate } from "react-router-dom";
+
+import * as adminService from "../../services/adminService";
 
 export type UserModifyFormInputs = {
 	group: keyof typeof GROUP
 	state: keyof typeof STATE
 }
 
-export type MemberInfos = {
+export type MemberDetails = {
 	id: string
 	username: string
 	name: string
@@ -25,88 +26,94 @@ export type MemberInfos = {
 
 export default function MemberDetails() {
 
+	const navigate = useNavigate();
+	const { id } = useParams();
+	const { showBoundary } = useErrorBoundary();
+	const { loadingCallback } = useLoading();
+
+	const [member, setMember] = useState<MemberDetails>();
+
 	const {
 		register,
 		setError,
 		setValue,
 		handleSubmit
 	} = useForm<UserModifyFormInputs>({ mode: "onBlur" });
-	const { id } = useParams();
-	const { showBoundary } = useErrorBoundary();
-	const navigate = useNavigate();
-	const [, setLoading] = useLoading();
-	const [memberInfos, setMemberInfos] = useState<MemberInfos>();
 
 	const groupRegister = register("group");
 	const stateRegister = register("state");
 
-	const onSubmit = (formData: UserModifyFormInputs) => {
+	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
-		(!!id) && setLoading(true);
-		(!!id) && adminService.modifyUser(id, {
-			group: formData.group,
-			state: formData.state
-		}).catch((errorResponse: FetchErrorResponse) => {
+		const errorCode = errorResponse.errorCode;
+		const errorMessage = errorResponse.errorMessage;
+		const errorDetailsList = errorResponse.errorDetailsList || [];
 
-			switch (errorResponse.errorCode) {
+		switch (errorCode) {
 
-				case ERROR_CODE.INVALID_PARAMETER:
-					(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: FetchErrorDetails) => {
-							(error.field === "state") && setError(error.field, { message: error.message });
-							(error.field === "group") && setError(error.field, { message: error.message });
-						});
-					break;
+			case ERROR_CODE.INVALID_PARAMETER:
+				errorDetailsList.forEach((error: FetchErrorDetails) => {
+					(error.field === "state") && setError(error.field, { message: error.message });
+					(error.field === "group") && setError(error.field, { message: error.message });
+				});
+				break;
 
-				case ERROR_CODE.NOT_FOUND_MEMBER:
-					alert(errorResponse.errorMessage);
-					navigate(-1);
-					break;
+			case ERROR_CODE.NOT_FOUND_MEMBER:
+				alert(errorMessage);
+				navigate("/member/list");
+				break;
 
-				default:
-					throw errorResponse;
-			}
+			default:
+				throw errorResponse;
+		}
 
+	}, [setError, navigate]);
 
-		}).catch(showBoundary).finally(() => setLoading(false));
+	const onSubmit = useCallback((formData: UserModifyFormInputs) => {
 
-	};
+		if (!!id && member?.group === "USER") {
+
+			loadingCallback(() => adminService
+				.modifyUser(id, {
+					group: formData.group,
+					state: formData.state
+				})
+				.catch(onSubmitErrorHandler)
+				.catch(showBoundary));
+
+		} else {
+
+			alert((!id) ? "회원 ID가 존재하지 않습니다." : "일반 회원이 아닙니다.");
+			navigate("/member/list");
+		}
+
+	}, [id, member, loadingCallback, onSubmitErrorHandler, showBoundary, navigate]);
 
 	useEffect(() => {
 
-		(!!memberInfos) && setValue("group", memberInfos.group);
-		(!!memberInfos) && setValue("state", memberInfos.state);
+		(!!member) && setValue("group", member?.group);
+		(!!member) && setValue("state", member?.state);
 
-	}, [memberInfos]);
+	}, [member, setValue]);
 
 	useEffect(() => {
 
-		setLoading(true);
+		if (!!id) {
 
-		(!!id) && setLoading(true);
-		(!!id) && adminService.getMember(id).then(async (response: Response) => {
+			loadingCallback(() => adminService
+				.getMember(id)
+				.then((response: Response) => response.json())
+				.then((member: MemberDetails) => setMember(member))
+				.catch(onSubmitErrorHandler)
+				.catch(showBoundary));
 
-			const member = await response.json();
+		} else {
 
-			setMemberInfos(member);
-
-		}).catch((errorResponse: FetchErrorResponse) => {
-
-			switch (errorResponse.errorCode) {
-
-				case ERROR_CODE.NOT_FOUND_MEMBER:
-					alert(errorResponse.errorMessage);
-					navigate(-1);
-					break;
-
-				default:
-					throw errorResponse;
-			}
-
-		}).catch(showBoundary).finally(() => setLoading(false));
+			alert("회원 ID가 존재하지 않습니다.");
+			navigate("/post/list");
+		}
 
 	}, []);
-
 
 	return (
 		// <!-- User Modify Form -->
@@ -123,27 +130,28 @@ export default function MemberDetails() {
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Username</label>
-							<input type="text" className="form-control" disabled value={memberInfos?.username || ""} />
+							<input type="text" className="form-control" disabled value={member?.username || ""} />
 						</div>
 					</div>
 
 					<div className="row">
 						<div className="col-xl-4 mb-3">
 							<label className="form-label subheading">Name</label>
-							<input type="text" className="form-control" disabled value={memberInfos?.name || ""} />
+							<input type="text" className="form-control" disabled value={member?.name || ""} />
 						</div>
 						<div className="col-xl-4 mb-3">
 							<label className="form-label subheading">Gender</label>
-							<input type="text" className="form-control" disabled value={
-								(!!memberInfos?.gender) ? GENDER[memberInfos.gender] : ""
-							} />
+							<input type="text" className="form-control" disabled 
+								value={
+									(!!member?.gender) ? GENDER[member.gender] : ""
+								} />
 						</div>
 					</div>
 
 					<div className="row">
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Email</label>
-							<input type="text" className="form-control" disabled value={memberInfos?.email || ""} />
+							<input type="text" className="form-control" disabled value={member?.email || ""} />
 						</div>
 					</div>
 
@@ -151,13 +159,11 @@ export default function MemberDetails() {
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Group</label>
 							{
-								(memberInfos?.group === "USER") 
+								(member?.group === "USER") 
 									? <select className="form-select" {...groupRegister}>
 										{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 									</select>
-									: <input type="text" className="form-control" disabled value={
-										(!!memberInfos?.group) ? GROUP[memberInfos.group] : ""
-									} />
+									: <input type="text" className="form-control" disabled value={(!!member?.group) ? GROUP[member.group] : ""} />
 							}
 							
 						</div>
@@ -167,19 +173,17 @@ export default function MemberDetails() {
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">State</label>
 							{
-								(memberInfos?.group === "USER") 
+								(member?.group === "USER") 
 									? <select className="form-select" {...stateRegister}>
 										{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 									</select>
-									: <input type="text" className="form-control" disabled value={
-										(!!memberInfos?.state) ? STATE[memberInfos.state] : ""	
-									} />
+									: <input type="text" className="form-control" disabled value={(!!member?.state) ? STATE[member.state] : ""} />
 							}
 						</div>
 					</div>
 
 					{
-						(memberInfos?.group === "USER") && 
+						(member?.group === "USER") && 
 							<div className="row">
 								<div className="col-xl-8 mt-3">
 									<button type="submit" className="btn btn-info w-100">Modify</button>

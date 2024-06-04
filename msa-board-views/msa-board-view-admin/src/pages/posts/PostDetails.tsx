@@ -2,29 +2,28 @@ import { useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useErrorBoundary } from "react-error-boundary";
 import { ERROR_CODE, GROUP, STATE } from "msa-board-view-common/src/constants/constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
+import { FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
 import useLoading from "msa-board-view-common/src/hooks/useLoading";
 
 import * as adminService from "../../services/adminService";
-import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
 
 import 'react-datepicker/dist/react-datepicker.css';
 
-export type PostWriterInfos = {
+export type PostWriter = {
 	readonly id: string
 	readonly username: string
 	readonly name: string
 	readonly group: keyof typeof GROUP
 }
 
-export type PostInfos = {
+export type PostDetails = {
 	readonly id: string
 	readonly title: string
 	readonly content: string
 	readonly views: number
-	readonly writer: PostWriterInfos
+	readonly writer: PostWriter
 	readonly createdDateTime: string
 	readonly updatedDateTime: string
 	readonly state: keyof typeof STATE
@@ -32,35 +31,66 @@ export type PostInfos = {
 
 export default function PostDetails() {
 
+	const navigate = useNavigate();
 	const { id } = useParams();
 	const { showBoundary } = useErrorBoundary();
-	const [, setLoading] = useLoading();
-	const navigate = useNavigate();
+	const { loadingCallback } = useLoading();
 
-	const [post, setPost] = useState<PostInfos>();
+	const [post, setPost] = useState<PostDetails>();
+	
+	const onChangeStateSuccessHandler = useCallback((state: keyof typeof STATE) => {
 
-	const changePostState = (state: keyof typeof STATE) => {
+		setPost((prev) => (!!prev) ? {
+			...prev,
+			state: state
+		} : prev);
+		
+	}, [setPost]);
 
-		(!!id) && setLoading(true);
-		(!!id) && adminService.modifyPostState(id, state)
-			.then((response: Response) => {
-				setPost(prevState => (!prevState) 
-					? undefined 
-					: {
-						...prevState,
-						state: state
-					});
-			})
-			.catch(showBoundary).finally(() => setLoading(false));
-	};
+	const onChangeStateErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
+		const errorCode = errorResponse.errorCode;
+		const errorMessage = errorResponse.errorMessage;
+
+		switch (errorCode) {
+
+			case ERROR_CODE.NOT_FOUND_POST:
+			case ERROR_CODE.NOT_FOUND_POST_WRITER:
+				alert(errorMessage);
+				navigate("/member/list");
+				break;
+
+			default:
+				throw errorResponse;
+		}
+
+	}, [navigate]);
+
+	const onChangeState = useCallback((state: keyof typeof STATE) => {
+
+		if (!!id) {
+
+			loadingCallback(() => adminService
+				.modifyPostState(id, state)
+				.then(() => state)
+				.then(onChangeStateSuccessHandler)
+				.catch(onChangeStateErrorHandler)
+				.catch(showBoundary));
+
+		} else {
+
+			alert("게시글 ID가 존재하지 않습니다.");
+			navigate("/post/list");
+		}
+		
+	}, [id, navigate, loadingCallback, onChangeStateSuccessHandler, onChangeStateErrorHandler, showBoundary]);
 
 	useEffect(() => {
 
-		(!!id) && setLoading(true);
-		(!!id) && adminService.getPost(id)
+		(!!id) && loadingCallback(() => adminService
+			.getPost(id)
 			.then((response: Response) => response.json())
-			.then((post: PostInfos) => setPost(post))
+			.then((post: PostDetails) => setPost(post))
 			.catch((errorResponse: FetchErrorResponse) => {
 
 				switch (errorResponse.errorCode) {
@@ -75,7 +105,7 @@ export default function PostDetails() {
 						throw errorResponse;
 				}
 			})
-			.catch(showBoundary).finally(() => setLoading(false));
+			.catch(showBoundary));
 
 	}, []);
 
@@ -94,7 +124,7 @@ export default function PostDetails() {
 						<div className="subheading ">{post?.title || ""}</div>
 						<hr className="mb-0" />
 						<span>Writer : {post?.writer?.username || ""}</span>
-						<span className="float-end">Views : {post?.views || ""}</span>
+						<span className="float-end">Views : {post?.views || 0}</span>
 					</div>
 				</div>
 
@@ -108,14 +138,17 @@ export default function PostDetails() {
 					</div>
 				</div>
 
-				<div className="row">
+				<div className="row" >
 					<div className="col-xl-10">
 						{(post?.writer?.group === "ADMIN") &&
-							<button type="button" className="btn btn-info" onClick={() => navigate(`/post/${id}/modify/form`)}>Modify</button>}				
+							<button type="button" className="btn btn-info" onClick={() => navigate(`/post/${id}/modify/form`)}>Modify</button>
+						}				
 						{(post?.state === "ACTIVE") && 
-							<button type="button" className="btn btn-danger float-end" onClick={() => changePostState("DEACTIVE")}>Delete</button>}
-						{(post?.state === "DEACTIVE") && 
-							<button type="button" className="btn btn-success float-end" onClick={() => changePostState("ACTIVE")}>Restore</button>}					
+							<button type="submit" className="btn btn-danger float-end" onClick={() => onChangeState("DEACTIVE")} >Delete</button>
+						}
+						{(post?.state === "DEACTIVE") &&
+							<button type="submit" className="btn btn-success float-end" onClick={() => onChangeState("ACTIVE")} >Restore</button>
+						}
 					</div>
 				</div>
 

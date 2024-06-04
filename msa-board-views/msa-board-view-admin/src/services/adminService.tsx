@@ -1,31 +1,29 @@
 import { GENDER, GROUP, MEMBER_SORT, ORDER, POST_SORT, STATE } from 'msa-board-view-common/src/constants/constants';
-import { FetchOption } from 'msa-board-view-common/src/utils/fetchUtils'; 
 
 import * as fetchUtils from 'msa-board-view-common/src/utils/fetchUtils';
-import * as sessionUtils from 'msa-board-view-common/src/utils/sessionUtils';
 
-export type AdminLoginParams = {
+export type AdminLoginRequest = {
     readonly username: string
     readonly password: string
 }
 
-export type AdminModifyParams = {
+export type AdminModifyRequest = {
     readonly name: string
     readonly gender: keyof typeof GENDER
     readonly email: string
 }
 
-export type AdminModifyPasswordParams = {
+export type AdminModifyPasswordRequest = {
     readonly currentPassword: string
     readonly newPassword: string
 }
 
-export type AdminModifyUserParams = {
+export type AdminModifyUserRequest = {
     readonly group: keyof typeof GROUP
     readonly state: keyof typeof STATE
 }
 
-export type AdminSearchMemberParams = {
+export type AdminSearchMemberRequest = {
     readonly username?: string
     readonly name?: string
     readonly gender?: keyof typeof GENDER
@@ -42,18 +40,18 @@ export type AdminSearchMemberParams = {
     readonly order?: keyof typeof ORDER
 }
 
-export type AdminWritePostParams = {
+export type AdminWritePostRequest = {
     readonly title: string
     readonly content: string
 }
 
-export type AdminModifyPostParams = {
+export type AdminModifyPostRequest = {
     readonly title: string
     readonly content: string
     readonly state: keyof typeof STATE
 }
 
-export type AdminSearchPostParams = {
+export type AdminSearchPostRequest = {
     readonly title?: string
     readonly content?: string
     readonly writerUsername?: string
@@ -75,7 +73,7 @@ export function fetchDataInAdmin(fetchOption: fetchUtils.FetchOption): Promise<R
     return fetchUtils.fetchDataInAuth(fetchOption, `${endpointURL}/apis/admins/refresh`);
 }
 
-export function loginAdmin(param: AdminLoginParams): Promise<Response> {
+export function loginAdmin(param: AdminLoginRequest): Promise<Response> {
 
     return fetchUtils.fetchData({
         url: `${endpointURL}/apis/admins/login`,
@@ -102,7 +100,7 @@ export function getAdmin(): Promise<Response> {
     });
 }
 
-export function modifyAdmin(param: AdminModifyParams): Promise<Response> {
+export function modifyAdmin(param: AdminModifyRequest): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins`,
@@ -112,7 +110,7 @@ export function modifyAdmin(param: AdminModifyParams): Promise<Response> {
     });
 }
 
-export function modifyAdminPassword(param: AdminModifyPasswordParams): Promise<Response> {
+export function modifyAdminPassword(param: AdminModifyPasswordRequest): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/password`,
@@ -122,7 +120,7 @@ export function modifyAdminPassword(param: AdminModifyPasswordParams): Promise<R
     });
 }
 
-export function modifyUser(userId: string, param: AdminModifyUserParams): Promise<Response> {
+export function modifyUser(userId: string, param: AdminModifyUserRequest): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/users/${userId}`,
@@ -141,12 +139,12 @@ export function getMember(memberId: string): Promise<Response> {
     });
 }
 
-export function searchMemberList(param: AdminSearchMemberParams): Promise<Response> {
+export function searchMemberList(param: AdminSearchMemberRequest): Promise<Response> {
 
     const urlParam = new URLSearchParams();
 
     Object.entries(param)
-        .filter(([key, value]) => (!!value))
+        .filter(([, value]) => (!!value))
         .map(([key, value]) => ([key, String(value)]))
         .forEach(([key, value]) => urlParam.append(key, value))
 
@@ -158,7 +156,7 @@ export function searchMemberList(param: AdminSearchMemberParams): Promise<Respon
     });
 }
 
-export function writePost(param: AdminWritePostParams): Promise<Response> {
+export function writePost(param: AdminWritePostRequest): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts`,
@@ -168,7 +166,7 @@ export function writePost(param: AdminWritePostParams): Promise<Response> {
     });
 }
 
-export function modifyPost(postId: string, param: AdminWritePostParams): Promise<Response> {
+export function modifyPost(postId: string, param: AdminWritePostRequest): Promise<Response> {
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts/${postId}`,
@@ -198,12 +196,12 @@ export function getPost(postId: string): Promise<Response> {
     });
 }
 
-export function searchPostList(param: AdminSearchPostParams): Promise<Response> {
+export function searchPostList(param: AdminSearchPostRequest): Promise<Response> {
 
     const urlParam = new URLSearchParams();
 
     Object.entries(param)
-        .filter(([key, value]) => (!!value))
+        .filter(([, value]) => (!!value))
         .map(([key, value]) => ([key, String(value)]))
         .forEach(([key, value]) => urlParam.append(key, value))
 

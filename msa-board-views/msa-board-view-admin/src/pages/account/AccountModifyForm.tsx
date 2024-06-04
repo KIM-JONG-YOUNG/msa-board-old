@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { EMAIL_DOMAIN, ERROR_CODE, GENDER } from "msa-board-view-common/src/constants/constants";
 import useLoading from "msa-board-view-common/src/hooks/useLoading";
 import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
@@ -16,15 +16,18 @@ export type AccountModifyFormInputs = {
 	readonly emailDomain: typeof EMAIL_DOMAIN[keyof typeof EMAIL_DOMAIN]
 }
 
-export type AccountInfos = {
+export type AccountDetails = {
 	readonly username: string
 	readonly name: string
 	readonly gender: keyof typeof GENDER
 	readonly email: string
 }
 
-
 export default function AccountModifyForm() {
+
+	const navigate = useNavigate();
+	const { showBoundary } = useErrorBoundary();
+	const { loadingCallback } = useLoading();
 
 	const {
 		register,
@@ -33,11 +36,6 @@ export default function AccountModifyForm() {
 		handleSubmit,
 		formState: { errors }
 	} = useForm<AccountModifyFormInputs>({ mode: "onBlur" });
-	const { showBoundary } = useErrorBoundary();
-	const navigate = useNavigate();
-	const [, setLoading] = useLoading();
-
-	const [accountInfos, setAccountInfos] = useState<AccountInfos>();
 
 	const nameRegister = register("name", {
 		required: "이름은 비어있을 수 없습니다.",
@@ -55,48 +53,54 @@ export default function AccountModifyForm() {
 		required: "이메일 도메인은 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: AccountModifyFormInputs) => {
+	const [account, setAccount] = useState<AccountDetails>();
 
-		setLoading(true);
+	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
-		adminService.modifyAdmin({
-			name: formData.name,
-			gender: formData.gender,
-			email: `${formData.emailUsername}@${formData.emailDomain}`
-		}).catch((errorResponse: FetchErrorResponse) => {
+		const errorCode = errorResponse.errorCode;
+		const errorDetailsList = errorResponse.errorDetailsList || [];
 
-			switch (errorResponse.errorCode) {
+		switch (errorCode) {
 
-				case ERROR_CODE.INVALID_PARAMETER:
-					(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-						.forEach((error: FetchErrorDetails) => {
-							(error.field === "name") && setError(error.field, { message: error.message });
-							(error.field === "gender") && setError(error.field, { message: error.message });
-							(error.field === "email") && setError("emailUsername", { message: error.message });
-						});
-					break;
+			case ERROR_CODE.INVALID_PARAMETER:
+				errorDetailsList.forEach((error: FetchErrorDetails) => {
+					(error.field === "name") && setError(error.field, { message: error.message });
+					(error.field === "gender") && setError(error.field, { message: error.message });
+					(error.field === "email") && setError("emailUsername", { message: error.message });
+				});
+				break;
 
-				case ERROR_CODE.NOT_FOUND_MEMBER:
-					sessionUtils.initSessionInfo();
-					navigate("/account/login/form");
-					break;
+			case ERROR_CODE.NOT_FOUND_MEMBER:
+				sessionUtils.initSessionInfo();
+				navigate("/account/login/form");
+				break;
 
-				default:
-					throw errorResponse;
-			}
+			default:
+				throw errorResponse;
+		}
 
-		}).catch(showBoundary).finally(() => setLoading(false));
-	};
+	}, [setError, navigate]);
+
+	const onSubmit = useCallback((formData: AccountModifyFormInputs) => {
+
+		loadingCallback(() => adminService
+			.modifyAdmin({
+				...formData,
+				email: `${formData.emailUsername}@${formData.emailDomain}`
+			})
+			.catch(onSubmitErrorHandler)
+			.catch(showBoundary));
+
+	}, [loadingCallback, onSubmitErrorHandler, showBoundary]);
 
 	useEffect(() => {
 
-		if (!!accountInfos) {
+		if (!!account) {
 
-			setValue("name", accountInfos.name);
-			setValue("gender", accountInfos.gender);
+			const emailAddress = account.email.split("@");
 
-			const emailAddress = accountInfos.email.split("@");
-
+			setValue("name", account.name);
+			setValue("gender", account.gender);
 			setValue("emailUsername", emailAddress[0]);
 
 			switch (emailAddress[1]) {
@@ -105,35 +109,31 @@ export default function AccountModifyForm() {
 				case EMAIL_DOMAIN.GMAIL_DOMAIN:
 					setValue("emailDomain", emailAddress[1]);
 					break;
-			}
+			}			
 		}
 
-	}, [accountInfos]);
+	}, [account, setValue]);
 
 	useEffect(() => {
 
-		setLoading(true);
-
-		adminService.getAdmin().then(async (response: Response) => {
-
-			const admin = await response.json();
-
-			setAccountInfos(admin);
-
-		}).catch((errorResponse: FetchErrorResponse) => {
-
-			switch (errorResponse.errorCode) {
-
-				case ERROR_CODE.NOT_FOUND_MEMBER:
-					sessionUtils.initSessionInfo();
-					navigate("/account/login/form");
-					break;
-
-				default:
-					throw errorResponse;
-			}
-
-		}).catch(showBoundary).finally(() => setLoading(false));
+		loadingCallback(()=> adminService
+			.getAdmin()
+			.then((response: Response) => response.json())
+			.then((account: AccountDetails) => setAccount(account))
+			.catch((errorResponse: FetchErrorResponse) => {
+	
+				switch (errorResponse.errorCode) {
+	
+					case ERROR_CODE.NOT_FOUND_MEMBER:
+						sessionUtils.initSessionInfo();
+						navigate("/account/login/form");
+						break;
+	
+					default:
+						throw errorResponse;
+				}
+	
+			}).catch(showBoundary));
 
 	}, []);
 
@@ -150,7 +150,7 @@ export default function AccountModifyForm() {
 				<div className="row">
 					<div className="col-xl-8 mb-3">
 						<label className="form-label subheading">Username</label>
-						<input type="text" className="form-control" disabled value={accountInfos?.username || ""} />
+						<input type="text" className="form-control" disabled value={account?.username || ""} />
 					</div>
 				</div>
 

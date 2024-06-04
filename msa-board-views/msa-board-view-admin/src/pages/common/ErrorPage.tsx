@@ -2,7 +2,7 @@ import { ERROR_CODE } from "msa-board-view-common/src/constants/constants";
 import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
 import { useEffect, useRef } from "react";
 import { FallbackProps } from "react-error-boundary";
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function ErrorPage({
 	error,
@@ -10,17 +10,17 @@ export default function ErrorPage({
 }: FallbackProps) {
 
 	const navigate = useNavigate();
-	const errorCode = ("errorCode" in error) ? error.errorCode : null;
-	const errorMessage = ("errorCode" in error) ? error.errorMessage : null;
-
 	const { pathname } = useLocation();
 	const originalPathname = useRef(pathname);
 
+	const errorCode = ("errorCode" in error) ? error.errorCode : null;
+	const errorMessage = ("errorCode" in error) ? error.errorMessage : null;
+
 	useEffect(() => {
-		if (pathname !== originalPathname.current) {
-			resetErrorBoundary();
-		}
-	}, [pathname, resetErrorBoundary])
+
+		(pathname !== originalPathname.current) && resetErrorBoundary();
+
+	}, [pathname, originalPathname, resetErrorBoundary])
 
 	useEffect(() => {
 

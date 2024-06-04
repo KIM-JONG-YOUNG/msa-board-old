@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { useErrorBoundary } from "react-error-boundary";
 import { ERROR_CODE, GROUP, STATE } from "msa-board-view-common/src/constants/constants";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import * as adminService from "../../services/adminService";
 import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
@@ -15,19 +15,19 @@ export type PostWriteFormInputs = {
 	readonly content: string
 }
 
-export type PostWriterInfos = {
+export type PostWriter = {
 	readonly id: string
 	readonly username: string
 	readonly name: string
 	readonly group: keyof typeof GROUP
 }
 
-export type PostInfos = {
+export type PostDetails = {
 	readonly id: string
 	readonly title: string
 	readonly content: string
 	readonly views: number
-	readonly writer: PostWriterInfos
+	readonly writer: PostWriter
 	readonly createdDateTime: string
 	readonly updatedDateTime: string
 	readonly state: keyof typeof STATE
@@ -36,7 +36,13 @@ export type PostInfos = {
 
 export default function PostWriteForm() {
 
+	const navigate = useNavigate();
 	const { id } = useParams();
+	const { showBoundary } = useErrorBoundary();
+	const { loadingCallback } = useLoading();
+
+	const [post, setPost] = useState<PostDetails>();
+
 	const {
 		register,
 		setError,
@@ -44,10 +50,6 @@ export default function PostWriteForm() {
 		handleSubmit,
 		formState: { errors }
 	} = useForm<PostWriteFormInputs>({ mode: "onBlur" });
-	const { showBoundary } = useErrorBoundary();
-	const [, setLoading] = useLoading();
-	const navigate = useNavigate();
-	const [post, setPost] = useState<PostInfos>();
 
 	const titleRegister = register("title", {
 		required: "제목은 비어있을 수 없습니다.",
@@ -57,87 +59,72 @@ export default function PostWriteForm() {
 		required: "내용은 비어있을 수 없습니다."
 	});
 
-	const onSubmit = (formData: PostWriteFormInputs) => {
+	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
 
-		setLoading(true);
+		const errorCode = errorResponse.errorCode;
+		const errorMessage = errorResponse.errorMessage;
+		const errorDetailsList = errorResponse.errorDetailsList || [];
 
-		if (!!id && !!post) {
+		switch (errorCode) {
 
-			adminService.modifyPost(id, {
-				title: formData.title,
-				content: formData.content
-			}).catch((errorResponse: FetchErrorResponse) => {
+			case ERROR_CODE.INVALID_PARAMETER:
+				errorDetailsList.forEach((error: FetchErrorDetails) => {
+					(error.field === "title") && setError(error.field, { message: error.message });
+					(error.field === "content") && setError(error.field, { message: error.message });
+				});
+				break;
 
-				switch (errorResponse.errorCode) {
+			case ERROR_CODE.NOT_FOUND_POST_WRITER:
+				sessionStorage.initSessionInfo();
+				alert("현재 회원은 존재하지 않는 회원입니다.");
+				navigate("/account/login/form");
+				break;
 
-					case ERROR_CODE.NOT_FOUND_POST:
-					case ERROR_CODE.NOT_FOUND_POST_WRITER:
-					case ERROR_CODE.NOT_ADMIN_GROUP_POST:
-						alert(errorResponse.errorMessage);
-						navigate("/post/list");
-						break;
+			case ERROR_CODE.NOT_FOUND_POST:
+			case ERROR_CODE.NOT_ADMIN_GROUP_POST:
+				alert(errorMessage);
+				navigate("/post/list");
+				break;
 
-					case ERROR_CODE.INVALID_PARAMETER:
-						(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-							.forEach((error: FetchErrorDetails) => {
-								(error.field === "title") && setError(error.field, { message: error.message });
-								(error.field === "content") && setError(error.field, { message: error.message });
-							});
-						break;
-
-					default:
-						throw errorResponse;
-				}
-
-			}).catch(showBoundary).finally(() => setLoading(false));
-	
-		} else {
-			adminService.writePost({
-				title: formData.title,
-				content: formData.content
-			}).catch((errorResponse: FetchErrorResponse) => {
-
-				switch (errorResponse.errorCode) {
-
-					case ERROR_CODE.NOT_FOUND_POST:
-					case ERROR_CODE.NOT_FOUND_POST_WRITER:
-						alert(errorResponse.errorMessage);
-						navigate("/post/list");
-						break;
-
-					case ERROR_CODE.INVALID_PARAMETER:
-						(!!errorResponse.errorDetailsList) && errorResponse.errorDetailsList
-							.forEach((error: FetchErrorDetails) => {
-								(error.field === "title") && setError(error.field, { message: error.message });
-								(error.field === "content") && setError(error.field, { message: error.message });
-							});
-						break;
-
-					default:
-						throw errorResponse;
-				}
-
-			}).catch(showBoundary).finally(() => setLoading(false));
+			default:
+				throw errorResponse;
 		}
 
-	};
+	}, [setError, navigate]);
+
+	const onSubmit = useCallback((formData: PostWriteFormInputs) => {
+
+		loadingCallback(() => (!!id) 
+			? adminService
+				.modifyPost(id, {
+					title: formData.title,
+					content: formData.content
+				})
+				.catch(onSubmitErrorHandler)
+				.catch(showBoundary)
+			: adminService
+				.writePost({
+					title: formData.title,
+					content: formData.content
+				})
+				.catch(onSubmitErrorHandler)
+				.catch(showBoundary));		
+
+	}, [id, loadingCallback, onSubmitErrorHandler, showBoundary]);
 
 	useEffect(() => {
+
 		(!!post) && setValue("title", post?.title);
 		(!!post) && setValue("content", post?.content);
-	}, [post]);
+
+	}, [post, setValue]);
 
 	useEffect(() => {
 
-		(!!id) && adminService.getPost(id)
+		(!!id) && loadingCallback(() => adminService
+			.getPost(id)
 			.then((response: Response) => response.json())
-			.then((post: PostInfos) => setPost(post))
-			.then(() => {
-				if (post?.writer?.group === "ADMIN") {
-					alert("관리자 게시글이 아닙니다.");
-					navigate(`/post/${id}/details`);
-				}
-			})
+			.then((post: PostDetails) => setPost(post))
 			.catch((errorResponse: FetchErrorResponse) => {
 
 				switch (errorResponse.errorCode) {
@@ -152,7 +139,8 @@ export default function PostWriteForm() {
 						throw errorResponse;
 				}
 			})
-			.catch(showBoundary).finally(() => setLoading(false));
+			.catch(showBoundary));
+
 	}, []);
 
 	return (
