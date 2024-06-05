@@ -1,5 +1,20 @@
+import { useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+
+import * as adminService from "../../services/adminService";
+import * as sessionUtils from "msa-board-view-common/src/utils/sessionUtils";
+
 export default function Navigation() {
 
+    const navigate = useNavigate();
+    const logout = useCallback(() => {
+        
+        adminService.logoutAdmin()
+            .then(sessionUtils.initSessionInfo)
+            .catch(sessionUtils.initSessionInfo)
+            .finally(() => navigate("/account/login/form"));
+    }, []);
+    
     return (
         // <!-- Navigation-->
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary fixed-top" id="sideNav">
@@ -14,11 +29,10 @@ export default function Navigation() {
             </button>
             <div className="collapse navbar-collapse" id="navbarResponsive">
                 <ul className="navbar-nav">
-                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#loginAdminForm">Menu#1</a></li>
-                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#loginAdminForm">Menu#2</a></li>
-                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#loginAdminForm">Menu#3</a></li>
-                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#loginAdminForm">Menu#4</a></li>
-                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#loginAdminForm">Menu#5</a></li>
+                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => logout()}>Logout</a></li>
+                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/account/modify/form")}>Account</a></li>
+                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/member/list")}>Member</a></li>
+                    <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/post/list")}>Post</a></li>
                 </ul>
             </div>
         </nav>

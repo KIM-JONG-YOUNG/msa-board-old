@@ -15,18 +15,18 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 export type PostListSearchFormInputs = {
-	readonly title?: string
-	readonly content?: string
-	readonly writerUsername?: string
-	readonly createdDateFrom?: Date
-	readonly createdDateTo?: Date
-	readonly updatedDateFrom?: Date
-	readonly updatedDateTo?: Date
-	readonly state?: keyof typeof STATE
-	readonly offset?: number
-	readonly limit?: number
-	readonly sort?: keyof typeof POST_SORT
-	readonly order?: keyof typeof ORDER
+	readonly title: string
+	readonly content: string
+	readonly writerUsername: string
+	readonly createdDateFrom: Date
+	readonly createdDateTo: Date
+	readonly updatedDateFrom: Date
+	readonly updatedDateTo: Date
+	readonly state: keyof typeof STATE
+	readonly offset: number
+	readonly limit: number
+	readonly sort: keyof typeof POST_SORT
+	readonly order: keyof typeof ORDER
 }
 
 export type PostWriter = {

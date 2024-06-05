@@ -13,8 +13,8 @@ export default function ErrorPage({
 	const { pathname } = useLocation();
 	const originalPathname = useRef(pathname);
 
-	const errorCode = ("errorCode" in error) ? error.errorCode : null;
-	const errorMessage = ("errorCode" in error) ? error.errorMessage : null;
+	const errorCode = error?.errorCode;
+	const errorMessage = error?.errorMessage;
 
 	useEffect(() => {
 
@@ -34,7 +34,6 @@ export default function ErrorPage({
 				sessionUtils.initSessionInfo();
 				alert(errorMessage);
 				navigate("/account/login/form");
-				resetErrorBoundary();
 				break;
 			default:
 				break;
@@ -48,6 +47,7 @@ export default function ErrorPage({
 				<h1 className="mb-4">
 					Error
 					<span className="text-primary">Page</span>
+					{(!!errorMessage) && <div className="subheading mb-5">{errorMessage}</div>}
 				</h1>
 			</div>
 		</section>

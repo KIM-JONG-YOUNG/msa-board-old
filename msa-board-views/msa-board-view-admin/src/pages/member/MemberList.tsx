@@ -15,20 +15,20 @@ import { format } from 'date-fns';
 import 'react-datepicker/dist/react-datepicker.css';
 
 export type MemberListSearchFormInputs = {
-	readonly username?: string
-	readonly name?: string
-	readonly gender?: keyof typeof GENDER
-	readonly email?: string
-	readonly createdDateFrom?: Date
-	readonly createdDateTo?: Date
-	readonly updatedDateFrom?: Date
-	readonly updatedDateTo?: Date
-	readonly group?: keyof typeof GROUP
-	readonly state?: keyof typeof STATE
-	readonly offset?: number
-	readonly limit?: number
-	readonly sort?: keyof typeof MEMBER_SORT
-	readonly order?: keyof typeof ORDER
+	readonly username: string
+	readonly name: string
+	readonly gender: keyof typeof GENDER
+	readonly email: string
+	readonly createdDateFrom: Date
+	readonly createdDateTo: Date
+	readonly updatedDateFrom: Date
+	readonly updatedDateTo: Date
+	readonly group: keyof typeof GROUP
+	readonly state: keyof typeof STATE
+	readonly offset: number
+	readonly limit: number
+	readonly sort: keyof typeof MEMBER_SORT
+	readonly order: keyof typeof ORDER
 }
 
 export type MemberListInfo = {
@@ -142,6 +142,15 @@ export default function MemberList() {
 
 	const onSubmit = useCallback((formData: MemberListSearchFormInputs) => {
 
+		const urlParam = new URLSearchParams();
+
+		Object.entries(formData)
+			.filter(([, value]) => (!!value))
+			.map(([key, value]) => ([key, String(value)]))
+			.forEach(([key, value]) => urlParam.append(key, value));
+
+		sessionStorage.setItem("memberQuery", urlParam.toString());
+
 		loadingCallback(() => adminService
 			.searchMemberList({
 				...formData,
@@ -155,7 +164,8 @@ export default function MemberList() {
 			.then((response: Response) => response.json())
 			.then(onSubmitSuccessHandler)
 			.catch(onSubmitErrorHandler)
-			.catch(showBoundary));
+			.catch(showBoundary)
+			.finally(() => setModalOpen(false)));
 
 	}, [page, pageRows, loadingCallback, onSubmitSuccessHandler, onSubmitErrorHandler, showBoundary]);
 

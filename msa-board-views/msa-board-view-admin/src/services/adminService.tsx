@@ -24,20 +24,20 @@ export type AdminModifyUserRequest = {
 }
 
 export type AdminSearchMemberRequest = {
-    readonly username?: string
-    readonly name?: string
-    readonly gender?: keyof typeof GENDER
-    readonly email?: string
-    readonly createdDateFrom?: string
-    readonly createdDateTo?: string
-    readonly updatedDateFrom?: string
-    readonly updatedDateTo?: string
-    readonly group?: keyof typeof GROUP
-    readonly state?: keyof typeof STATE
-    readonly offset?: number
-    readonly limit?: number
-    readonly sort?: keyof typeof MEMBER_SORT
-    readonly order?: keyof typeof ORDER
+    readonly username: string
+    readonly name: string
+    readonly gender: keyof typeof GENDER
+    readonly email: string
+    readonly createdDateFrom: string
+    readonly createdDateTo: string
+    readonly updatedDateFrom: string
+    readonly updatedDateTo: string
+    readonly group: keyof typeof GROUP
+    readonly state: keyof typeof STATE
+    readonly offset: number
+    readonly limit: number
+    readonly sort: keyof typeof MEMBER_SORT
+    readonly order: keyof typeof ORDER
 }
 
 export type AdminWritePostRequest = {
@@ -52,18 +52,18 @@ export type AdminModifyPostRequest = {
 }
 
 export type AdminSearchPostRequest = {
-    readonly title?: string
-    readonly content?: string
-    readonly writerUsername?: string
-    readonly createdDateFrom?: string
-    readonly createdDateTo?: string
-    readonly updatedDateFrom?: string
-    readonly updatedDateTo?: string
-    readonly state?: keyof typeof STATE
-    readonly offset?: number
-    readonly limit?: number
-    readonly sort?: keyof typeof POST_SORT
-    readonly order?: keyof typeof ORDER
+    readonly title: string
+    readonly content: string
+    readonly writerUsername: string
+    readonly createdDateFrom: string
+    readonly createdDateTo: string
+    readonly updatedDateFrom: string
+    readonly updatedDateTo: string
+    readonly state: keyof typeof STATE
+    readonly offset: number
+    readonly limit: number
+    readonly sort: keyof typeof POST_SORT
+    readonly order: keyof typeof ORDER
 }
 
 const endpointURL = "http://localhost:8000";
@@ -203,7 +203,7 @@ export function searchPostList(param: AdminSearchPostRequest): Promise<Response>
     Object.entries(param)
         .filter(([, value]) => (!!value))
         .map(([key, value]) => ([key, String(value)]))
-        .forEach(([key, value]) => urlParam.append(key, value))
+        .forEach(([key, value]) => urlParam.append(key, value));
 
     return fetchDataInAdmin({
         url: `${endpointURL}/apis/admins/posts`,

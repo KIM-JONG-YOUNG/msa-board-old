@@ -97,17 +97,17 @@ export default function AccountModifyForm() {
 
 		if (!!account) {
 
-			const emailAddress = account.email.split("@");
+			const emailAddress = account?.email?.split("@");
 
 			setValue("name", account.name);
 			setValue("gender", account.gender);
-			setValue("emailUsername", emailAddress[0]);
+			setValue("emailUsername", emailAddress?.[0]);
 
 			switch (emailAddress[1]) {
 				case EMAIL_DOMAIN.EXAMPLE_DOMAIN:
 				case EMAIL_DOMAIN.NAVER_DOMAIN:
 				case EMAIL_DOMAIN.GMAIL_DOMAIN:
-					setValue("emailDomain", emailAddress[1]);
+					setValue("emailDomain", emailAddress?.[1]);
 					break;
 			}			
 		}
