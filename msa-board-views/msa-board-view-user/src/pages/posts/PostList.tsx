@@ -22,7 +22,6 @@ export type PostListSearchFormInputs = {
 	createdDateTo: Date
 	updatedDateFrom: Date
 	updatedDateTo: Date
-	state: keyof typeof STATE
 	offset: number
 	limit: number
 	sort: keyof typeof POST_SORT
@@ -43,7 +42,6 @@ export type PostInfo = {
 	writer: PostWriter
 	createdDateTime: string
 	updatedDateTime: string
-	state: keyof typeof STATE
 }
 
 export default function PostList() {
@@ -81,7 +79,6 @@ export default function PostList() {
 	const titleRegister = register("title");
 	const contentRegister = register("content");
 	const writerUsernameRegister = register("writerUsername");
-	const stateRegister = register("state");
 	const sortRegister = register("sort");
 	const orderRegister = register("order");
 
@@ -114,8 +111,8 @@ export default function PostList() {
 		sessionUtils.setQuery("postQuery", urlParams);
 
 		fetchData({
-			url: `${endpointURL}/apis/admins/posts`,
-			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			url: `${endpointURL}/apis/users/posts`,
+			refreshURL: `${endpointURL}/apis/users/refresh`,
 			method: "GET",
 			headers: { "Accept": "application/json" },
 			query: urlParams
@@ -143,7 +140,6 @@ export default function PostList() {
 						(error.field === "createdDateTo") && setError(error.field, { message: error.message });
 						(error.field === "updatedDateFrom") && setError(error.field, { message: error.message });
 						(error.field === "updatedDateTo") && setError(error.field, { message: error.message });
-						(error.field === "state") && setError(error.field, { message: error.message });
 						(error.field === "offset") && setError(error.field, { message: error.message });
 						(error.field === "limit") && setError(error.field, { message: error.message });
 						(error.field === "sort") && setError(error.field, { message: error.message });
@@ -179,7 +175,6 @@ export default function PostList() {
 			(key === "createdDateTo" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
 			(key === "updatedDateFrom" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
 			(key === "updatedDateTo" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
-			(key === "state" && constantsUtils.isStateKey(value)) && setValue(key, value);
 			(key === "sort" && constantsUtils.isPostSortKey(value)) && setValue(key, value);
 			(key === "order" && constantsUtils.isOrderKey(value)) && setValue(key, value);
 			(key === "offset" && !!Number(value)) && setValue(key, Number(value));
@@ -224,8 +219,8 @@ export default function PostList() {
 									<th scope="col">Title</th>
 									<th scope="col">Writer</th>
 									<th scope="col">Views</th>
+									<th scope="col">Created Date</th>
 									<th scope="col">Updated Date</th>
-									<th scope="col">State</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -236,8 +231,8 @@ export default function PostList() {
 											<td className='text-start'>{post.title}</td>
 											<td className='text-center'>{post.writer.username}</td>
 											<td className='text-center'>{post.views}</td>
+											<td className='text-end'>{post?.createdDateTime.substring(0, 10)}</td>
 											<td className='text-end'>{post?.updatedDateTime.substring(0, 10)}</td>
-											<td className='text-center'>{STATE?.[post.state]}</td>
 										</tr>
 									)
 								}
@@ -289,17 +284,6 @@ export default function PostList() {
 										<label className="form-label subheading">Writer</label>
 										<input type="text" className="form-control" placeholder="Writer Username..." {...writerUsernameRegister} />
 										{!!errors.writerUsername && <div className="text-danger">{errors.writerUsername.message}</div>}
-									</div>
-								</div>
-
-								<div className="row">
-									<div className="col-12 mb-3">
-										<label className="form-label subheading">State</label>
-										<select className="form-select" {...stateRegister}>
-											<option value="">Choose...</option>
-											{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-										</select>
-										{!!errors.state && <div className="text-danger">{errors.state.message}</div>}
 									</div>
 								</div>
 

@@ -1,14 +1,16 @@
+import { ReactElement } from "react";
 import { Navigate } from "react-router-dom";
-import * as sessionUtils from "../utils/sessionUtils";
 import { GROUP } from "../constants/constants";
+import sessionUtils from "../utils/sessionUtils";
 
 export type MemberRouterProps = {
     group: keyof typeof GROUP
-    element: React.ReactElement
+    element: ReactElement
     redirectURL: string
 }
+
 export type AnonymousRouterProps = {
-    element: React.ReactElement
+    element: ReactElement
     redirectURL: string
 }
 
@@ -20,8 +22,15 @@ export function MemberRouter({
 
     const currentAccessToken = sessionUtils.getAccessToken();
     const currentGroup = sessionUtils.getGroup();
+    const isExistsAuth = (!!currentAccessToken && currentGroup === group);
 
-    return (!!currentAccessToken && currentGroup === group) ? element : <Navigate to={redirectURL} />
+    if (!isExistsAuth) {
+        sessionUtils.removeAccessToken();
+        sessionUtils.removeRefreshToken();        
+        sessionUtils.removeGroup();
+    }
+
+    return (isExistsAuth) ? element : <Navigate to={redirectURL} />
 };
 
 export function AnonymousRouter({

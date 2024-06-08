@@ -1,111 +1,125 @@
-import { useForm } from "react-hook-form";
-import { useNavigate, useParams } from "react-router-dom";
-import { useErrorBoundary } from "react-error-boundary";
-import { ERROR_CODE, GROUP, STATE } from "msa-board-view-common/src/constants/constants";
-import { useCallback, useEffect, useState } from "react";
+import { STATE, GROUP, ERROR_CODE } from "msa-board-view-common/src/constants/constants"
+import useFetchData, { FetchErrorResponse, FetchErrorDetails } from "msa-board-view-common/src/hooks/useFetchData"
+import { title } from "process"
+import { useState, useCallback, useEffect } from "react"
+import { useErrorBoundary } from "react-error-boundary"
+import { useForm } from "react-hook-form"
+import { useNavigate, useParams } from "react-router-dom"
 
-import { FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
-import useLoading from "msa-board-view-common/src/hooks/useLoading";
-
-import * as adminService from "../../services/adminService";
-
-import 'react-datepicker/dist/react-datepicker.css';
+export type PostModifyFormInputs = {
+	state: keyof typeof STATE
+};
 
 export type PostWriter = {
-	readonly id: string
-	readonly username: string
-	readonly name: string
-	readonly group: keyof typeof GROUP
-}
+	id: string
+	username: string
+	name: string
+	group: keyof typeof GROUP
+};
 
 export type PostDetails = {
-	readonly id: string
-	readonly title: string
-	readonly content: string
-	readonly views: number
-	readonly writer: PostWriter
-	readonly createdDateTime: string
-	readonly updatedDateTime: string
-	readonly state: keyof typeof STATE
-}
+	id: string
+	title: string
+	content: string
+	views: number
+	writer: PostWriter
+	createdDateTime: string
+	updatedDateTime: string
+	state: keyof typeof STATE
+};
 
 export default function PostDetails() {
+
+	const endpointURL = process.env.REACT_APP_ENDPOINT_URL;
 
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const { showBoundary } = useErrorBoundary();
-	const { loadingCallback } = useLoading();
+	const { fetchData } = useFetchData();
+	const [ post, setPost ] = useState<PostDetails>();
+	const {
+		setValue,
+		getValues
+	} = useForm<PostModifyFormInputs>({ mode: "onBlur" });
 
-	const [post, setPost] = useState<PostDetails>();
+	const modifyState = useCallback(() => {
+
+		const formData = getValues();
+		console.log(formData)
+		fetchData({
+			url: `${endpointURL}/apis/admins/posts/${id || "empty"}`,
+			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(formData)
+		}).then((response: Response) => {
+		
+			alert("게시글 정보가 수정되었습니다.");
+			setPost((prevState: PostDetails | undefined) => ((!prevState) 
+				? undefined 
+				: {
+					...prevState,
+					state: formData.state
+				}));
+
+		}).catch((errorResponse: FetchErrorResponse) => {
+		
+			const errorCode = errorResponse.errorCode;
+			const errorMessage = errorResponse.errorMessage;
+			const errorDetailsList = errorResponse.errorDetailsList || [];
 	
-	const onChangeStateSuccessHandler = useCallback((state: keyof typeof STATE) => {
+			switch (errorCode) {
+				case ERROR_CODE.INVALID_PARAMETER:
+					errorDetailsList
+						.filter((error: FetchErrorDetails) => (error.field === "state"))
+						.forEach((error: FetchErrorDetails) => alert(error.message));
+					break;
+				case ERROR_CODE.NOT_FOUND_POST:
+				case ERROR_CODE.NOT_FOUND_POST_WRITER:
+					alert(errorMessage);
+					navigate("/member/list");
+					break;
+				default:
+					showBoundary(errorResponse);
+					break;
+			}		
+		});
 
-		setPost((prev) => (!!prev) ? {
-			...prev,
-			state: state
-		} : prev);
-		
-	}, [setPost]);
-
-	const onChangeStateErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
-
-		const errorCode = errorResponse.errorCode;
-		const errorMessage = errorResponse.errorMessage;
-
-		switch (errorCode) {
-
-			case ERROR_CODE.NOT_FOUND_POST:
-			case ERROR_CODE.NOT_FOUND_POST_WRITER:
-				alert(errorMessage);
-				navigate("/member/list");
-				break;
-
-			default:
-				throw errorResponse;
-		}
-
-	}, [navigate]);
-
-	const onChangeState = useCallback((state: keyof typeof STATE) => {
-
-		if (!!id) {
-
-			loadingCallback(() => adminService
-				.modifyPostState(id, state)
-				.then(() => state)
-				.then(onChangeStateSuccessHandler)
-				.catch(onChangeStateErrorHandler)
-				.catch(showBoundary));
-
-		} else {
-
-			alert("게시글 ID가 존재하지 않습니다.");
-			navigate("/post/list");
-		}
-		
-	}, [id, navigate, loadingCallback, onChangeStateSuccessHandler, onChangeStateErrorHandler, showBoundary]);
+	}, [id, getValues, fetchData, navigate, showBoundary]);
 
 	useEffect(() => {
 
-		(!!id) && loadingCallback(() => adminService
-			.getPost(id)
-			.then((response: Response) => response.json())
-			.then((post: PostDetails) => setPost(post))
-			.catch((errorResponse: FetchErrorResponse) => {
+		(!!post) && setValue("state", post?.state);
 
-				switch (errorResponse.errorCode) {
+	}, [post, setValue]);
 
-					case ERROR_CODE.NOT_FOUND_POST:
-					case ERROR_CODE.NOT_FOUND_POST_WRITER:
-						alert(errorResponse.errorMessage);
-						navigate("/post/list");
-						break;
+	useEffect(() => {
 
-					default:
-						throw errorResponse;
-				}
-			})
-			.catch(showBoundary));
+		fetchData({
+			url: `${endpointURL}/apis/admins/posts/${id || "empty"}`,
+			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			method: "GET",
+			headers: { "Accept": "application/json" }
+		}).then(async (response: Response) => {
+
+			setPost(await response.json());
+
+		}).catch((errorResponse: FetchErrorResponse) => {
+
+			const errorCode = errorResponse.errorCode;
+			const errorMessage = errorResponse.errorMessage;
+
+			switch (errorCode) {
+				case ERROR_CODE.NOT_FOUND_POST:
+				case ERROR_CODE.NOT_FOUND_POST_WRITER:
+					alert(errorMessage);
+					navigate("/post/list");
+					break;
+				default:
+					showBoundary(errorResponse);
+					break;
+			}
+		});
 
 	}, []);
 
@@ -138,16 +152,22 @@ export default function PostDetails() {
 					</div>
 				</div>
 
-				<div className="row" >
+				<div className="row">
 					<div className="col-xl-10">
 						{(post?.writer?.group === "ADMIN") &&
-							<button type="button" className="btn btn-info" onClick={() => navigate(`/post/${id}/modify/form`)}>Modify</button>
+							<button type="button" className="btn btn-info" onClick={() => navigate(`/post/${id}/write/form`)}>Modify</button>
 						}				
 						{(post?.state === "ACTIVE") && 
-							<button type="submit" className="btn btn-danger float-end" onClick={() => onChangeState("DEACTIVE")} >Delete</button>
+							<button type="button" className="btn btn-danger float-end" onClick={() => {
+								setValue("state", "DEACTIVE");
+								modifyState();
+							}} >Delete</button>
 						}
-						{(post?.state === "DEACTIVE") &&
-							<button type="submit" className="btn btn-success float-end" onClick={() => onChangeState("ACTIVE")} >Restore</button>
+						{(post?.state === "DEACTIVE") && 
+							<button type="button" className="btn btn-success float-end" onClick={() => {
+								setValue("state", "ACTIVE");
+								modifyState();
+							}} >Restore</button>
 						}
 					</div>
 				</div>
@@ -155,4 +175,4 @@ export default function PostDetails() {
 			</div>
 		</section>
 	);
-}
+};

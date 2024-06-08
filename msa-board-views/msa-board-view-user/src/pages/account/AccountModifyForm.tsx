@@ -58,8 +58,8 @@ export default function AccountModifyForm() {
 		const formData = getValues();
 
 		fetchData({
-			url: `${endpointURL}/apis/admins`,
-			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			url: `${endpointURL}/apis/users`,
+			refreshURL: `${endpointURL}/apis/users/refresh`,
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -117,8 +117,8 @@ export default function AccountModifyForm() {
 	useEffect(() => {
 
 		fetchData({
-			url: `${endpointURL}/apis/admins`,
-			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			url: `${endpointURL}/apis/users`,
+			refreshURL: `${endpointURL}/apis/users/refresh`,
 			method: "GET",
 			headers: { "Accept": "application/json" }
 		}).then(async (response: Response) => {
@@ -151,7 +151,7 @@ export default function AccountModifyForm() {
 
 				<h1 className="mb-4">
 					Modify
-					<span className="text-primary">Admin</span>
+					<span className="text-primary">User</span>
 				</h1>
 
 				<div className="row">

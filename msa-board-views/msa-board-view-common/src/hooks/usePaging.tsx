@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 export type UsePagingProps = {
     initPageRows: number
     initPageGroupSize: number
-}
+};
 
 export default function usePaging({
     initPageRows,
@@ -18,22 +18,6 @@ export default function usePaging({
     const [totalPage, setTotalPage] = useState(0);
     const [startPage, setStartPage] = useState(0);
     const [endPage, setEndPage] = useState(0);
-
-    const getPageList = (): number[] => {
-
-        if (pageGroup > 0 && pageGroupSize > 0 && totalPage > 0) {
-
-            const startPage = (pageGroup - 1) * pageGroupSize;
-            const pageCount = ((startPage + pageGroupSize) > totalPage)
-                ? totalPage - startPage
-                : pageGroupSize;
-
-            return Array.from({ length: pageCount }, (_, i) => startPage + i + 1);
-
-        } else {
-            return [];
-        }
-    }
 
     useEffect(() => {
 
@@ -57,21 +41,20 @@ export default function usePaging({
             setEndPage(0); 
         }
 
-    }, [page, pageRows, pageGroup, pageGroupSize, totalPage, totalCount]);
+    }, [totalCount, pageRows, page, pageGroupSize, pageGroup, totalPage]);
 
     return {
-        page: page,
-        pageRows: pageRows,
-        pageGroup: pageGroup,
-        pageGroupSize: pageGroupSize,
-        totalPage: totalPage,
-        totalCount: totalCount,
-        startPage: startPage,
-        endPage: endPage,
-        setPage: setPage,
-        setPageRows: setPageRows,
-        setPageGroupSize: setPageGroupSize,
-        setTotalCount: setTotalCount,
-        getPageList: getPageList
-    }
-}
+        page,
+        pageRows,
+        pageGroup,
+        pageGroupSize,
+        totalPage,
+        totalCount,
+        startPage,
+        endPage,
+        setPage,
+        setPageRows,
+        setPageGroupSize,
+        setTotalCount
+    };
+};

@@ -1,55 +1,65 @@
-import { useController, useForm } from "react-hook-form";
-import { useErrorBoundary } from "react-error-boundary";
-import { DATE_TIME_FORMAT, ERROR_CODE, GENDER, GROUP, MEMBER_SORT, ORDER, STATE } from "msa-board-view-common/src/constants/constants";
-import { useCallback, useEffect, useState } from "react";
-import { Modal } from "react-bootstrap";
-import usePaging from "msa-board-view-common/src/hooks/usePaging";
 
-import * as adminService from "../../services/adminService";
-import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
-import useLoading from "msa-board-view-common/src/hooks/useLoading";
-import { useNavigate } from 'react-router-dom';
-import DatePicker from 'react-datepicker';
 import { format } from 'date-fns';
+import { GENDER, GROUP, STATE, MEMBER_SORT, ORDER, DATE_TIME_FORMAT, ERROR_CODE } from 'msa-board-view-common/src/constants/constants';
+import Pagination from 'msa-board-view-common/src/components/Pagination';
+import useFetchData, { FetchErrorResponse, FetchErrorDetails } from 'msa-board-view-common/src/hooks/useFetchData';
+import usePaging from 'msa-board-view-common/src/hooks/usePaging';
+import constantsUtils from 'msa-board-view-common/src/utils/constantsUtils';
+import sessionUtils from 'msa-board-view-common/src/utils/sessionUtils';
+import { useState, useCallback, useEffect } from 'react';
+import { Modal } from 'react-bootstrap';
+import ReactDatePicker from 'react-datepicker';
+import { useErrorBoundary } from 'react-error-boundary';
+import { useForm, useController } from 'react-hook-form';
+import { useNavigate } from 'react-router-dom';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
 export type MemberListSearchFormInputs = {
-	readonly username: string
-	readonly name: string
-	readonly gender: keyof typeof GENDER
-	readonly email: string
-	readonly createdDateFrom: Date
-	readonly createdDateTo: Date
-	readonly updatedDateFrom: Date
-	readonly updatedDateTo: Date
-	readonly group: keyof typeof GROUP
-	readonly state: keyof typeof STATE
-	readonly offset: number
-	readonly limit: number
-	readonly sort: keyof typeof MEMBER_SORT
-	readonly order: keyof typeof ORDER
-}
+	username: string
+	name: string
+	gender: keyof typeof GENDER
+	email: string
+	createdDateFrom: Date
+	createdDateTo: Date
+	updatedDateFrom: Date
+	updatedDateTo: Date
+	group: keyof typeof GROUP
+	state: keyof typeof STATE
+	offset: number
+	limit: number
+	sort: keyof typeof MEMBER_SORT
+	order: keyof typeof ORDER
+};
 
-export type MemberListInfo = {
-	readonly id: string
-	readonly username: string
-	readonly name: string
-	readonly gender: keyof typeof GENDER
-	readonly email: string
-	readonly group: keyof typeof GROUP
-	readonly state: keyof typeof STATE
-}
-export type MemberList = MemberListInfo[];
+export type MemberInfo = {
+	id: string
+	username: string
+	name: string
+	gender: keyof typeof GENDER
+	email: string
+	group: keyof typeof GROUP
+	state: keyof typeof STATE
+};
 
 export default function MemberList() {
 
+	const endpointURL = process.env.REACT_APP_ENDPOINT_URL;
+
 	const navigate = useNavigate();
 	const { showBoundary } = useErrorBoundary();
-	const { loadingCallback } = useLoading();
-
-	const [isModalOpen, setModalOpen] = useState(false);
-	const [memberList, setMemberList] = useState<MemberList>([]);
+	const { fetchData } = useFetchData();
+	const [ isModalOpen, setModalOpen ] = useState(false);
+	const [ memberList, setMemberList ] = useState<MemberInfo[]>([]);
+	const {
+		register,
+		setError,
+		setValue,
+		getValues,
+		handleSubmit,
+		control,
+		formState: { errors }
+	} = useForm<MemberListSearchFormInputs>({ mode: "onBlur" });
 	const {
 		page,
 		pageRows,
@@ -64,14 +74,6 @@ export default function MemberList() {
 		initPageGroupSize: 10
 	});
 
-	const {
-		register,
-		setError,
-		getValues,
-		handleSubmit,
-		control
-	} = useForm<MemberListSearchFormInputs>({ mode: "onBlur" });
-
 	const usernameRegister = register("username");
 	const nameRegister = register("name");
 	const genderRegister = register("gender");
@@ -81,104 +83,114 @@ export default function MemberList() {
 	const sortRegister = register("sort");
 	const orderRegister = register("order");
 
-	const { field: createdDateFromField } = useController({
-		control: control,
-		name: "createdDateFrom"
-	})
-	const { field: createdDateToField } = useController({
-		control: control,
-		name: "createdDateTo"
-	})
-	const { field: updatedDateFromField } = useController({
-		control: control,
-		name: "updatedDateFrom"
-	})
-	const { field: updatedDateToField } = useController({
-		control: control,
-		name: "updatedDateTo"
-	})
+	const { field: createdDateFromField } = useController({ control: control, name: "createdDateFrom" });
+	const { field: createdDateToField } = useController({ control: control, name: "createdDateTo" });
+	const { field: updatedDateFromField } = useController({ control: control, name: "updatedDateFrom" });
+	const { field: updatedDateToField } = useController({ control: control, name: "updatedDateTo" });
 
-	const onSubmitSuccessHandler = useCallback(({ totalCount, list }: {
-		totalCount: number
-		list: MemberList
-	}) => {
+	const search = useCallback(() => {
 
-		(!!totalCount) ? setTotalCount(totalCount) : setTotalCount(0);
-		(!!list) ? setMemberList(list) : setMemberList([]);
-
-	}, [setTotalCount, setMemberList]);
-
-	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
-
-		const errorCode = errorResponse.errorCode;
-		const errorDetailsList = errorResponse.errorDetailsList || [];
-
-		switch (errorCode) {
-
-			case ERROR_CODE.INVALID_PARAMETER:
-				errorDetailsList.forEach((error: FetchErrorDetails) => {
-					(error.field === "username") && setError(error.field, { message: error.message });
-					(error.field === "name") && setError(error.field, { message: error.message });
-					(error.field === "gender") && setError(error.field, { message: error.message });
-					(error.field === "email") && setError(error.field, { message: error.message });
-					(error.field === "createdDateFrom") && setError(error.field, { message: error.message });
-					(error.field === "createdDateTo") && setError(error.field, { message: error.message });
-					(error.field === "updatedDateFrom") && setError(error.field, { message: error.message });
-					(error.field === "updatedDateTo") && setError(error.field, { message: error.message });
-					(error.field === "group") && setError(error.field, { message: error.message });
-					(error.field === "state") && setError(error.field, { message: error.message });
-					(error.field === "offset") && setError(error.field, { message: error.message });
-					(error.field === "limit") && setError(error.field, { message: error.message });
-					(error.field === "sort") && setError(error.field, { message: error.message });
-					(error.field === "order") && setError(error.field, { message: error.message });
-				});
-				break;
-
-			default:
-				throw errorResponse;
-		}
-
-	}, [setError]);
-
-	const onSubmit = useCallback((formData: MemberListSearchFormInputs) => {
-
-		const urlParam = new URLSearchParams();
-
+		const formData = getValues();
+		const urlParams = new URLSearchParams();
+		
 		Object.entries(formData)
 			.filter(([, value]) => (!!value))
-			.map(([key, value]) => ([key, String(value)]))
-			.forEach(([key, value]) => urlParam.append(key, value));
+			.forEach(([key, value]) => {
+				switch (key) {
+					case "createdDateFrom":
+					case "createdDateTo":
+					case "updatedDateFrom":
+					case "updatedDateTo":
+						urlParams.append(key, format(value, DATE_TIME_FORMAT.DATE));
+						break;
+					default:
+						urlParams.append(key, String(value));
+						break;
+				}
+			});
 
-		sessionStorage.setItem("memberQuery", urlParam.toString());
+		sessionUtils.setQuery("memberQuery", urlParams);
+		setModalOpen(false);
+		
+		fetchData({
+			url: `${endpointURL}/apis/admins/members`,
+			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			method: "GET",
+			headers: { "Accept": "application/json" },
+			query: urlParams
+		}).then(async (response: Response) => {
 
-		loadingCallback(() => adminService
-			.searchMemberList({
-				...formData,
-				createdDateFrom: (!!formData.createdDateFrom) ? format(formData.createdDateFrom, DATE_TIME_FORMAT.DATE) : "",
-				createdDateTo: (!!formData.createdDateTo) ? format(formData.createdDateTo, DATE_TIME_FORMAT.DATE) : "",
-				updatedDateFrom: (!!formData.updatedDateFrom) ? format(formData.updatedDateFrom, DATE_TIME_FORMAT.DATE) : "",
-				updatedDateTo: (!!formData.updatedDateTo) ? format(formData.updatedDateTo, DATE_TIME_FORMAT.DATE) : "",
-				offset: (page > 0) ? (page - 1) * pageRows : 0,
-				limit: (page > 0) ? page * pageRows : pageRows
-			})
-			.then((response: Response) => response.json())
-			.then(onSubmitSuccessHandler)
-			.catch(onSubmitErrorHandler)
-			.catch(showBoundary)
-			.finally(() => setModalOpen(false)));
+			const listResponse = await response.json();
+			const totalCount = listResponse?.totalCount || 0;
+			const list = listResponse?.list || [];
 
-	}, [page, pageRows, loadingCallback, onSubmitSuccessHandler, onSubmitErrorHandler, showBoundary]);
+			setTotalCount(totalCount);
+			setMemberList(list);
+
+		}).catch((errorResponse: FetchErrorResponse) => {
+
+			const errorCode = errorResponse.errorCode;
+			const errorDetailsList = errorResponse.errorDetailsList || [];
+			  
+			switch (errorCode) {
+				case ERROR_CODE.INVALID_PARAMETER:
+					errorDetailsList.forEach((error: FetchErrorDetails) => {
+						(error.field === "username") && setError(error.field, { message: error.message });
+						(error.field === "name") && setError(error.field, { message: error.message });
+						(error.field === "gender") && setError(error.field, { message: error.message });
+						(error.field === "email") && setError(error.field, { message: error.message });
+						(error.field === "createdDateFrom") && setError(error.field, { message: error.message });
+						(error.field === "createdDateTo") && setError(error.field, { message: error.message });
+						(error.field === "updatedDateFrom") && setError(error.field, { message: error.message });
+						(error.field === "updatedDateTo") && setError(error.field, { message: error.message });
+						(error.field === "group") && setError(error.field, { message: error.message });
+						(error.field === "state") && setError(error.field, { message: error.message });
+						(error.field === "offset") && setError(error.field, { message: error.message });
+						(error.field === "limit") && setError(error.field, { message: error.message });
+						(error.field === "sort") && setError(error.field, { message: error.message });
+						(error.field === "order") && setError(error.field, { message: error.message });
+					});
+					break;
+				default:
+					showBoundary(errorResponse);
+					break;
+			}	
+		}).finally(() => setModalOpen(false));
+
+	}, [getValues, fetchData, setTotalCount, setMemberList, setError, showBoundary, setModalOpen]);
 
 	const paging = useCallback((page: number) => {
 
 		setPage(page);
-		onSubmit(getValues());
+		setValue("offset", (page > 1) ? (page - 1) * pageRows : 0);
+		setValue("limit", pageRows);
+		search();
 
-	}, [setPage, onSubmit, getValues]);
+	}, [setPage, setValue, search]);
 
 	useEffect(() => {
 
-		paging(1);
+		const urlParam = new URLSearchParams(sessionStorage.getItem("memberQuery") || undefined);
+		
+		urlParam.forEach((value, key) => {
+			(key === "username") && setValue(key, value);
+			(key === "name") && setValue(key, value);
+			(key === "email") && setValue(key, value);
+			(key === "createdDateFrom" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
+			(key === "createdDateTo" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
+			(key === "updatedDateFrom" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
+			(key === "updatedDateTo" && constantsUtils.isDateString(value)) && setValue(key, new Date(value));
+			(key === "gender" && constantsUtils.isGenderKey(value)) && setValue(key, value);
+			(key === "group" && constantsUtils.isGroupKey(value)) && setValue(key, value);
+			(key === "state" && constantsUtils.isStateKey(value)) && setValue(key, value);
+			(key === "sort" && constantsUtils.isMemberSortKey(value)) && setValue(key, value);
+			(key === "order" && constantsUtils.isOrderKey(value)) && setValue(key, value);
+			(key === "offset" && !!Number(value)) && setValue(key, Number(value));
+			(key === "limit" && !!Number(value)) && setValue(key, Number(value));
+		});
+
+		const offset = Number(urlParam.get("offset") || 0);
+		paging((offset > 0) ? Math.floor(offset / pageRows) + 1 : 1);
 
 	}, []);
 
@@ -200,7 +212,15 @@ export default function MemberList() {
 						</div>
 
 						<table className="table table-hover">
-							<thead className="bg-primary text-white">
+						<colgroup>
+								<col width="10%" />
+								<col width="30%" />
+								<col width="15%" />
+								<col width="15%" />
+								<col width="15%" />
+								<col width="15%" />
+							</colgroup>
+							<thead className="bg-primary text-white text-center">
 								<tr>
 									<th scope="col">#</th>
 									<th scope="col">Username</th>
@@ -214,43 +234,25 @@ export default function MemberList() {
 								{
 									(!!memberList) && memberList.map((member, i) =>
 										<tr key={member.id} onClick={() => navigate(`/member/${member.id}/details`)}>
-											<th scope="row">{i + 1 + (getValues("offset") || 0)}</th>
-											<td>{member.username}</td>
-											<td>{member.name}</td>
-											<td>{member.gender}</td>
-											<td>{member.group}</td>
-											<td>{member.state}</td>
+											<th className='text-center' scope="row">{i + 1 + (getValues("offset") || 0)}</th>
+											<td className='text-center'>{member.username}</td>
+											<td className='text-center'>{member.name}</td>
+											<td className='text-center'>{GENDER?.[member.gender]}</td>
+											<td className='text-center'>{GROUP?.[member.group]}</td>
+											<td className='text-center'>{STATE?.[member.state]}</td>
 										</tr>
 									)
 								}
 							</tbody>
 						</table>
 
-						<ul className="pagination justify-content-center">
-							{
-								(startPage > pageGroupSize) &&
-								<li className="page-item" onClick={() => paging(startPage - 1)} >
-									<a className="page-link" href="#!" aria-label="Previous">
-										<span aria-hidden="true">&laquo;</span>
-									</a>
-								</li>
-							}
-							{
-								(startPage > 0 && endPage > 0) &&
-								Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i)
-									.map(i => (page === i)
-										? <li key={i} className="page-item active"><a className="page-link" href="#!">{i}</a></li>
-										: <li key={i} className="page-item" onClick={() => paging(i)}><a className="page-link" href="#!">{i}</a></li>)
-							}
-							{
-								(totalPage > endPage) &&
-								<li className="page-item" onClick={() => paging(endPage + 1)} >
-									<a className="page-link" href="#!" aria-label="Next">
-										<span aria-hidden="true">&raquo;</span>
-									</a>
-								</li>
-							}
-						</ul>
+						<Pagination 
+							page={page}
+							startPage={startPage}
+							endPage={endPage}
+							totalPage={totalPage}
+							pageGroupSize={pageGroupSize}
+							pagingFn={paging} />
 
 					</div>
 				</div>
@@ -258,7 +260,7 @@ export default function MemberList() {
 				{/* <!-- Modal --> */}
 				<Modal show={isModalOpen} onHide={() => setModalOpen(false)} dialogClassName="modal-dialog modal-lg modal-dialog-scrollable" >
 
-					<form onSubmit={handleSubmit(onSubmit)}>
+					<form onSubmit={handleSubmit(() => paging(1))}>
 
 						<div className="modal-header">
 							<h5 className="modal-title">Member Search Form</h5>
@@ -272,6 +274,7 @@ export default function MemberList() {
 									<div className="col-12 mb-3">
 										<label className="form-label subheading">Username</label>
 										<input type="text" className="form-control" placeholder="Username..." {...usernameRegister} />
+										{!!errors.username && <div className="text-danger">{errors.username.message}</div>}
 									</div>
 								</div>
 
@@ -279,6 +282,7 @@ export default function MemberList() {
 									<div className="col-lg-6 mb-3">
 										<label className="form-label subheading">Name</label>
 										<input type="text" className="form-control" placeholder="Name..." {...nameRegister} />
+										{!!errors.name && <div className="text-danger">{errors.name.message}</div>}
 									</div>
 									<div className="col-lg-6 mb-3">
 										<label className="form-label subheading">Gender</label>
@@ -286,6 +290,7 @@ export default function MemberList() {
 											<option value="">Choose...</option>
 											{Object.entries(GENDER).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 										</select>
+										{!!errors.gender && <div className="text-danger">{errors.gender.message}</div>}
 									</div>
 								</div>
 
@@ -293,6 +298,7 @@ export default function MemberList() {
 									<div className="col-12 mb-3">
 										<label className="form-label subheading">Email</label>
 										<input type="text" className="form-control" placeholder="Email..." {...emailRegister} />
+										{!!errors.email && <div className="text-danger">{errors.email.message}</div>}
 									</div>
 								</div>
 
@@ -303,6 +309,7 @@ export default function MemberList() {
 											<option value="">Choose...</option>
 											{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 										</select>
+										{!!errors.group && <div className="text-danger">{errors.group.message}</div>}
 									</div>
 									<div className="col-lg-6 mb-3">
 										<label className="form-label subheading">State</label>
@@ -310,6 +317,7 @@ export default function MemberList() {
 											<option value="">Choose...</option>
 											{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 										</select>
+										{!!errors.state && <div className="text-danger">{errors.state.message}</div>}
 									</div>
 								</div>
 
@@ -321,7 +329,7 @@ export default function MemberList() {
 											createdDateToField.onChange(undefined);
 										}}>RESET</button>
 										<div className="input-group">
-											<DatePicker
+											<ReactDatePicker
 												wrapperClassName="form-control"
 												customInput={<input type="text" className="form-control" />}
 												dateFormat={DATE_TIME_FORMAT.DATE}
@@ -331,15 +339,17 @@ export default function MemberList() {
 												disabledKeyboardNavigation={true}
 											/>
 											<span className="input-group-text">~</span>
-											<DatePicker
+											<ReactDatePicker
 												wrapperClassName="form-control"
-												customInput={<input type="text" className="form-control" readOnly />}
+												customInput={<input type="text" className="form-control" />}
 												dateFormat={DATE_TIME_FORMAT.DATE}
 												minDate={createdDateFromField.value}
 												selected={createdDateToField.value}
 												onChange={(date) => createdDateToField.onChange(date)}
 											/>
 										</div>
+										{!!errors.createdDateFrom && <div className="text-danger">{errors.createdDateFrom.message}</div>}
+										{!!errors.createdDateTo && <div className="text-danger">{errors.createdDateTo.message}</div>}
 									</div>
 								</div>
 
@@ -351,24 +361,26 @@ export default function MemberList() {
 											updatedDateToField.onChange(undefined);
 										}}>RESET</button>
 										<div className="input-group">
-											<DatePicker
+											<ReactDatePicker
 												wrapperClassName="form-control"
-												customInput={<input type="text" className="form-control" readOnly />}
+												customInput={<input type="text" className="form-control" />}
 												dateFormat={DATE_TIME_FORMAT.DATE}
 												maxDate={updatedDateToField.value}
 												selected={updatedDateFromField.value}
 												onChange={(date) => updatedDateFromField.onChange(date)}
 											/>
 											<span className="input-group-text">~</span>
-											<DatePicker
+											<ReactDatePicker
 												wrapperClassName="form-control"
-												customInput={<input type="text" className="form-control" readOnly />}
+												customInput={<input type="text" className="form-control" />}
 												dateFormat={DATE_TIME_FORMAT.DATE}
 												minDate={updatedDateFromField.value}
 												selected={updatedDateToField.value}
 												onChange={(date) => updatedDateToField.onChange(date)}
 											/>
 										</div>
+										{!!errors.updatedDateFrom && <div className="text-danger">{errors.updatedDateFrom.message}</div>}
+										{!!errors.updatedDateTo && <div className="text-danger">{errors.updatedDateTo.message}</div>}
 									</div>
 								</div>
 
@@ -386,6 +398,8 @@ export default function MemberList() {
 												{Object.entries(ORDER).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
 											</select>
 										</div>
+										{!!errors.sort && <div className="text-danger">{errors.sort.message}</div>}
+										{!!errors.order && <div className="text-danger">{errors.order.message}</div>}
 									</div>
 								</div>
 
@@ -403,4 +417,4 @@ export default function MemberList() {
 			</div>
 		</section>
 	);
-}
+};

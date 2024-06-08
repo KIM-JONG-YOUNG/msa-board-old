@@ -40,7 +40,7 @@ export default function AccountLoginForm() {
 		const formData = getValues();
 
 		fetchData({
-			url: `${endpointURL}/apis/admins/login`,
+			url: `${endpointURL}/apis/users/login`,
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(formData)
@@ -48,7 +48,7 @@ export default function AccountLoginForm() {
 
 			sessionUtils.setAccessToken(response.headers.get("Access-Token") || "");
 			sessionUtils.setRefreshToken(response.headers.get("Refresh-Token") || "");
-			sessionUtils.setGroup("ADMIN");
+			sessionUtils.setGroup("USER");
 
 			navigate("/main");
 
@@ -66,7 +66,7 @@ export default function AccountLoginForm() {
 					});
 					break;
 				case ERROR_CODE.NOT_FOUND_MEMBER_USERNAME:
-				case ERROR_CODE.NOT_ADMIN_GROUP_MEMBER_USERNAME:
+				case ERROR_CODE.NOT_USER_GROUP_MEMBER_USERNAME:
 					setError("username", { message: errorMessage });
 					break;
 				case ERROR_CODE.NOT_MATCHED_MEMBER_PASSWORD:
@@ -81,7 +81,7 @@ export default function AccountLoginForm() {
 	}, [getValues, fetchData, navigate, setError, showBoundary]);
 
 	return (
-		// <!-- Login Admin -->
+		// <!-- Login User -->
 		<section className="resume-section">
 			<div className="resume-section-content">
 
@@ -89,7 +89,7 @@ export default function AccountLoginForm() {
 
 					<h1 className="mb-4">
 						Login
-						<span className="text-primary">Admin</span>
+						<span className="text-primary">USER</span>
 					</h1>
 
 					<div className="row">

@@ -1,44 +1,82 @@
 import { GROUP } from "../constants/constants";
 
-export function setAccessToken(accessToken: string): void {
+function setAccessToken(accessToken: string): void {
 
     (!!accessToken) && sessionStorage.setItem("accessToken", accessToken);
 }
 
-export function setRefreshToken(refreshToken: string): void {
+function setRefreshToken(refreshToken: string): void {
 
     (!!refreshToken) && sessionStorage.setItem("refreshToken", refreshToken);
 }
 
-export function setGroup(group: keyof typeof GROUP): void {
+function setGroup(group: keyof typeof GROUP): void {
 
     (!!group) && sessionStorage.setItem("group", group);
 }
 
-export function getAccessToken(): string {
+function setQuery(queryKey: string, query: URLSearchParams): void {
 
-    const accessToken = sessionStorage.getItem("accessToken");
+    query?.forEach((value, key) => (!value) && query.delete(key));
 
-    return (!!accessToken) ? accessToken : "";
+    (!!query.toString()) && sessionStorage.setItem(queryKey, query.toString());
 }
 
-export function getRefreshToken(): string {
+function getAccessToken(): string | null {
 
-    const refreshToken = sessionStorage.getItem("refreshToken");
-
-    return (!!refreshToken) ? refreshToken : "";
+    return sessionStorage.getItem("accessToken")
 }
 
-export function getGroup(): keyof typeof GROUP | "" {
+function getRefreshToken(): string | null {
+
+    return sessionStorage.getItem("refreshToken")
+}
+
+function getGroup(): keyof typeof GROUP | null {
 
     const group = sessionStorage.getItem("group");
 
-    return (group === "ADMIN" || group === "USER") ? group : "";
+    return (group !== null) ? group as keyof typeof GROUP : null;
 }
 
-export function initSessionInfo(): void {
+function getQuery(queryKey: string): URLSearchParams | null {
+
+    const query = sessionStorage.getItem(queryKey);
+
+    return (query !== null) ? new URLSearchParams(query) : null;
+}
+
+function removeAccessToken(): void {
 
     sessionStorage.removeItem("accessToken");
+}
+
+function removeRefreshToken(): void {
+    
     sessionStorage.removeItem("refreshToken");
+}
+
+function removeGroup(): void {
+
     sessionStorage.removeItem("group");
 }
+
+function removeQuery(queryKey: string): void {
+
+    sessionStorage.removeItem(queryKey);
+}
+
+export default {
+    setAccessToken,
+    setRefreshToken,
+    setGroup,
+    setQuery,
+    getAccessToken,
+    getRefreshToken,
+    getGroup,
+    getQuery,
+    removeAccessToken,
+    removeRefreshToken,
+    removeGroup,
+    removeQuery
+};

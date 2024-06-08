@@ -38,4 +38,4 @@ export function LoadingProvider({ children }: { children: ReactNode }) {
             {children}
         </LoadingContext.Provider>
     );
-}
+};

@@ -1,5 +1,6 @@
-import { ERROR_CODE } from "msa-board-view-common/src/constants/constants"
+import { ERROR_CODE, GROUP } from "msa-board-view-common/src/constants/constants"
 import useFetchData, { FetchErrorResponse, FetchErrorDetails } from "msa-board-view-common/src/hooks/useFetchData"
+import sessionUtils from "msa-board-view-common/src/utils/sessionUtils"
 import { useState, useCallback, useEffect } from "react"
 import { useErrorBoundary } from "react-error-boundary"
 import { useForm } from "react-hook-form"
@@ -10,10 +11,18 @@ export type PostWriteFormInputs = {
 	content: string
 };
 
+export type PostWriter = {
+	id: string
+	username: string
+	name: string
+	group: keyof typeof GROUP
+};
+
 export type PostDetails = {
 	id: string
 	title: string
 	content: string
+	writer: PostWriter
 };
 
 export default function PostWriteForm() {
@@ -25,6 +34,7 @@ export default function PostWriteForm() {
 	const { showBoundary } = useErrorBoundary();
 	const { fetchData } = useFetchData();
 	const [ post, setPost ] = useState<PostDetails>();
+	const [ accountId, setAccountId ] = useState<string>();
 	const {
 		register,
 		setError,
@@ -58,6 +68,7 @@ export default function PostWriteForm() {
 			case ERROR_CODE.NOT_FOUND_POST:
 			case ERROR_CODE.NOT_ADMIN_GROUP_POST:
 			case ERROR_CODE.NOT_FOUND_POST_WRITER:
+			case ERROR_CODE.DEACTIVE_POST: 
 				alert(errorMessage);
 				navigate("/post/list");
 				break;
@@ -74,8 +85,8 @@ export default function PostWriteForm() {
 		if (!!id) {
 
 			fetchData({
-				url: `${endpointURL}/apis/admins/posts/${id}`,
-				refreshURL: `${endpointURL}/apis/admins/refresh`,
+				url: `${endpointURL}/apis/users/posts/${id}`,
+				refreshURL: `${endpointURL}/apis/users/refresh`,
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(formData)
@@ -89,8 +100,8 @@ export default function PostWriteForm() {
 		} else {
 
 			fetchData({
-				url: `${endpointURL}/apis/admins/posts`,
-				refreshURL: `${endpointURL}/apis/admins/refresh`,
+				url: `${endpointURL}/apis/users/posts`,
+				refreshURL: `${endpointURL}/apis/users/refresh`,
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify(formData)
@@ -116,31 +127,70 @@ export default function PostWriteForm() {
 
 	useEffect(() => {
 
-		(!!id) && fetchData({
-			url: `${endpointURL}/apis/admins/posts/${id || "empty"}`,
-			refreshURL: `${endpointURL}/apis/admins/refresh`,
-			method: "GET",
-			headers: { "Accept": "application/json" }
-		}).then(async (response: Response) => {
+		Promise.all([
+			async () => fetchData({
+				url: `${endpointURL}/apis/users`,
+				refreshURL: `${endpointURL}/apis/users/refresh`,
+				method: "GET",
+				headers: { "Accept": "application/json" }
+			}).then((response: Response) => {
+				
+				return response.json();
+	
+			}).then((responseBody) => {
+	
+				setAccountId(responseBody?.id);
+	
+			}).catch((errorResponse: FetchErrorResponse) => {
+	
+				const errorCode = errorResponse.errorCode;
+	
+				switch (errorCode) {
+					case ERROR_CODE.NOT_FOUND_MEMBER:
+						sessionUtils.removeAccessToken();
+						sessionUtils.removeRefreshToken();
+						sessionUtils.removeGroup();	
+						navigate("/account/login/form");
+						break;
+					default:
+						showBoundary(errorResponse);
+						break;
+				}
+			}),
+			async () => fetchData({
+				url: `${endpointURL}/apis/users/posts/${id || "empty"}`,
+				refreshURL: `${endpointURL}/apis/users/refresh`,
+				method: "GET",
+				headers: { "Accept": "application/json" }
+			}).then(async (response: Response) => {
+	
+				setPost(await response.json());
+	
+			}).catch((errorResponse: FetchErrorResponse) => {
+	
+				const errorCode = errorResponse.errorCode;
+				const errorMessage = errorResponse.errorMessage;
+	
+				switch (errorCode) {
+					case ERROR_CODE.NOT_FOUND_POST:
+					case ERROR_CODE.NOT_FOUND_POST_WRITER:
+					case ERROR_CODE.DEACTIVE_POST:
+						alert(errorMessage);
+						navigate("/post/list");
+						break;
+					default:
+						showBoundary(errorResponse);
+						break;
+				}
+			})
+		]).then(() => {
 
-			setPost(await response.json());
-
-		}).catch((errorResponse: FetchErrorResponse) => {
-
-			const errorCode = errorResponse.errorCode;
-			const errorMessage = errorResponse.errorMessage;
-
-			switch (errorCode) {
-				case ERROR_CODE.NOT_FOUND_POST:
-				case ERROR_CODE.NOT_FOUND_POST_WRITER:
-					alert(errorMessage);
-					navigate("/post/list");
-					break;
-				default:
-					showBoundary(errorResponse);
-					break;
+			if (accountId !== post?.writer?.id) {
+				alert("게시글 작성자가 아닙니다.");
+				navigate(`/post/${id}/details`);
 			}
-		});
+
+		}).catch(showBoundary);
 
 	}, []);
 

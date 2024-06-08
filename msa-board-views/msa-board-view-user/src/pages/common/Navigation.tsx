@@ -13,7 +13,7 @@ export default function Navigation() {
     const logout = useCallback(() => {
 
         fetchData({
-            url: `${endpointURL}/apis/admins/logout`,
+            url: `${endpointURL}/apis/users/logout`,
             method: "POST",
             headers: { "Access-Token": sessionUtils.getAccessToken() || "" }
         })
@@ -41,11 +41,19 @@ export default function Navigation() {
             </button>
             <div className="collapse navbar-collapse" id="navbarResponsive">
                 {
+                    ((!sessionUtils.getAccessToken()) || (!sessionUtils.getGroup())) && <>
+                        <ul className="navbar-nav">
+                            <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/account/join/form")}>Join</a></li>
+                            <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/account/login/form")}>Login</a></li>
+                        </ul>
+                    </>
+                }
+
+                {
                     ((!!sessionUtils.getAccessToken()) && (!!sessionUtils.getGroup())) && <>
                         <ul className="navbar-nav">
                             <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => logout()}>Logout</a></li>
                             <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/account/modify/form")}>Account</a></li>
-                            <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/member/list")}>Member</a></li>
                             <li className="nav-item"><a className="nav-link js-scroll-trigger" href="#!" onClick={() => navigate("/post/list")}>Post</a></li>
                         </ul>
                     </>

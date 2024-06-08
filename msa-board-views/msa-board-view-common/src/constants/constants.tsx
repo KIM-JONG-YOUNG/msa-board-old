@@ -1,23 +1,23 @@
 export const GROUP = {
     ADMIN: "관리자",
     USER: "사용자"
-} as const
+} as const;
 
 export const GENDER = {
     MAIL: "남자",
     FEMAIL: "여자"
-} as const
+} as const;
 
 export const STATE = {
     ACTIVE: "활성화",
     DEACTIVE: "비활성화"
-} as const
+} as const;
 
 export const EMAIL_DOMAIN = {
     EXAMPLE_DOMAIN: "example.com",
     NAVER_DOMAIN: "naver.com",
     GMAIL_DOMAIN: "gmail.com"
-} as const
+} as const;
 
 export const MEMBER_SORT = {
     USERNAME: "계정",
@@ -25,7 +25,7 @@ export const MEMBER_SORT = {
     EMAIL: "이메일",
     CREATED_DATE_TIME: "생성일시",
     UPDATED_DATE_TIME: "수정일시"
-} as const
+} as const;
 
 export const POST_SORT = {
     TITLE: "제목",
@@ -34,12 +34,12 @@ export const POST_SORT = {
     VIEWS: "조회수",
     CREATED_DATE_TIME: "생성일시",
     UPDATED_DATE_TIME: "수정일시"
-} as const
+} as const;
 
 export const ORDER = {
     ASC: "오름차순",
     DESC: "내림차순"
-} as const
+} as const;
 
 export const ERROR_CODE = {
 
@@ -59,8 +59,9 @@ export const ERROR_CODE = {
     NOT_FOUND_POST_WRITER: "POST-002",
     NOT_POST_WRITER: "POST-003",
     NOT_ADMIN_GROUP_POST: "POST-004",
+    DEACTIVE_POST: "POST-005",
 
-    EXPIRED_ACCESS_TOKEN: "TOKEN-001",
+    EXPIRED_ACCESS_TOKEN: "TOKEN-001", 
     REVOKED_ACCESS_TOKEN: "TOKEN-002",
     INVALID_ACCESS_TOKEN: "TOKEN-003",
 
@@ -71,10 +72,10 @@ export const ERROR_CODE = {
     NOT_ADMIN_GROUP_REFRESH_TOKEN: "TOKEN-007",
     NOT_USER_GROUP_REFRESH_TOKEN: "TOKEN-008"
 
-} as const
+} as const;
 
 export const DATE_TIME_FORMAT = {
     DATE: 'yyyy-MM-dd',
     TIME: 'HH:mm:ss',
     DATE_TIME: 'yyyy-MM-dd HH:mm:ss'
-} as const
+} as const;

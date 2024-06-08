@@ -1,18 +1,14 @@
-import { useForm } from "react-hook-form";
-import { useErrorBoundary } from "react-error-boundary";
-import { ERROR_CODE, GENDER, GROUP, STATE } from "msa-board-view-common/src/constants/constants";
-import { useCallback, useEffect, useState } from "react";
-
-import { FetchErrorDetails, FetchErrorResponse } from "msa-board-view-common/src/utils/fetchUtils";
-import useLoading from "msa-board-view-common/src/hooks/useLoading";
-import { useParams, useNavigate } from "react-router-dom";
-
-import * as adminService from "../../services/adminService";
+import { GROUP, STATE, GENDER, ERROR_CODE } from "msa-board-view-common/src/constants/constants"
+import useFetchData, { FetchErrorResponse, FetchErrorDetails } from "msa-board-view-common/src/hooks/useFetchData"
+import { useState, useCallback, useEffect } from "react"
+import { useErrorBoundary } from "react-error-boundary"
+import { useForm } from "react-hook-form"
+import { useNavigate, useParams } from "react-router-dom"
 
 export type UserModifyFormInputs = {
 	group: keyof typeof GROUP
 	state: keyof typeof STATE
-}
+};
 
 export type MemberDetails = {
 	id: string
@@ -21,73 +17,71 @@ export type MemberDetails = {
 	gender: keyof typeof GENDER
 	email: string
 	group: keyof typeof GROUP
+	createdDateTime: string
+	updatedDateTime: string
 	state: keyof typeof STATE
-}
+};
 
 export default function MemberDetails() {
+
+	const endpointURL = process.env.REACT_APP_ENDPOINT_URL;
 
 	const navigate = useNavigate();
 	const { id } = useParams();
 	const { showBoundary } = useErrorBoundary();
-	const { loadingCallback } = useLoading();
-
-	const [member, setMember] = useState<MemberDetails>();
-
+	const { fetchData } = useFetchData();
+	const [ member, setMember ] = useState<MemberDetails>();
 	const {
 		register,
 		setError,
 		setValue,
-		handleSubmit
+		getValues,
+		handleSubmit,
+		formState: { errors }
 	} = useForm<UserModifyFormInputs>({ mode: "onBlur" });
 
-	const groupRegister = register("group");
-	const stateRegister = register("state");
+	const groupRegister = register("group", { required: "그룹은 비어있을 수 없습니다." });
+	const stateRegister = register("state", { required: "상태는 비어있을 수 없습니다." });
 
-	const onSubmitErrorHandler = useCallback((errorResponse: FetchErrorResponse) => {
+	const modify = useCallback(() => {
 
-		const errorCode = errorResponse.errorCode;
-		const errorMessage = errorResponse.errorMessage;
-		const errorDetailsList = errorResponse.errorDetailsList || [];
+		const formData = getValues();
 
-		switch (errorCode) {
+		fetchData({
+			url: `${endpointURL}/apis/admins/users/${id || "empty"}`,
+			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			method: "PATCH",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(formData)
+		}).then((response: Response) => {
+		
+			alert("회원 정보가 수정되었습니다.");
 
-			case ERROR_CODE.INVALID_PARAMETER:
-				errorDetailsList.forEach((error: FetchErrorDetails) => {
-					(error.field === "state") && setError(error.field, { message: error.message });
-					(error.field === "group") && setError(error.field, { message: error.message });
-				});
-				break;
+		}).catch((errorResponse: FetchErrorResponse) => {
+		
+			const errorCode = errorResponse.errorCode;
+			const errorMessage = errorResponse.errorMessage;
+			const errorDetailsList = errorResponse.errorDetailsList || [];
+	
+			switch (errorCode) {
+				case ERROR_CODE.INVALID_PARAMETER:
+					errorDetailsList.forEach((error: FetchErrorDetails) => {
+						(error.field === "state") && setError(error.field, { message: error.message });
+						(error.field === "group") && setError(error.field, { message: error.message });
+					});
+					break;
+				case ERROR_CODE.NOT_FOUND_MEMBER:
+				case ERROR_CODE.NOT_USER_GROUP_MEMBER:
+					alert(errorMessage);
+					navigate("/member/list");
+					break;
+				default:
+					showBoundary(errorResponse);
+					break;
+			}		
+		});
 
-			case ERROR_CODE.NOT_FOUND_MEMBER:
-				alert(errorMessage);
-				navigate("/member/list");
-				break;
-
-			default:
-				throw errorResponse;
-		}
-
-	}, [setError, navigate]);
-
-	const onSubmit = useCallback((formData: UserModifyFormInputs) => {
-
-		if (!!id && member?.group === "USER") {
-
-			loadingCallback(() => adminService
-				.modifyUser(id, {
-					group: formData.group,
-					state: formData.state
-				})
-				.catch(onSubmitErrorHandler)
-				.catch(showBoundary));
-
-		} else {
-
-			alert((!id) ? "회원 ID가 존재하지 않습니다." : "일반 회원이 아닙니다.");
-			navigate("/member/list");
-		}
-
-	}, [id, member, loadingCallback, onSubmitErrorHandler, showBoundary, navigate]);
+	}, [id, getValues, fetchData, navigate, setError, showBoundary]);
 
 	useEffect(() => {
 
@@ -98,20 +92,30 @@ export default function MemberDetails() {
 
 	useEffect(() => {
 
-		if (!!id) {
+		fetchData({
+			url: `${endpointURL}/apis/admins/members/${id || "empty"}`,
+			refreshURL: `${endpointURL}/apis/admins/refresh`,
+			method: "GET",
+			headers: { "Accept": "application/json" }
+		}).then(async (response: Response) => {
 
-			loadingCallback(() => adminService
-				.getMember(id)
-				.then((response: Response) => response.json())
-				.then((member: MemberDetails) => setMember(member))
-				.catch(onSubmitErrorHandler)
-				.catch(showBoundary));
+			setMember(await response.json());
 
-		} else {
+		}).catch((errorResponse: FetchErrorResponse) => {
 
-			alert("회원 ID가 존재하지 않습니다.");
-			navigate("/post/list");
-		}
+			const errorCode = errorResponse.errorCode;
+			const errorMessage = errorResponse.errorMessage;
+
+			switch (errorCode) {
+				case ERROR_CODE.NOT_FOUND_MEMBER:
+					alert(errorMessage);
+					navigate("/member/list");
+					break;
+				default:
+					showBoundary(errorResponse);
+					break;
+			}
+		});
 
 	}, []);
 
@@ -125,7 +129,7 @@ export default function MemberDetails() {
 					<span className="text-primary">Details</span>
 				</h1>
 
-				<form onSubmit={handleSubmit(onSubmit)}>
+				<form onSubmit={handleSubmit(() => modify())}>
 
 					<div className="row">
 						<div className="col-xl-8 mb-3">
@@ -141,7 +145,7 @@ export default function MemberDetails() {
 						</div>
 						<div className="col-xl-4 mb-3">
 							<label className="form-label subheading">Gender</label>
-							<input type="text" className="form-control" disabled 
+							<input type="text" className="form-control" disabled
 								value={
 									(!!member?.gender) ? GENDER[member.gender] : ""
 								} />
@@ -159,13 +163,16 @@ export default function MemberDetails() {
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">Group</label>
 							{
-								(member?.group === "USER") 
-									? <select className="form-select" {...groupRegister}>
-										{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-									</select>
+								(member?.group === "USER")
+									? <>
+										<select className="form-select" {...groupRegister}>
+											{Object.entries(GROUP).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+										</select>
+										{!!errors.group && <div className="text-danger">{errors.group.message}</div>}
+									</>
 									: <input type="text" className="form-control" disabled value={(!!member?.group) ? GROUP[member.group] : ""} />
 							}
-							
+
 						</div>
 					</div>
 
@@ -173,22 +180,25 @@ export default function MemberDetails() {
 						<div className="col-xl-8 mb-3">
 							<label className="form-label subheading">State</label>
 							{
-								(member?.group === "USER") 
-									? <select className="form-select" {...stateRegister}>
-										{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
-									</select>
+								(member?.group === "USER")
+									? <>
+										<select className="form-select" {...stateRegister}>
+											{Object.entries(STATE).map(([key, value]) => <option key={key} value={key}>{value}</option>)}
+										</select>
+										{!!errors.state && <div className="text-danger">{errors.state.message}</div>}
+									</>
 									: <input type="text" className="form-control" disabled value={(!!member?.state) ? STATE[member.state] : ""} />
 							}
 						</div>
 					</div>
 
 					{
-						(member?.group === "USER") && 
-							<div className="row">
-								<div className="col-xl-8 mt-3">
-									<button type="submit" className="btn btn-info w-100">Modify</button>
-								</div>
+						(member?.group === "USER") &&
+						<div className="row">
+							<div className="col-xl-8 mt-3">
+								<button type="submit" className="btn btn-info w-100">Modify</button>
 							</div>
+						</div>
 					}
 
 				</form>
@@ -196,4 +206,4 @@ export default function MemberDetails() {
 			</div>
 		</section>
 	);
-}
+};
