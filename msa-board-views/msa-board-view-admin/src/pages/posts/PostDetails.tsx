@@ -1,14 +1,8 @@
 import { STATE, GROUP, ERROR_CODE } from "msa-board-view-common/src/constants/constants"
 import useFetchData, { FetchErrorResponse, FetchErrorDetails } from "msa-board-view-common/src/hooks/useFetchData"
-import { title } from "process"
 import { useState, useCallback, useEffect } from "react"
 import { useErrorBoundary } from "react-error-boundary"
-import { useForm } from "react-hook-form"
 import { useNavigate, useParams } from "react-router-dom"
-
-export type PostModifyFormInputs = {
-	state: keyof typeof STATE
-};
 
 export type PostWriter = {
 	id: string
@@ -37,29 +31,22 @@ export default function PostDetails() {
 	const { showBoundary } = useErrorBoundary();
 	const { fetchData } = useFetchData();
 	const [ post, setPost ] = useState<PostDetails>();
-	const {
-		setValue,
-		getValues
-	} = useForm<PostModifyFormInputs>({ mode: "onBlur" });
 
-	const modifyState = useCallback(() => {
+	const modifyState = useCallback((state: keyof typeof STATE) => {
 
-		const formData = getValues();
-		console.log(formData)
 		fetchData({
-			url: `${endpointURL}/apis/admins/posts/${id || "empty"}`,
+			url: `${endpointURL}/apis/admins/posts/${id || "empty"}/state`,
 			refreshURL: `${endpointURL}/apis/admins/refresh`,
 			method: "PATCH",
 			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(formData)
+			body: `"${state}"`
 		}).then((response: Response) => {
 		
 			alert("게시글 정보가 수정되었습니다.");
-			setPost((prevState: PostDetails | undefined) => ((!prevState) 
-				? undefined 
-				: {
+			setPost((prevState: PostDetails | undefined) => (
+				(!prevState) ? prevState : {
 					...prevState,
-					state: formData.state
+					state: state
 				}));
 
 		}).catch((errorResponse: FetchErrorResponse) => {
@@ -85,13 +72,7 @@ export default function PostDetails() {
 			}		
 		});
 
-	}, [id, getValues, fetchData, navigate, showBoundary]);
-
-	useEffect(() => {
-
-		(!!post) && setValue("state", post?.state);
-
-	}, [post, setValue]);
+	}, [id, fetchData, navigate, showBoundary]);
 
 	useEffect(() => {
 
@@ -158,16 +139,10 @@ export default function PostDetails() {
 							<button type="button" className="btn btn-info" onClick={() => navigate(`/post/${id}/write/form`)}>Modify</button>
 						}				
 						{(post?.state === "ACTIVE") && 
-							<button type="button" className="btn btn-danger float-end" onClick={() => {
-								setValue("state", "DEACTIVE");
-								modifyState();
-							}} >Delete</button>
+							<button type="button" className="btn btn-danger float-end" onClick={() => modifyState("DEACTIVE")} >Delete</button>
 						}
 						{(post?.state === "DEACTIVE") && 
-							<button type="button" className="btn btn-success float-end" onClick={() => {
-								setValue("state", "ACTIVE");
-								modifyState();
-							}} >Restore</button>
+							<button type="button" className="btn btn-success float-end" onClick={() => modifyState("ACTIVE")} >Restore</button>
 						}
 					</div>
 				</div>
