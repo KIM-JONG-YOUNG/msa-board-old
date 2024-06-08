@@ -12,6 +12,7 @@ import PostDetails from "./pages/posts/PostDetails";
 import PostList from "./pages/posts/PostList";
 import PostWriteForm from "./pages/posts/PostWriteForm";
 import AccountPasswordModifyForm from "./pages/account/AccountPasswordModifyForm";
+import NotFound from "./pages/common/NotFound";
 
 export default function App() {
 
