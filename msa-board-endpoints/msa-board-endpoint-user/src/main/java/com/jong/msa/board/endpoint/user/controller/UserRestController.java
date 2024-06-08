@@ -216,7 +216,7 @@ public class UserRestController implements UserOperations {
 		} else {
 			
 			UUID id = SecurityContextUtils.getAuthenticationId();
-
+			
 			CreatePostRequest createRequest = requestMapper.toRequest(request, id);
 			
 			bindingResult = BindingResultUtils.validate(createRequest, validator);
@@ -224,7 +224,7 @@ public class UserRestController implements UserOperations {
 			if (bindingResult.hasErrors()) {
 				throw RestServiceException.invalidParameter(bindingResult);
 			} else {
-				return postFeignClient.createPost(createRequest);
+				return postFeignClient.createPost(createRequest);					
 			}
 		}
 	}
@@ -248,12 +248,14 @@ public class UserRestController implements UserOperations {
 
 				UUID id = SecurityContextUtils.getAuthenticationId();
 
-				PostDetailsResponse.Writer writer = postFeignClient.getPostWriter(postId).getBody();
+				PostDetailsResponse post = postFeignClient.getPost(postId).getBody();
 				
-				if (writer.getId().equals(id)) {
-					return postFeignClient.modifyPost(postId, modifyRequest);
-				} else {
+				if (post.getState() == State.DEACTIVE) {
+					throw UserServiceException.deactivePost();
+				} else if (!post.getWriter().getId().equals(id)) {
 					throw UserServiceException.notPostWriter();
+				} else {
+					return postFeignClient.modifyPost(postId, modifyRequest);
 				}
 			}
 		}
@@ -276,7 +278,16 @@ public class UserRestController implements UserOperations {
 	@Override
 	public ResponseEntity<PostDetailsResponse> getPost(UUID postId) {
 
-		return postFeignClient.getPost(postId);
+		PostDetailsResponse post = postFeignClient.getPost(postId).getBody();
+
+		if (post.getState() == State.DEACTIVE) {
+			throw UserServiceException.deactivePost();
+		} else {
+			
+			postFeignClient.increasePostViews(postId);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(post);			
+		}
 	}
 
 	@Override

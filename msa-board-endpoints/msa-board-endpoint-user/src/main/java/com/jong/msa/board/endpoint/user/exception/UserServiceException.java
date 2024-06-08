@@ -22,6 +22,11 @@ public class UserServiceException extends RestServiceException {
 		
 		return new UserServiceException(HttpStatus.FORBIDDEN, ErrorCode.NOT_POST_WRITER);
 	}
+	
+	public static UserServiceException deactivePost() {
+		
+		return new UserServiceException(HttpStatus.GONE, ErrorCode.DEACTIVE_POST);
+	}
 
 	public static UserServiceException notUserGroupRefreshToken() {
 		
