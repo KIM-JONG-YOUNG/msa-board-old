@@ -104,8 +104,7 @@ public class AdminRestController implements AdminOperations {
 
 		try {
 
-			MemberDetailsResponse member = tokenService.validateRefreshToken(refreshToken, 
-					id -> memberFeignClient.getMember(id).getBody());
+			MemberDetailsResponse member = tokenService.validateRefreshToken(refreshToken, memberFeignClient::getMember).getBody();
 
 			if (member.getGroup() != Group.ADMIN) {
 				throw AdminServiceException.notAdminGroupRefreshToken();
