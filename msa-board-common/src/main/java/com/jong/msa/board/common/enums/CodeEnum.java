@@ -54,6 +54,7 @@ public interface CodeEnum<V> {
 		NOT_FOUND_POST_WRITER("POST-002", "존재하지 않는 작성자입니다."),
 		NOT_POST_WRITER("POST-003", "게시글 작성자가 아닙니다."), 
 		NOT_ADMIN_GROUP_POST("POST-004", "관리자 회원 게시글이 아닙니다."),
+		DEACTIVE_POST("POST-005", "삭제된 게시글입니다."), 
 
 		EXPIRED_ACCESS_TOKEN("TOKEN-001", "만료된 Access Token 입니다."),
 		REVOKED_ACCESS_TOKEN("TOKEN-002", "사용할 수 없는 Access Token 입니다."),
