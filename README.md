@@ -78,3 +78,6 @@ msa-board
 
 ```
 
+## Project Architecture
+
+![image](https://github.com/KIM-JONG-YOUNG/msa-board/assets/46014387/1b5bfc56-cf2b-4249-a197-0d006987c262)
