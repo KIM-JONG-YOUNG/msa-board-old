@@ -48,7 +48,6 @@ export default function Navigation() {
                         </ul>
                     </>
                 }
-
                 {
                     ((!!sessionUtils.getAccessToken()) && (!!sessionUtils.getGroup())) && <>
                         <ul className="navbar-nav">
