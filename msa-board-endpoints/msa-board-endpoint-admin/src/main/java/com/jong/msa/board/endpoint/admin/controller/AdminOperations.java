@@ -14,19 +14,17 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
-import com.jong.msa.board.client.search.request.PagingRequest;
-import com.jong.msa.board.client.search.response.PagingListResponse;
-import com.jong.msa.board.client.search.response.result.MemberItem;
-import com.jong.msa.board.client.search.response.result.PostItem;
+import com.jong.msa.board.client.search.response.MemberListResponse;
+import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyUserRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
-import com.jong.msa.board.endpoint.admin.request.param.AdminMemberCondition;
-import com.jong.msa.board.endpoint.admin.request.param.AdminPostCondition;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -91,11 +89,10 @@ public interface AdminOperations {
 
 	@Operation(summary = "회원 검색")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@PostMapping(value = "/apis/admins/members/search",
-			consumes = MediaType.APPLICATION_JSON_VALUE,
+	@GetMapping(value = "/apis/admins/members",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<PagingListResponse<MemberItem>> searchMemberList(
-			@RequestBody PagingRequest<AdminMemberCondition> request);
+	ResponseEntity<MemberListResponse> searchMemberList(
+			AdminSearchMemberRequest request);
 
 	@Operation(summary = "게시물 작성")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -129,11 +126,9 @@ public interface AdminOperations {
 
 	@Operation(summary = "게시물 검색")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@PostMapping(value = "/apis/admins/posts/search",
-			consumes = MediaType.APPLICATION_JSON_VALUE,
+	@GetMapping(value = "/apis/admins/posts",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<PagingListResponse<PostItem>> searchPostList(
-			@RequestBody PagingRequest<AdminPostCondition> request);
+	ResponseEntity<PostListResponse> searchPostList(
+			AdminSearchPostRequest request);
 
-	
 }

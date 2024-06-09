@@ -8,8 +8,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import com.jong.msa.board.client.search.response.result.MemberItem;
-import com.jong.msa.board.client.search.response.result.PostItem;
+import com.jong.msa.board.client.search.response.MemberListResponse;
+import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.post.entity.PostEntity;
 
@@ -17,27 +17,16 @@ import com.jong.msa.board.domain.post.entity.PostEntity;
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SearchEntityMapper {
 
-//	MemberListResponse.Info toListInfo(MemberEntity entity);
-//
-//	PostListResponse.Writer toWriter(MemberEntity member);
-//
-//	@Mapping(target = "id", source = "post.id")
-//	@Mapping(target = "writer", source = "member")
-//	@Mapping(target = "createdDateTime", source = "post.createdDateTime")
-//	@Mapping(target = "updatedDateTime", source = "post.updatedDateTime")
-//	@Mapping(target = "state", source = "post.state")
-//	PostListResponse.Info toListInfo(PostEntity post, MemberEntity member);
+	MemberListResponse.Info toListInfo(MemberEntity entity);
 
-	MemberItem toItem(MemberEntity entity);
+	PostListResponse.Writer toWriter(MemberEntity member);
 
 	@Mapping(target = "id", source = "post.id")
 	@Mapping(target = "writer", source = "member")
 	@Mapping(target = "createdDateTime", source = "post.createdDateTime")
 	@Mapping(target = "updatedDateTime", source = "post.updatedDateTime")
 	@Mapping(target = "state", source = "post.state")
-	PostItem toItem(PostEntity post, MemberEntity member);
-
-	PostItem.Writer toWriter(MemberEntity entity);
+	PostListResponse.Info toListInfo(PostEntity post, MemberEntity member);
 
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 	MemberEntity updateEntity(MemberEntity entity, @MappingTarget MemberEntity targetEntity);

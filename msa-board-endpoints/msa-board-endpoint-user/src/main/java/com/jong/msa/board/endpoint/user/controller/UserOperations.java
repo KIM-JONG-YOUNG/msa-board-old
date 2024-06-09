@@ -15,16 +15,14 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
-import com.jong.msa.board.client.search.request.PagingRequest;
-import com.jong.msa.board.client.search.response.PagingListResponse;
-import com.jong.msa.board.client.search.response.result.PostItem;
+import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.endpoint.user.request.UserJoinMemberRequest;
 import com.jong.msa.board.endpoint.user.request.UserLoginRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPasswordRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyRequest;
+import com.jong.msa.board.endpoint.user.request.UserSearchPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserWritePostRequest;
-import com.jong.msa.board.endpoint.user.request.param.UserPostCondition;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -109,10 +107,9 @@ public interface UserOperations {
 
 	@Operation(summary = "게시물 검색")
 	@PreAuthorize("hasRole('ROLE_USER')")
-	@PostMapping(value = "/apis/users/posts/search",
-			consumes = MediaType.APPLICATION_JSON_VALUE,
+	@GetMapping(value = "/apis/users/posts",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<PagingListResponse<PostItem>> searchPostList(
-			@RequestBody PagingRequest<UserPostCondition> request);
+	ResponseEntity<PostListResponse> searchPostList(
+			UserSearchPostRequest request);
 	
 }
