@@ -13,7 +13,7 @@ import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.param.PostCondition;
 import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.endpoint.user.request.UserJoinMemberRequest;
@@ -21,8 +21,8 @@ import com.jong.msa.board.endpoint.user.request.UserLoginRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPasswordRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyRequest;
-import com.jong.msa.board.endpoint.user.request.UserSearchPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserWritePostRequest;
+import com.jong.msa.board.endpoint.user.request.param.UserPostCondition;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -42,7 +42,7 @@ public interface UserRequestMapper {
 	ModifyMemberPasswordRequest toRequest(UserModifyPasswordRequest request);
 	
 	@Mapping(target = "state", expression = "java(getActive())")
-	SearchPostRequest toRequest(UserSearchPostRequest request);
+	PostCondition toCondition(UserPostCondition condition);
 
 	CreatePostRequest toRequest(UserWritePostRequest request, UUID writerId);
 

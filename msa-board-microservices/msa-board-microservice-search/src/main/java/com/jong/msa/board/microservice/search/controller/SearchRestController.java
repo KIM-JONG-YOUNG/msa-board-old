@@ -7,10 +7,12 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.response.MemberListResponse;
-import com.jong.msa.board.client.search.response.PostListResponse;
+import com.jong.msa.board.client.search.request.PagingRequest;
+import com.jong.msa.board.client.search.request.param.MemberCondition;
+import com.jong.msa.board.client.search.request.param.PostCondition;
+import com.jong.msa.board.client.search.response.PagingListResponse;
+import com.jong.msa.board.client.search.response.result.MemberItem;
+import com.jong.msa.board.client.search.response.result.PostItem;
 import com.jong.msa.board.core.validation.utils.BindingResultUtils;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.microservice.search.service.SearchService;
@@ -25,8 +27,34 @@ public class SearchRestController implements SearchFeignClient {
 	
 	private final SearchService service;
 	
+//	@Override
+//	public ResponseEntity<MemberListResponse> searchMemberList(SearchMemberRequest request) {
+//		
+//		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+//		
+//		if (bindingResult.hasErrors()) {
+//			throw RestServiceException.invalidParameter(bindingResult); 
+//		} else {
+//			return ResponseEntity.status(HttpStatus.OK)
+//					.body(service.searchMemberList(request));
+//		}
+//	}
+//
+//	@Override
+//	public ResponseEntity<PostListResponse> searchPostList(SearchPostRequest request) {
+//		
+//		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+//		
+//		if (bindingResult.hasErrors()) {
+//			throw RestServiceException.invalidParameter(bindingResult); 
+//		} else {
+//			return ResponseEntity.status(HttpStatus.OK)
+//					.body(service.searchPostList(request));
+//		}
+//	}
+
 	@Override
-	public ResponseEntity<MemberListResponse> searchMemberList(SearchMemberRequest request) {
+	public ResponseEntity<PagingListResponse<MemberItem>> searchMemberList(PagingRequest<MemberCondition> request) {
 		
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		
@@ -39,7 +67,7 @@ public class SearchRestController implements SearchFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(SearchPostRequest request) {
+	public ResponseEntity<PagingListResponse<PostItem>> searchPostList(PagingRequest<PostCondition> request) {
 		
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		

@@ -20,8 +20,10 @@ import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.response.PostListResponse;
+import com.jong.msa.board.client.search.request.PagingRequest;
+import com.jong.msa.board.client.search.request.param.PostCondition;
+import com.jong.msa.board.client.search.response.PagingListResponse;
+import com.jong.msa.board.client.search.response.result.PostItem;
 import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.core.security.exception.RevokedJwtException;
@@ -36,8 +38,8 @@ import com.jong.msa.board.endpoint.user.request.UserLoginRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPasswordRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyRequest;
-import com.jong.msa.board.endpoint.user.request.UserSearchPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserWritePostRequest;
+import com.jong.msa.board.endpoint.user.request.param.UserPostCondition;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -291,7 +293,7 @@ public class UserRestController implements UserOperations {
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(UserSearchPostRequest request) {
+	public ResponseEntity<PagingListResponse<PostItem>> searchPostList(PagingRequest<UserPostCondition> request) {
 		
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
@@ -299,14 +301,18 @@ public class UserRestController implements UserOperations {
 			throw RestServiceException.invalidParameter(bindingResult);
 		} else {
 			
-			SearchPostRequest searchRequest = requestMapper.toRequest(request);
+			PagingRequest<PostCondition> pagingRequest = PagingRequest.<PostCondition>builder()
+					.condition(requestMapper.toCondition(request.getCondition()))
+					.offset(request.getOffset())
+					.limit(request.getLimit())
+					.build();
 			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
+			bindingResult = BindingResultUtils.validate(pagingRequest, validator);
 			
 			if (bindingResult.hasErrors()) {
 				throw RestServiceException.invalidParameter(bindingResult);
 			} else {
-				return searchFeignClient.searchPostList(searchRequest);
+				return searchFeignClient.searchPostList(pagingRequest);
 			}
 		}
 	}

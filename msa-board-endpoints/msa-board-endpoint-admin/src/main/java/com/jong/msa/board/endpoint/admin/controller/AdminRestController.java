@@ -18,10 +18,12 @@ import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.response.MemberListResponse;
-import com.jong.msa.board.client.search.response.PostListResponse;
+import com.jong.msa.board.client.search.request.PagingRequest;
+import com.jong.msa.board.client.search.request.param.MemberCondition;
+import com.jong.msa.board.client.search.request.param.PostCondition;
+import com.jong.msa.board.client.search.response.PagingListResponse;
+import com.jong.msa.board.client.search.response.result.MemberItem;
+import com.jong.msa.board.client.search.response.result.PostItem;
 import com.jong.msa.board.common.enums.CodeEnum.Group;
 import com.jong.msa.board.common.enums.CodeEnum.State;
 import com.jong.msa.board.core.security.exception.RevokedJwtException;
@@ -36,9 +38,9 @@ import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyUserRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
+import com.jong.msa.board.endpoint.admin.request.param.AdminMemberCondition;
+import com.jong.msa.board.endpoint.admin.request.param.AdminPostCondition;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -224,25 +226,30 @@ public class AdminRestController implements AdminOperations {
 	} 	
 
 	@Override
-	public ResponseEntity<MemberListResponse> searchMemberList(AdminSearchMemberRequest request) {
-
+	public ResponseEntity<PagingListResponse<MemberItem>> searchMemberList(PagingRequest<AdminMemberCondition> request) {
+		
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
 		if (bindingResult.hasErrors()) {
 			throw RestServiceException.invalidParameter(bindingResult);
 		} else {
 		
-			SearchMemberRequest searchRequest = requestMapper.toRequest(request);
+			PagingRequest<MemberCondition> pagingRequest = PagingRequest.<MemberCondition>builder()
+					.condition(requestMapper.toCondition(request.getCondition()))
+					.offset(request.getOffset())
+					.limit(request.getLimit())
+					.build(); 
 			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
+			bindingResult = BindingResultUtils.validate(pagingRequest, validator);
 			
 			if (bindingResult.hasErrors()) {
 				throw RestServiceException.invalidParameter(bindingResult);
 			} else {
-				return searchFeignClient.searchMemberList(searchRequest);
+				return searchFeignClient.searchMemberList(pagingRequest);
 			}
 		}
 	}
+
 
 	@Override
 	public ResponseEntity<Void> writePost(AdminWritePostRequest request) {
@@ -308,22 +315,26 @@ public class AdminRestController implements AdminOperations {
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(AdminSearchPostRequest request) {
+	public ResponseEntity<PagingListResponse<PostItem>> searchPostList(PagingRequest<AdminPostCondition> request) {
 		
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
 		if (bindingResult.hasErrors()) {
 			throw RestServiceException.invalidParameter(bindingResult);
 		} else {
+		
+			PagingRequest<PostCondition> pagingRequest = PagingRequest.<PostCondition>builder()
+					.condition(requestMapper.toCondition(request.getCondition()))
+					.offset(request.getOffset())
+					.limit(request.getLimit())
+					.build();
 			
-			SearchPostRequest searchRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
+			bindingResult = BindingResultUtils.validate(pagingRequest, validator);
 			
 			if (bindingResult.hasErrors()) {
 				throw RestServiceException.invalidParameter(bindingResult);
 			} else {
-				return searchFeignClient.searchPostList(searchRequest);
+				return searchFeignClient.searchPostList(pagingRequest);
 			}
 		}
 	}

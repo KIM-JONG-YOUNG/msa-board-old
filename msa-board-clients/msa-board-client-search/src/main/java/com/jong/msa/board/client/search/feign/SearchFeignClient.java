@@ -1,16 +1,18 @@
 package com.jong.msa.board.client.search.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.response.MemberListResponse;
-import com.jong.msa.board.client.search.response.PostListResponse;
+import com.jong.msa.board.client.search.request.PagingRequest;
+import com.jong.msa.board.client.search.request.param.MemberCondition;
+import com.jong.msa.board.client.search.request.param.PostCondition;
+import com.jong.msa.board.client.search.response.PagingListResponse;
+import com.jong.msa.board.client.search.response.result.MemberItem;
+import com.jong.msa.board.client.search.response.result.PostItem;
 import com.jong.msa.board.core.feign.condition.FeignClientCondition;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,15 +24,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface SearchFeignClient {
 
 	@Operation(summary = "회원 검색")
-	@GetMapping(value = "/apis/members",
+	@PostMapping(value = "/apis/members/search",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<MemberListResponse> searchMemberList(
-			@SpringQueryMap SearchMemberRequest request);
+	ResponseEntity<PagingListResponse<MemberItem>> searchMemberList(
+			@RequestBody PagingRequest<MemberCondition> request);
 	
 	@Operation(summary = "게시글 검색")
-	@GetMapping(value = "/apis/posts",
+	@PostMapping(value = "/apis/posts/search",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	ResponseEntity<PostListResponse> searchPostList(
-			@SpringQueryMap SearchPostRequest request);
+	ResponseEntity<PagingListResponse<PostItem>> searchPostList(
+			@RequestBody PagingRequest<PostCondition> request);
 
 }

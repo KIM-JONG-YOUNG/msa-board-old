@@ -11,16 +11,16 @@ import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.param.MemberCondition;
+import com.jong.msa.board.client.search.request.param.PostCondition;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyUserRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
+import com.jong.msa.board.endpoint.admin.request.param.AdminMemberCondition;
+import com.jong.msa.board.endpoint.admin.request.param.AdminPostCondition;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
@@ -34,12 +34,16 @@ public interface AdminRequestMapper {
  
 	ModifyMemberPasswordRequest toRequest(AdminModifyPasswordRequest request);
 	
-	SearchMemberRequest toRequest(AdminSearchMemberRequest request);
-	
-	SearchPostRequest toRequest(AdminSearchPostRequest request);
+//	SearchMemberRequest toRequest(AdminSearchMemberRequest request);
+//	
+//	SearchPostRequest toRequest(AdminSearchPostRequest request);
 
 	CreatePostRequest toRequest(AdminWritePostRequest request, UUID writerId);
 
 	ModifyPostRequest toRequest(AdminModifyPostRequest request);
+
+	MemberCondition toCondition(AdminMemberCondition condition);
+
+	PostCondition toCondition(AdminPostCondition condition);
 
 }

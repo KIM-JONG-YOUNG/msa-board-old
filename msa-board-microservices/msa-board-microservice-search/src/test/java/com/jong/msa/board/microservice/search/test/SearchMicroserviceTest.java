@@ -1,6 +1,6 @@
 package com.jong.msa.board.microservice.search.test;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -82,16 +83,21 @@ public class SearchMicroserviceTest {
 	@Test
 	void 회원_검색_테스트() throws Exception {
 
-		mockMvc.perform(get("/apis/members"))
+		mockMvc.perform(post("/apis/members/search")
+					.contentType(MediaType.APPLICATION_JSON)
+					.accept(MediaType.APPLICATION_JSON)
+					.content("{}"))
 				.andExpect(status().isOk());
-
 	}
 	
 	@Test
 	void 게시글_검색_테스트() throws Exception {
 
-		mockMvc.perform(get("/apis/posts"))
-				.andExpect(status().isOk());
+		mockMvc.perform(post("/apis/posts/search")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content("{}"))
+			.andExpect(status().isOk());
 	}
 	
 }
