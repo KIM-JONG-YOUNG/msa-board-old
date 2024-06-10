@@ -1,7 +1,6 @@
 package com.jong.msa.board.client.search.response;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import com.jong.msa.board.common.enums.CodeEnum.Gender;
@@ -15,25 +14,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
 @ToString
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberListResponse {
-
-	private long totalCount;
-	
-	private List<Info> list;
+@SuperBuilder
+public class MemberListResponse extends SearchListResponse<MemberListResponse.Item> {
 
 	@Getter
 	@Builder
 	@ToString
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor(access = AccessLevel.PROTECTED)
-	@Schema(name = "MemberListInfoResponse.Info")
-	public static class Info {
+	@Schema(name = "MemberListInfoResponse.Item")
+	public static class Item {
 
 		@Schema(description = "ID")
 		private UUID id;

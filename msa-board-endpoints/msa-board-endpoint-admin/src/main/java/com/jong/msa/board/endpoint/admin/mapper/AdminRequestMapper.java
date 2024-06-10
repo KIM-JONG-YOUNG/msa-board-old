@@ -33,13 +33,17 @@ public interface AdminRequestMapper {
 	ModifyMemberRequest toRequest(AdminModifyUserRequest request);
  
 	ModifyMemberPasswordRequest toRequest(AdminModifyPasswordRequest request);
-	
+
+	SearchMemberRequest.Condition toCondition(AdminSearchMemberRequest.Condition condition);
+
 	SearchMemberRequest toRequest(AdminSearchMemberRequest request);
-	
-	SearchPostRequest toRequest(AdminSearchPostRequest request);
 
 	CreatePostRequest toRequest(AdminWritePostRequest request, UUID writerId);
 
 	ModifyPostRequest toRequest(AdminModifyPostRequest request);
+
+	SearchPostRequest.Condition toCondition(AdminSearchPostRequest.Condition request);
+
+	SearchPostRequest toRequest(AdminSearchPostRequest request);
 
 }

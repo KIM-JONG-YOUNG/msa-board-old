@@ -1,11 +1,11 @@
 package com.jong.msa.board.client.search.feign;
 
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.cloud.openfeign.SpringQueryMap;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import com.jong.msa.board.client.search.request.SearchMemberRequest;
 import com.jong.msa.board.client.search.request.SearchPostRequest;
@@ -22,15 +22,17 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface SearchFeignClient {
 
 	@Operation(summary = "회원 검색")
-	@GetMapping(value = "/apis/members",
+	@PostMapping(value = "/apis/search/members",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<MemberListResponse> searchMemberList(
-			@SpringQueryMap SearchMemberRequest request);
-	
+			@RequestBody SearchMemberRequest request);
+
 	@Operation(summary = "게시글 검색")
-	@GetMapping(value = "/apis/posts",
+	@PostMapping(value = "/apis/search/posts",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<PostListResponse> searchPostList(
-			@SpringQueryMap SearchPostRequest request);
+			@RequestBody SearchPostRequest request);
 
 }

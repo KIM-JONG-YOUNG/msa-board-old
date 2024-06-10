@@ -65,8 +65,8 @@ public interface CodeEnum<V> {
 		INVALID_REFRESH_TOKEN("TOKEN-006", "유효하지 않은 Refresh Token 입니다."),
 
 		NOT_ADMIN_GROUP_REFRESH_TOKEN("TOKEN-007", "관리자 회원의 Refresh Token 입니다."),
-		NOT_USER_GROUP_REFRESH_TOKEN("TOKEN-008", "일반 회원의 Refresh Token 입니다."),
-;
+		NOT_USER_GROUP_REFRESH_TOKEN("TOKEN-008", "일반 회원의 Refresh Token 입니다.");
+		
 		private final String code;
 		private final String message;
 	}

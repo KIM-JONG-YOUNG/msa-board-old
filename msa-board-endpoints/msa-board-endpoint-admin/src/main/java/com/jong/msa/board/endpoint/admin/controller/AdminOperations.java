@@ -89,10 +89,11 @@ public interface AdminOperations {
 
 	@Operation(summary = "회원 검색")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping(value = "/apis/admins/members",
+	@GetMapping(value = "/apis/admins/members/search",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<MemberListResponse> searchMemberList(
-			AdminSearchMemberRequest request);
+			@RequestBody AdminSearchMemberRequest request);
 
 	@Operation(summary = "게시물 작성")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -126,9 +127,10 @@ public interface AdminOperations {
 
 	@Operation(summary = "게시물 검색")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	@GetMapping(value = "/apis/admins/posts",
+	@PostMapping(value = "/apis/admins/posts/search",
+			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
 	ResponseEntity<PostListResponse> searchPostList(
-			AdminSearchPostRequest request);
+			@RequestBody AdminSearchPostRequest request);
 
 }

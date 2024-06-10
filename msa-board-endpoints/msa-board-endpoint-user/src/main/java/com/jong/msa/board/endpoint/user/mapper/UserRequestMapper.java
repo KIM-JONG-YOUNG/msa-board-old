@@ -40,12 +40,14 @@ public interface UserRequestMapper {
 	ModifyMemberRequest toRequest(UserModifyRequest request);
 	
 	ModifyMemberPasswordRequest toRequest(UserModifyPasswordRequest request);
-	
-	@Mapping(target = "state", expression = "java(getActive())")
-	SearchPostRequest toRequest(UserSearchPostRequest request);
 
 	CreatePostRequest toRequest(UserWritePostRequest request, UUID writerId);
 
 	ModifyPostRequest toRequest(UserModifyPostRequest request);
+
+	@Mapping(target = "state", expression = "java(getActive())")
+	SearchPostRequest.Condition toCondition(UserSearchPostRequest.Condition condition);
+
+	SearchPostRequest toRequest(UserSearchPostRequest request);
 
 }

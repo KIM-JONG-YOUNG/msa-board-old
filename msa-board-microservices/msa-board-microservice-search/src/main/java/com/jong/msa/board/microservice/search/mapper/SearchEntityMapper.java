@@ -17,16 +17,16 @@ import com.jong.msa.board.domain.post.entity.PostEntity;
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface SearchEntityMapper {
 
-	MemberListResponse.Info toListInfo(MemberEntity entity);
-
-	PostListResponse.Writer toWriter(MemberEntity member);
+	MemberListResponse.Item toListItem(MemberEntity entity);
 
 	@Mapping(target = "id", source = "post.id")
-	@Mapping(target = "writer", source = "member")
+	@Mapping(target = "writer", source = "writer")
 	@Mapping(target = "createdDateTime", source = "post.createdDateTime")
 	@Mapping(target = "updatedDateTime", source = "post.updatedDateTime")
 	@Mapping(target = "state", source = "post.state")
-	PostListResponse.Info toListInfo(PostEntity post, MemberEntity member);
+	PostListResponse.Item toListItem(PostEntity post, MemberEntity writer);
+
+	PostListResponse.Writer toWriter(MemberEntity entity);
 
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 	MemberEntity updateEntity(MemberEntity entity, @MappingTarget MemberEntity targetEntity);
