@@ -3,9 +3,9 @@ package com.jong.msa.board.client.member.response;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;

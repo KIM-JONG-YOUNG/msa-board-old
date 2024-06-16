@@ -16,6 +16,7 @@ import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.core.validation.utils.BindingResultUtils;
+import com.jong.msa.board.core.web.enums.CommonErrorCode;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.microservice.member.service.MemberService;
 
@@ -35,8 +36,11 @@ public class MemberRestController implements MemberFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+			
 		} else {
+			
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.header(HttpHeaders.LOCATION, new StringBuilder("/apis/members/")
 							.append(service.createMember(request))
@@ -51,7 +55,9 @@ public class MemberRestController implements MemberFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
 			
 			service.modifyMember(id, request);
@@ -66,7 +72,6 @@ public class MemberRestController implements MemberFeignClient {
 
 	@Override
 	public ResponseEntity<Void> modifyMemberPassword(UUID id, ModifyMemberPasswordRequest request) {
-		// TODO Auto-generated method stub
 		
 		service.modifyMemberPassword(id, request);
 		
@@ -90,8 +95,11 @@ public class MemberRestController implements MemberFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
+
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(service.loginMember(request));
 		}

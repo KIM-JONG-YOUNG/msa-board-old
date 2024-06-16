@@ -2,12 +2,11 @@ package com.jong.msa.board.client.search.request;
 
 import javax.validation.Valid;
 
+import com.jong.msa.board.client.search.enums.MemberSort;
 import com.jong.msa.board.client.search.request.param.DateRange;
-import com.jong.msa.board.client.search.request.param.SortOrder;
-import com.jong.msa.board.client.search.request.param.SortOrder.Order;
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -15,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -23,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchMemberRequest extends SearchRequest<SearchMemberRequest.Condition, SearchMemberRequest.Sort> {
+public class SearchMemberRequest extends SearchRequest<SearchMemberRequest.Condition, MemberSort> {
 	
 	@Getter
 	@Builder
@@ -61,17 +59,4 @@ public class SearchMemberRequest extends SearchRequest<SearchMemberRequest.Condi
 
 	}
 
-	@Getter
-	@RequiredArgsConstructor
-	public static enum Sort implements SortOrder.SortEnum {
-
-		USERNAME(Order.ASC),
-		NAME(Order.ASC),
-		EMAIL(Order.ASC),
-		CREATED_DATE_TIME(Order.DESC),
-		UPDATED_DATE_TIME(Order.DESC);
-		
-		private final Order defaultOrder;
-	}
-	
 }

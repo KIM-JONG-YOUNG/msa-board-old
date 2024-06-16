@@ -1,6 +1,6 @@
 package com.jong.msa.board.client.post.request;
 
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.validation.annotation.StringValidate;
 import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
 import com.jong.msa.board.core.validation.annotation.StringValidate.SizeCheck;

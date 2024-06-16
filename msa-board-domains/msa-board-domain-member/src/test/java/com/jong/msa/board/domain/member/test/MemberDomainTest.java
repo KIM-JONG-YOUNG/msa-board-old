@@ -9,8 +9,8 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
 

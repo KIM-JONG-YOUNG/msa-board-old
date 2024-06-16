@@ -1,27 +1,29 @@
 package com.jong.msa.board.microservice.member.service;
-
+ 
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jong.msa.board.client.member.enums.MemberErrorCode;
 import com.jong.msa.board.client.member.request.CreateMemberRequest;
 import com.jong.msa.board.client.member.request.LoginMemberRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.redis.aspect.RedisCaching;
 import com.jong.msa.board.core.redis.aspect.RedisRemove;
 import com.jong.msa.board.core.transaction.aspect.DistributeTransaction;
+import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.entity.QMemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
 import com.jong.msa.board.microservice.member.event.MemberSaveEvent;
-import com.jong.msa.board.microservice.member.exception.MemberServiceException;
 import com.jong.msa.board.microservice.member.mapper.MemberEntityMapper;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
@@ -63,7 +65,8 @@ public class MemberServiceImpl implements MemberService {
 			return savedEntity.getId();
 		
 		} else {
-			throw MemberServiceException.duplicateMemberUsername();
+
+			throw new RestServiceException(HttpStatus.CONFLICT, MemberErrorCode.DUPLICATE_MEMBER_USERNAME);
 		}
 	}
 
@@ -72,7 +75,9 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void modifyMember(UUID id, ModifyMemberRequest request) {
 		
-		MemberEntity entity = repository.findById(id).orElseThrow(MemberServiceException::notFoundMember);
+		MemberEntity entity = repository.findById(id)
+				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER));
+		
 		MemberEntity savedEntity = repository.save(entityMapper.updateEntity(request, entity));
 		
 		eventPublisher.publishEvent(new MemberSaveEvent(savedEntity.getId()));
@@ -82,7 +87,8 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void modifyMemberPassword(UUID id, ModifyMemberPasswordRequest request) {
 		
-		MemberEntity entity = repository.findById(id).orElseThrow(MemberServiceException::notFoundMember);
+		MemberEntity entity = repository.findById(id)
+				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER));
 		
 		if (encoder.matches(request.getCurrentPassword(), entity.getPassword())) {
 
@@ -93,7 +99,8 @@ public class MemberServiceImpl implements MemberService {
 			eventPublisher.publishEvent(new MemberSaveEvent(savedEntity.getId()));
 
 		} else {
-			throw MemberServiceException.notMatchedMemberPassword();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_MATCHED_MEMBER_PASSWORD);
 		}		
 	}
 
@@ -102,7 +109,8 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public MemberDetailsResponse getMember(UUID id) {
 		
-		return entityMapper.toResponse(repository.findById(id).orElseThrow(MemberServiceException::notFoundMember));
+		return entityMapper.toResponse(repository.findById(id)
+				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER)));
 	}
 
 	@Transactional(readOnly = true)
@@ -118,12 +126,16 @@ public class MemberServiceImpl implements MemberService {
 		if (entity != null) {
 
 			if (encoder.matches(request.getPassword(), entity.getPassword())) {
+				
 				return entityMapper.toResponse(entity);
+				
 			} else {
-				throw MemberServiceException.notMatchedMemberPassword();
+				
+				throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_MATCHED_MEMBER_PASSWORD);
 			}
 		} else {
-			throw MemberServiceException.notFoundMemberByUsername();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_FOUND_MEMBER_USERNAME);
 		}
 	}
 

@@ -2,10 +2,9 @@ package com.jong.msa.board.client.search.request;
 
 import javax.validation.Valid;
 
+import com.jong.msa.board.client.search.enums.PostSort;
 import com.jong.msa.board.client.search.request.param.DateRange;
-import com.jong.msa.board.client.search.request.param.SortOrder;
-import com.jong.msa.board.client.search.request.param.SortOrder.Order;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -13,7 +12,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
@@ -21,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchPostRequest extends SearchRequest<SearchPostRequest.Condition, SearchPostRequest.Sort> {
+public class SearchPostRequest extends SearchRequest<SearchPostRequest.Condition, PostSort> {
 	
 	@Getter
 	@Builder
@@ -53,18 +51,4 @@ public class SearchPostRequest extends SearchRequest<SearchPostRequest.Condition
 
 	}
 
-	@Getter
-	@RequiredArgsConstructor
-	public static enum Sort implements SortOrder.SortEnum {
-		
-		TITLE(Order.ASC),
-		CONTENT(Order.ASC),
-		WRITER_USERNAME(Order.ASC),
-		VIEWS(Order.DESC),
-		CREATED_DATE_TIME(Order.DESC),
-		UPDATED_DATE_TIME(Order.DESC);
-		
-		private final Order defaultOrder;
-	}
-	
 }

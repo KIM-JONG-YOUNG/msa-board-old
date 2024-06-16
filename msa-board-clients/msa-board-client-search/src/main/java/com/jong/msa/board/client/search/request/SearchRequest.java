@@ -4,6 +4,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
+import com.jong.msa.board.client.search.enums.SortEnum;
 import com.jong.msa.board.client.search.request.param.SortOrder;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,7 +21,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class SearchRequest<T, E extends SortOrder.SortEnum> {
+public abstract class SearchRequest<T, E extends SortEnum> {
 
 	@Valid
 	@Schema(description = "검색 조건")

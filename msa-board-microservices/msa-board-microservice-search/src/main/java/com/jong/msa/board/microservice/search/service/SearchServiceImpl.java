@@ -11,11 +11,14 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.jong.msa.board.client.search.enums.MemberSort;
+import com.jong.msa.board.client.search.enums.Order;
+import com.jong.msa.board.client.search.enums.PostSort;
+import com.jong.msa.board.client.search.enums.SortEnum;
 import com.jong.msa.board.client.search.request.SearchMemberRequest;
 import com.jong.msa.board.client.search.request.SearchPostRequest;
 import com.jong.msa.board.client.search.request.param.DateRange;
 import com.jong.msa.board.client.search.request.param.SortOrder;
-import com.jong.msa.board.client.search.request.param.SortOrder.SortEnum;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.core.persist.utils.QueryDslUtils;
@@ -48,18 +51,18 @@ public class SearchServiceImpl implements SearchService {
 	@PostConstruct
 	private void initSortMap() {
 
-		this.sortMap.put(SearchMemberRequest.Sort.USERNAME, QMemberEntity.memberEntity.username);
-		this.sortMap.put(SearchMemberRequest.Sort.NAME, QMemberEntity.memberEntity.name);
-		this.sortMap.put(SearchMemberRequest.Sort.EMAIL, QMemberEntity.memberEntity.email);
-		this.sortMap.put(SearchMemberRequest.Sort.CREATED_DATE_TIME, QMemberEntity.memberEntity.createdDateTime);
-		this.sortMap.put(SearchMemberRequest.Sort.UPDATED_DATE_TIME, QMemberEntity.memberEntity.updatedDateTime);
+		this.sortMap.put(MemberSort.USERNAME, QMemberEntity.memberEntity.username);
+		this.sortMap.put(MemberSort.NAME, QMemberEntity.memberEntity.name);
+		this.sortMap.put(MemberSort.EMAIL, QMemberEntity.memberEntity.email);
+		this.sortMap.put(MemberSort.CREATED_DATE_TIME, QMemberEntity.memberEntity.createdDateTime);
+		this.sortMap.put(MemberSort.UPDATED_DATE_TIME, QMemberEntity.memberEntity.updatedDateTime);
 
-		this.sortMap.put(SearchPostRequest.Sort.TITLE, QPostEntity.postEntity.title);
-		this.sortMap.put(SearchPostRequest.Sort.CONTENT, QPostEntity.postEntity.content);
-		this.sortMap.put(SearchPostRequest.Sort.WRITER_USERNAME, QMemberEntity.memberEntity.username);
-		this.sortMap.put(SearchPostRequest.Sort.VIEWS, QPostEntity.postEntity.views);
-		this.sortMap.put(SearchPostRequest.Sort.CREATED_DATE_TIME, QPostEntity.postEntity.createdDateTime);
-		this.sortMap.put(SearchPostRequest.Sort.UPDATED_DATE_TIME, QPostEntity.postEntity.updatedDateTime);
+		this.sortMap.put(PostSort.TITLE, QPostEntity.postEntity.title);
+		this.sortMap.put(PostSort.CONTENT, QPostEntity.postEntity.content);
+		this.sortMap.put(PostSort.WRITER, QMemberEntity.memberEntity.username);
+		this.sortMap.put(PostSort.VIEWS, QPostEntity.postEntity.views);
+		this.sortMap.put(PostSort.CREATED_DATE_TIME, QPostEntity.postEntity.createdDateTime);
+		this.sortMap.put(PostSort.UPDATED_DATE_TIME, QPostEntity.postEntity.updatedDateTime);
 	}
 
 	@Transactional(readOnly = true)
@@ -105,16 +108,18 @@ public class SearchServiceImpl implements SearchService {
 			searchCondition = new BooleanExpression[] {};
 		}
 		
-		SortOrder<SearchMemberRequest.Sort> sortOrder = request.getSortOrder();
+		SortOrder<MemberSort> sortOrder = request.getSortOrder();
 		
 		if (sortOrder != null) {
 			
-			SearchMemberRequest.Sort sort = sortOrder.getSort();
-			SortOrder.Order order = (sortOrder.getOrder() == null) ? sort.getDefaultOrder() : sortOrder.getOrder();
+			MemberSort sort = sortOrder.getSort();
+			Order order = (sortOrder.getOrder() != null) 
+					? sortOrder.getOrder()
+					: sort.getDefaultOrder();
 
 			ComparableExpressionBase<?> column = sortMap.get(sort);
 
-			orderCondition = (order == SortOrder.Order.ASC) ? column.asc() : column.desc();
+			orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
 			
 		} else {
 
@@ -184,16 +189,18 @@ public class SearchServiceImpl implements SearchService {
 			searchCondition = new BooleanExpression[] {};
 		}
 		
-		SortOrder<SearchPostRequest.Sort> sortOrder = request.getSortOrder();
+		SortOrder<PostSort> sortOrder = request.getSortOrder();
 		
 		if (sortOrder != null) {
 			
-			SearchPostRequest.Sort sort = sortOrder.getSort();
-			SortOrder.Order order = (sortOrder.getOrder() == null) ? sort.getDefaultOrder() : sortOrder.getOrder();
+			PostSort sort = sortOrder.getSort();
+			Order order = (sortOrder.getOrder() != null) 
+					? sortOrder.getOrder()
+					: sort.getDefaultOrder();
 
 			ComparableExpressionBase<?> column = sortMap.get(sort);
 
-			orderCondition = (order == SortOrder.Order.ASC) ? column.asc() : column.desc();
+			orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
 			
 		} else {
 

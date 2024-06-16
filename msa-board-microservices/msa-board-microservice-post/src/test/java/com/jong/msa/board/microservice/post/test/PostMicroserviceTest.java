@@ -25,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +34,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jong.msa.board.client.member.enums.MemberErrorCode;
 import com.jong.msa.board.client.member.feign.MemberFeignClient;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 import com.jong.msa.board.domain.post.entity.PostEntity;
@@ -89,8 +90,8 @@ public class PostMicroserviceTest {
 							.build()));
 
 		when(memberFeignClient.getMember(eq(notExistsWriterId))).thenThrow(
-				new FeignServiceException(404, ErrorResponse.builder()
-						.errorCode(ErrorCode.NOT_FOUND_MEMBER.getCode())
+				new FeignServiceException(404, new HttpHeaders(), ErrorResponse.builder()
+						.errorCode(MemberErrorCode.NOT_FOUND_MEMBER.getCode())
 						.build()));
 
 		CreatePostRequest successRequest = CreatePostRequest.builder()

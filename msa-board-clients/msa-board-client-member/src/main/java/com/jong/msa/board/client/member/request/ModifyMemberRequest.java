@@ -1,9 +1,9 @@
 package com.jong.msa.board.client.member.request;
 
 import com.jong.msa.board.common.constants.Patterns;
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.validation.annotation.StringValidate;
 import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
 import com.jong.msa.board.core.validation.annotation.StringValidate.PatternCheck;

@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.ConfigDataApplicationContextInitial
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
-import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.Group;
 import com.jong.msa.board.core.security.test.annotation.SecurityCoreTestUser;
 import com.jong.msa.board.core.security.utils.SecurityContextUtils;
 

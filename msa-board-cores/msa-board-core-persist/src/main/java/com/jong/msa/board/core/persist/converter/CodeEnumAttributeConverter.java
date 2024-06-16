@@ -6,9 +6,9 @@ import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
 
 import com.jong.msa.board.common.enums.CodeEnum;
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,25 +33,28 @@ public abstract class CodeEnumAttributeConverter<E extends Enum<E> & CodeEnum<V>
 	}
 	
 	@Converter(autoApply = true)
-	public static class GenderConverter extends CodeEnumAttributeConverter<Gender, Character> {
+	public static class GenderAttributeConverter extends CodeEnumAttributeConverter<Gender, Character> {
 
-		protected GenderConverter() {
+		protected GenderAttributeConverter() {
+			
 			super(Gender.class);
 		}
 	}
 
 	@Converter(autoApply = true)
-	public static class GroupConverter extends CodeEnumAttributeConverter<Group, Integer> {
+	public static class GroupAttributeConverter extends CodeEnumAttributeConverter<Group, Integer> {
 
-		protected GroupConverter() {
+		protected GroupAttributeConverter() {
+			
 			super(Group.class);
 		}
 	}
 
 	@Converter(autoApply = true)
-	public static class StateConverter extends CodeEnumAttributeConverter<State, Integer> {
+	public static class StateAttributeConverter extends CodeEnumAttributeConverter<State, Integer> {
 
-		protected StateConverter() {
+		protected StateAttributeConverter() {
+			
 			super(State.class);
 		}
 	}

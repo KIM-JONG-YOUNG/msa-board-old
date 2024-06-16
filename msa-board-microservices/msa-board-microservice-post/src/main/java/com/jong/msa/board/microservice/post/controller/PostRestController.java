@@ -15,6 +15,7 @@ import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.post.response.PostDetailsResponse.Writer;
 import com.jong.msa.board.core.validation.utils.BindingResultUtils;
+import com.jong.msa.board.core.web.enums.CommonErrorCode;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.microservice.post.service.PostService;
 
@@ -34,8 +35,11 @@ public class PostRestController implements PostFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
+			
 			return ResponseEntity.status(HttpStatus.CREATED)
 					.header(HttpHeaders.LOCATION, new StringBuilder()
 							.append("/apis/posts/").append(service.createPost(request))
@@ -50,7 +54,9 @@ public class PostRestController implements PostFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
 			
 			service.modifyPost(id, request);

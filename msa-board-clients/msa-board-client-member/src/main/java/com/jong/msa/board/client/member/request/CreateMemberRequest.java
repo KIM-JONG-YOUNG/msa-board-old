@@ -3,8 +3,8 @@ package com.jong.msa.board.client.member.request;
 import javax.validation.constraints.NotNull;
 
 import com.jong.msa.board.common.constants.Patterns;
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
 import com.jong.msa.board.core.validation.annotation.StringValidate;
 import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
 import com.jong.msa.board.core.validation.annotation.StringValidate.PatternCheck;

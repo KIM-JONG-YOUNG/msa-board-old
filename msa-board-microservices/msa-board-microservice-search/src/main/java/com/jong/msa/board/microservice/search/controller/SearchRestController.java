@@ -12,6 +12,7 @@ import com.jong.msa.board.client.search.request.SearchPostRequest;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.core.validation.utils.BindingResultUtils;
+import com.jong.msa.board.core.web.enums.CommonErrorCode;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.microservice.search.service.SearchService;
 
@@ -31,8 +32,11 @@ public class SearchRestController implements SearchFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
+		
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(service.searchMemberList(request));
 		}
@@ -44,8 +48,11 @@ public class SearchRestController implements SearchFeignClient {
 		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
 		
 		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult); 
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, CommonErrorCode.INVALID_PARAMETER, bindingResult);
+
 		} else {
+
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(service.searchPostList(request));
 		}

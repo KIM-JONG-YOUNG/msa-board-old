@@ -2,12 +2,13 @@ package com.jong.msa.board.core.web.exception;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 
-import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
+import com.jong.msa.board.core.web.enums.ErrorCodeEnum;
+import com.jong.msa.board.core.web.response.ErrorResponse;
 
 import lombok.Getter;
 import lombok.ToString;
@@ -20,29 +21,39 @@ public class RestServiceException extends RuntimeException {
 
 	private final HttpStatus status;
 	
-	private final ErrorCode errorCode;
+	private final ErrorCodeEnum errorCode;
 
-	private final List<ObjectError> errorList;
+	private final List<ErrorResponse.Details> errorDetailsList;
 
-	protected RestServiceException(HttpStatus status, ErrorCode errorCode, List<ObjectError> errorList) {
+	public RestServiceException(HttpStatus status, ErrorCodeEnum errorCode, List<ErrorResponse.Details> errorDetailsList) {
+
 		super(errorCode.getMessage());
 		this.status = status;
 		this.errorCode = errorCode;
-		this.errorList = errorList;
+		this.errorDetailsList = errorDetailsList;
 	}
 
-	protected RestServiceException(HttpStatus status, ErrorCode errorCode) {
+	public RestServiceException(HttpStatus status, ErrorCodeEnum errorCode) {
+		
 		this(status, errorCode, new ArrayList<>());
 	}
 
-	public static RestServiceException invalidParameter(BindingResult bindingResult) {
-		
-		return new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_PARAMETER, bindingResult.getAllErrors());
-	}
+	public RestServiceException(HttpStatus status, ErrorCodeEnum errorCode, BindingResult bindingResult) {
 
-	public static RestServiceException uncheckedError(HttpStatus status) {
+		this(status, errorCode);
 		
-		return new RestServiceException(status, ErrorCode.UNCHECKED_ERROR);
+		this.errorDetailsList.addAll(bindingResult.getGlobalErrors().stream()
+				.map(x -> ErrorResponse.Details.builder()
+						.message(x.getDefaultMessage())
+						.build())
+				.collect(Collectors.toList()));
+		
+		this.errorDetailsList.addAll(bindingResult.getFieldErrors().stream()
+				.map(x -> ErrorResponse.Details.builder()
+						.field(x.getField())
+						.message(x.getDefaultMessage())
+						.build())
+				.collect(Collectors.toList()));
 	}
 
 }

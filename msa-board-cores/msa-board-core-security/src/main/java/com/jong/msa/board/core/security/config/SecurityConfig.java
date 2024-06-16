@@ -14,6 +14,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.jong.msa.board.core.security.filter.TokenAuthenticationErrorFilter;
 import com.jong.msa.board.core.security.filter.TokenAuthenticationFilter;
 
 import lombok.Getter;
@@ -29,7 +30,9 @@ import lombok.ToString;
 public class SecurityConfig {
 
 	private final TokenAuthenticationFilter tokenAuthenticationFilter; 
-	
+
+	private final TokenAuthenticationErrorFilter tokenAuthenticationErrorFilter; 
+
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		
@@ -41,6 +44,7 @@ public class SecurityConfig {
                 .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests(requests -> requests.anyRequest().permitAll())
                 .addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(tokenAuthenticationErrorFilter, TokenAuthenticationFilter.class)
                 .build();
 	}
 	

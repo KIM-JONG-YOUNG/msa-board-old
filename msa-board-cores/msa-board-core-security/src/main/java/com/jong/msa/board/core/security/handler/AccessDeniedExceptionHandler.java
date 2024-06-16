@@ -2,7 +2,6 @@ package com.jong.msa.board.core.security.handler;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,28 +9,23 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.jong.msa.board.common.enums.CodeEnum.ErrorCode;
+import com.jong.msa.board.core.security.enums.SecurityErrorCode;
+import com.jong.msa.board.core.web.handler.ErrorResponseHandler;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
-@Order(Ordered.LOWEST_PRECEDENCE + 1)
 @RestControllerAdvice
+@Order(AccessDeniedExceptionHandler.ORDER)
 public class AccessDeniedExceptionHandler {
+
+	public static final int ORDER = ErrorResponseHandler.ORDER + 1;
 
 	@ExceptionHandler(AccessDeniedException.class)
 	ResponseEntity<ErrorResponse> handleAccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
 
-		HttpStatus status = HttpStatus.UNAUTHORIZED;
-		ErrorCode errorCode = (ErrorCode) request.getAttribute("tokenErrorCode");
-
-		if (errorCode == null) {
-			status = HttpStatus.FORBIDDEN;
-			errorCode = ErrorCode.INACCESSIBLE_URL;
-		}
-
-		return ResponseEntity.status(status)
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ErrorResponse.builder()
-						.errorCode(errorCode.getCode())
-						.errorMessage(errorCode.getMessage())
+						.errorCode(SecurityErrorCode.NOT_ACCESSIBLE_URL.getCode())
+						.errorMessage(SecurityErrorCode.NOT_ACCESSIBLE_URL.getMessage())
 						.build());
 	}
 

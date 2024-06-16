@@ -1,10 +1,9 @@
 package com.jong.msa.board.core.security.service;
 
+import java.util.Map;
 import java.util.UUID;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
-import com.jong.msa.board.common.enums.CodeEnum.Group;
+import com.jong.msa.board.common.enums.Group;
 
 public interface TokenService {
 
@@ -12,9 +11,9 @@ public interface TokenService {
 	
 	public String generateRefreshToken(UUID id);
 
-	public <T> T validateAccessToken(String accessToken, BiFunction<UUID, Group, T> afterFunction);
+	public Map.Entry<UUID, Group> validateAccessToken(String accessToken);
 
-	public <T> T validateRefreshToken(String refreshToken, Function<UUID, T> afterFunction);
+	public UUID validateRefreshToken(String refreshToken);
 
 	public void revokeAccessToken(String accessToken);
 
