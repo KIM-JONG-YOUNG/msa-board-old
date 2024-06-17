@@ -8,7 +8,7 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 
-import com.jong.msa.board.core.persist.entity.BaseEntity;
+import com.jong.msa.board.domain.core.entity.BaseEntity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

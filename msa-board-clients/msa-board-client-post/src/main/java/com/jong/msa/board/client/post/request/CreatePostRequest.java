@@ -2,12 +2,6 @@ package com.jong.msa.board.client.post.request;
 
 import java.util.UUID;
 
-import javax.validation.constraints.NotNull;
-
-import com.jong.msa.board.core.validation.annotation.StringValidate;
-import com.jong.msa.board.core.validation.annotation.StringValidate.BlankCheck;
-import com.jong.msa.board.core.validation.annotation.StringValidate.SizeCheck;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -24,18 +18,12 @@ import lombok.ToString;
 public class CreatePostRequest {
 
 	@Schema(description = "제목", example = "title")
-	@StringValidate(
-			blankCheck = @BlankCheck(message = "제목은 비어있을 수 없습니다."),
-			sizeCheck = @SizeCheck(max = 300, message = "제목은 300자를 초과할 수 없습니다."))
 	private String title;
 
 	@Schema(description = "내용", example = "content")
-	@StringValidate(
-			blankCheck = @BlankCheck(message = "내용은 비어있을 수 없습니다."))
 	private String content;
 
 	@Schema(description = "작성자 ID")
-	@NotNull(message = "작성자 ID는 비어있을 수 없습니다.")
 	private UUID writerId;
 
 }

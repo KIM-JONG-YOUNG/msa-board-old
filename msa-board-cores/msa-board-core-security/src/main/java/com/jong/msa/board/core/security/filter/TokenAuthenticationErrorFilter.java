@@ -8,13 +8,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.core.security.enums.SecurityErrorCode;
+import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.core.security.exception.RevokedJwtException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -28,6 +27,15 @@ public class TokenAuthenticationErrorFilter extends OncePerRequestFilter {
 
 	private final ObjectMapper objectMapper;
 
+	private void sendError(HttpServletResponse response, ErrorCode errorCode) throws ServletException, IOException {
+		
+		response.setStatus(errorCode.getStatusCode());
+		response.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+		response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
+				.errorCode(errorCode)
+				.build()));
+	}
+	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -38,30 +46,15 @@ public class TokenAuthenticationErrorFilter extends OncePerRequestFilter {
 
 		} catch (ExpiredJwtException e) {
 			
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			response.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-			response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
-					.errorCode(SecurityErrorCode.EXPIRED_ACCESS_TOKEN.getCode())
-					.errorMessage(SecurityErrorCode.EXPIRED_ACCESS_TOKEN.getMessage())
-					.build()));
+			sendError(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
 			
 		} catch (RevokedJwtException e) {
 
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			response.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-			response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
-					.errorCode(SecurityErrorCode.REVOKE_ACCESS_TOKEN.getCode())
-					.errorMessage(SecurityErrorCode.REVOKE_ACCESS_TOKEN.getMessage())
-					.build()));
+			sendError(response, ErrorCode.REVOKED_ACCESS_TOKEN);
 			
 		} catch (JwtException e) {
 
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			response.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-			response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
-					.errorCode(SecurityErrorCode.INVALID_ACCESS_TOKEN.getCode())
-					.errorMessage(SecurityErrorCode.INVALID_ACCESS_TOKEN.getMessage())
-					.build()));
+			sendError(response, ErrorCode.INVALID_ACCESS_TOKEN);
 		}
 	}
 

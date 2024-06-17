@@ -13,10 +13,6 @@
 		<module>msa-board-core-redis</module>
 		<module>msa-board-core-kafka</module>
 		<module>msa-board-core-web</module>
-		<module>msa-board-core-persist</module>
-		<module>msa-board-core-transaction</module>
-		<module>msa-board-core-feign</module>
-		<module>msa-board-core-validation</module>
 		<module>msa-board-core-security</module>
 	</modules>
 

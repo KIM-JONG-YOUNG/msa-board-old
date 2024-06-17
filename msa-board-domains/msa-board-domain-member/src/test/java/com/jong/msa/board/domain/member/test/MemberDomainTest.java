@@ -24,12 +24,6 @@ public class MemberDomainTest {
 	MemberRepository repository;
 	
 	@Test
-	void contextLoad() {
-		
-		System.out.println("context load.");
-	}
-	
-	@Test
 	void 회원계정_Unique_컬럼_테스트() {
 		
 		repository.save(MemberEntity.builder()

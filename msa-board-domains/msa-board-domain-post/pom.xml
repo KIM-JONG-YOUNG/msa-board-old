@@ -7,4 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>msa-board-domain-post</artifactId>
+
+	<dependencies>
+		<!-- MSA Board Domain Core -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-domain-core</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>

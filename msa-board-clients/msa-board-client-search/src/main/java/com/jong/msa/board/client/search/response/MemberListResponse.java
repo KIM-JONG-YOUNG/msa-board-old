@@ -19,7 +19,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @SuperBuilder
-public class MemberListResponse extends SearchListResponse<MemberListResponse.Item> {
+public class MemberListResponse extends ListResponse<MemberListResponse.Item> {
 
 	@Getter
 	@Builder

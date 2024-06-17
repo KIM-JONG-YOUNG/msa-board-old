@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import com.jong.msa.board.common.enums.Gender;
 import com.jong.msa.board.common.enums.Group;
 import com.jong.msa.board.common.enums.State;
-import com.jong.msa.board.core.persist.entity.BaseEntity;
+import com.jong.msa.board.domain.core.entity.BaseEntity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
