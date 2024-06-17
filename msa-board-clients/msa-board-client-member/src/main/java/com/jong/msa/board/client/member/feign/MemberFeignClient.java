@@ -12,12 +12,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.jong.msa.board.client.core.condition.FeignClientCondition;
 import com.jong.msa.board.client.member.request.CreateMemberRequest;
 import com.jong.msa.board.client.member.request.LoginMemberRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
-import com.jong.msa.board.core.feign.condition.FeignClientCondition;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

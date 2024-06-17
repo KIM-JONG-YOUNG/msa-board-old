@@ -56,6 +56,7 @@ public class SecurityConfig {
 	public static class TokenProperties {
 
 		private final Details accessToken;
+		
 		private final Details refreshToken;
 
 		@Getter
@@ -65,6 +66,7 @@ public class SecurityConfig {
 		public static class Details {
 
 			private final String secretKey;
+		
 			private final long expireSeconds;
 			
 		}

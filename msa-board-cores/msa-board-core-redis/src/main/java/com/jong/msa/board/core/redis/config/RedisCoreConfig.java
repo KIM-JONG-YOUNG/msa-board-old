@@ -3,8 +3,6 @@ package com.jong.msa.board.core.redis.config;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +20,6 @@ public class RedisCoreConfig {
 	@Bean 
 	RedisConnectionFactory redisConnectionFactory(RedisProperties properties) {
 		
-
 		return new LettuceConnectionFactory(new RedisStandaloneConfiguration(
 				properties.getHost(), properties.getPort()));
 	}

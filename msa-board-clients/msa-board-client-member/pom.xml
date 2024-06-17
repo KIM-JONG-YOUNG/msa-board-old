@@ -7,4 +7,13 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>msa-board-client-member</artifactId>
+
+	<dependencies>
+		<!-- MSA Board Client Core -->
+		<dependency>
+			<groupId>com.jong</groupId>
+			<artifactId>msa-board-client-core</artifactId>
+		</dependency>
+	</dependencies>
+
 </project>

@@ -1,17 +1,23 @@
 package com.jong.msa.board.core.web.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.jong.msa.board.core.web.enums.CommonErrorCode;
-import com.jong.msa.board.core.web.enums.ErrorCodeEnum;
+import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -27,24 +33,33 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(RestServiceException.class)
 	ResponseEntity<ErrorResponse> handleRestServiceException(RestServiceException e) {
 
-		ErrorCodeEnum errorCode = e.getErrorCode();
+		Predicate<ObjectError> isFieldError = (error) -> error instanceof FieldError;
+		Predicate<ObjectError> isNotFieldError = isFieldError.negate();
+
+		ErrorCode errorCode = e.getErrorCode();
+
+		List<ErrorResponse.Details> errorDetailsList = new ArrayList<>();
 		
-//		List<ErrorResponse.Details> errorDetailsList = e.getErrorList().stream()
-//				.map(x -> (x instanceof FieldError)
-//						? ErrorResponse.Details.builder()
-//								.field(((FieldError) x).getField())
-//								.message(x.getDefaultMessage())
-//								.build()
-//						: ErrorResponse.Details.builder()
-//								.message(x.getDefaultMessage())
-//								.build())
-//				.collect(Collectors.toList());
-		
-		return ResponseEntity.status(e.getStatus())
+		errorDetailsList.addAll(e.getErrorList().stream()
+				.filter(isNotFieldError)
+				.map(x -> ErrorResponse.Details.builder()
+						.message(x.getDefaultMessage())
+						.build())
+				.collect(Collectors.toList()));
+
+		errorDetailsList.addAll(e.getErrorList().stream()
+				.filter(isFieldError)
+				.map(FieldError.class::cast)
+				.map(x -> ErrorResponse.Details.builder()
+						.field(x.getField())
+						.message(x.getDefaultMessage())
+						.build())
+				.collect(Collectors.toList()));
+
+		return ResponseEntity.status(errorCode.getStatusCode())
 				.body(ErrorResponse.builder()
-						.errorCode(errorCode.getCode())
-						.errorMessage(errorCode.getMessage())
-						.errorDetailsList(e.getErrorDetailsList())
+						.errorCode(errorCode)
+						.errorDetailsList(errorDetailsList)
 						.build());
 	}
 
@@ -53,10 +68,11 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 
 		log.error(e.getMessage(), e);
 
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		ErrorCode errorCode = ErrorCode.UNCHECKED_INTERNAL_ERROR;
+		
+		return ResponseEntity.status(errorCode.getStatusCode())
 				.body(ErrorResponse.builder()
-						.errorCode(CommonErrorCode.UNCHECKED_SYSTEM_ERROR.getCode())
-						.errorMessage(CommonErrorCode.UNCHECKED_SYSTEM_ERROR.getMessage())
+						.errorCode(errorCode)
 						.build());
 	}
 
@@ -66,10 +82,11 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 
 		log.error(ex.getMessage(), ex);
 
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+		ErrorCode errorCode = ErrorCode.UNCHECKED_INTERNAL_ERROR;
+		
+		return ResponseEntity.status(errorCode.getStatusCode())
 				.body(ErrorResponse.builder()
-						.errorCode(CommonErrorCode.UNCHECKED_SYSTEM_ERROR.getCode())
-						.errorMessage(CommonErrorCode.UNCHECKED_SYSTEM_ERROR.getMessage())
+						.errorCode(errorCode)
 						.build());
 	}
 

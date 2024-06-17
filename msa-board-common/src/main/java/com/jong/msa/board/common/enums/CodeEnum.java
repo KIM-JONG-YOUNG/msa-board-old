@@ -1,8 +1,5 @@
 package com.jong.msa.board.common.enums;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 public interface CodeEnum<V> {
 
 	V getCode();

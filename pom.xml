@@ -99,40 +99,22 @@
 				<artifactId>msa-board-core-redis</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- MSA Board Persist Core -->
-			<dependency>
-				<groupId>com.jong</groupId>
-				<artifactId>msa-board-core-persist</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<!-- MSA Board WEB Core -->
 			<dependency>
 				<groupId>com.jong</groupId>
 				<artifactId>msa-board-core-web</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-			<!-- MSA Board Transaction Core -->
-			<dependency>
-				<groupId>com.jong</groupId>
-				<artifactId>msa-board-core-transaction</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<!-- MSA Board Feign Core -->
-			<dependency>
-				<groupId>com.jong</groupId>
-				<artifactId>msa-board-core-feign</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<!-- MSA Board Validation Core -->
-			<dependency>
-				<groupId>com.jong</groupId>
-				<artifactId>msa-board-core-validation</artifactId>
-				<version>${project.version}</version>
-			</dependency>
 			<!-- MSA Board Security Core -->
 			<dependency>
 				<groupId>com.jong</groupId>
 				<artifactId>msa-board-core-security</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Domain Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-domain-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<!-- MSA Board Member Domain -->
@@ -145,6 +127,12 @@
 			<dependency>
 				<groupId>com.jong</groupId>
 				<artifactId>msa-board-domain-post</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<!-- MSA Board Client Core -->
+			<dependency>
+				<groupId>com.jong</groupId>
+				<artifactId>msa-board-client-core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<!-- MSA Board Member Client -->

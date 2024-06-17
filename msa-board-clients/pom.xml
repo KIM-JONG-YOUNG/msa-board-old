@@ -10,21 +10,32 @@
 	<packaging>pom</packaging>
 
 	<modules>
+		<module>msa-board-client-core</module>
 		<module>msa-board-client-member</module>
 		<module>msa-board-client-post</module>
 		<module>msa-board-client-search</module>
 	</modules>
 
 	<dependencies>
-		<!-- MSA Board Feign Core -->
+		<!-- MSA Board Common -->
 		<dependency>
 			<groupId>com.jong</groupId>
-			<artifactId>msa-board-core-feign</artifactId>
+			<artifactId>msa-board-common</artifactId>
 		</dependency>
-		<!-- MSA Board Validation Core -->
+		<!-- MSA Board WEB Core -->
 		<dependency>
 			<groupId>com.jong</groupId>
-			<artifactId>msa-board-core-validation</artifactId>
+			<artifactId>msa-board-core-web</artifactId>
+		</dependency>
+		<!-- Spring Cloud Open Feign -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+		<!-- Spring Cloud Open Feign Okhttp-->
+		<dependency>
+			<groupId>io.github.openfeign</groupId>
+			<artifactId>feign-okhttp</artifactId>
 		</dependency>
 		<!-- SpringDoc OpenAPI UI -->
 		<dependency>
@@ -35,6 +46,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<!-- Spring Cloud Wiremock -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-contract-wiremock</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
