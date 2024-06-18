@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.persistence.EntityNotFoundException;
@@ -25,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,15 +34,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.client.member.enums.MemberErrorCode;
+import com.jong.msa.board.client.core.exception.FeignServiceException;
 import com.jong.msa.board.client.member.feign.MemberFeignClient;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.request.CreatePostRequest;
 import com.jong.msa.board.client.post.request.ModifyPostRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
+import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.common.enums.State;
-import com.jong.msa.board.core.feign.exception.FeignServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 import com.jong.msa.board.domain.post.entity.PostEntity;
 import com.jong.msa.board.domain.post.repository.PostRepository;
@@ -90,8 +90,11 @@ public class PostMicroserviceTest {
 							.build()));
 
 		when(memberFeignClient.getMember(eq(notExistsWriterId))).thenThrow(
-				new FeignServiceException(404, new HttpHeaders(), ErrorResponse.builder()
-						.errorCode(MemberErrorCode.NOT_FOUND_MEMBER.getCode())
+				new FeignServiceException(
+						ErrorCode.NOT_FOUND_MEMBER.getStatusCode(), 
+						new HashMap<>(), 
+						ErrorResponse.builder()
+						.errorCode(ErrorCode.NOT_FOUND_MEMBER)
 						.build()));
 
 		CreatePostRequest successRequest = CreatePostRequest.builder()
@@ -114,7 +117,7 @@ public class PostMicroserviceTest {
 		mockMvc.perform(post("/apis/posts")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(errorRequest)))
-			.andExpect(status().isBadRequest())
+			.andExpect(status().isGone())
 			.andDo(print());
 
 		verify(service, times(2)).createPost(any());

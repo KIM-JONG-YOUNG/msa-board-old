@@ -14,6 +14,11 @@
 			<groupId>com.jong</groupId>
 			<artifactId>msa-board-common</artifactId>
 		</dependency>
+		<!-- Spring Boot AOP -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
 		<!-- Spring Boot WEB -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

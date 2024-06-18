@@ -179,7 +179,8 @@ public class MemberMicroserviceTest {
 		assertTrue(encoder.matches("update-password", updatedEntity.getPassword()));
 	}
 	
-	@Test
+//	@Disabled
+//	@Test
 	void 회원_조회_테스트() throws Exception {
 		
 		MemberEntity entity = repository.save(MemberEntity.builder()

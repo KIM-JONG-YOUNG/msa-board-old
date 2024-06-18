@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchPostRequest extends SearchRequest<PostSort> {
+public class SearchPostRequest extends PagingRequest<PostSort> {
 	
 	@Schema(description = "제목", example = "title")
 	private String title;

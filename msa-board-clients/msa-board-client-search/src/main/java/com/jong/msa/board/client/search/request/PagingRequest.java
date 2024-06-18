@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class SearchRequest<E extends SortEnum> {
+public abstract class PagingRequest<E extends SortEnum> {
 
 	@Builder.Default
 	@Schema(description = "조회 시작 행 번호", example = "0")

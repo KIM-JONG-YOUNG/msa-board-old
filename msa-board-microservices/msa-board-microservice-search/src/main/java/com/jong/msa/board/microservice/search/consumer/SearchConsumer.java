@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jong.msa.board.common.constants.KafkaTopicNames;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
-import com.jong.msa.board.core.transaction.aspect.DistributeTransaction;
+import com.jong.msa.board.domain.core.transaction.DistributeTransaction;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
 import com.jong.msa.board.domain.post.entity.PostEntity;

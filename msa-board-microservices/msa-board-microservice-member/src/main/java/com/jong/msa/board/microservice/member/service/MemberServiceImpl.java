@@ -3,23 +3,22 @@ package com.jong.msa.board.microservice.member.service;
 import java.util.UUID;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jong.msa.board.client.member.enums.MemberErrorCode;
 import com.jong.msa.board.client.member.request.CreateMemberRequest;
 import com.jong.msa.board.client.member.request.LoginMemberRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
 import com.jong.msa.board.client.member.request.ModifyMemberRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
+import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.redis.aspect.RedisCaching;
 import com.jong.msa.board.core.redis.aspect.RedisRemove;
-import com.jong.msa.board.core.transaction.aspect.DistributeTransaction;
 import com.jong.msa.board.core.web.exception.RestServiceException;
+import com.jong.msa.board.domain.core.transaction.DistributeTransaction;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.entity.QMemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
@@ -66,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
 		
 		} else {
 
-			throw new RestServiceException(HttpStatus.CONFLICT, MemberErrorCode.DUPLICATE_MEMBER_USERNAME);
+			throw new RestServiceException(ErrorCode.DUPLICATE_USERNAME);
 		}
 	}
 
@@ -75,9 +74,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void modifyMember(UUID id, ModifyMemberRequest request) {
 		
-		MemberEntity entity = repository.findById(id)
-				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER));
-		
+		MemberEntity entity = repository.findById(id).orElseThrow(() -> new RestServiceException(ErrorCode.NOT_FOUND_MEMBER));
 		MemberEntity savedEntity = repository.save(entityMapper.updateEntity(request, entity));
 		
 		eventPublisher.publishEvent(new MemberSaveEvent(savedEntity.getId()));
@@ -87,8 +84,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void modifyMemberPassword(UUID id, ModifyMemberPasswordRequest request) {
 		
-		MemberEntity entity = repository.findById(id)
-				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER));
+		MemberEntity entity = repository.findById(id).orElseThrow(() -> new RestServiceException(ErrorCode.NOT_FOUND_MEMBER));
 		
 		if (encoder.matches(request.getCurrentPassword(), entity.getPassword())) {
 
@@ -100,7 +96,7 @@ public class MemberServiceImpl implements MemberService {
 
 		} else {
 			
-			throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_MATCHED_MEMBER_PASSWORD);
+			throw new RestServiceException(ErrorCode.NOT_MATCHED_PASSWORD);
 		}		
 	}
 
@@ -110,7 +106,7 @@ public class MemberServiceImpl implements MemberService {
 	public MemberDetailsResponse getMember(UUID id) {
 		
 		return entityMapper.toResponse(repository.findById(id)
-				.orElseThrow(() -> new RestServiceException(HttpStatus.GONE, MemberErrorCode.NOT_FOUND_MEMBER)));
+				.orElseThrow(() -> new RestServiceException(ErrorCode.NOT_FOUND_MEMBER)));
 	}
 
 	@Transactional(readOnly = true)
@@ -131,11 +127,11 @@ public class MemberServiceImpl implements MemberService {
 				
 			} else {
 				
-				throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_MATCHED_MEMBER_PASSWORD);
+				throw new RestServiceException(ErrorCode.NOT_MATCHED_PASSWORD);
 			}
 		} else {
 			
-			throw new RestServiceException(HttpStatus.BAD_REQUEST, MemberErrorCode.NOT_FOUND_MEMBER_USERNAME);
+			throw new RestServiceException(ErrorCode.NOT_FOUND_MEMBER);
 		}
 	}
 

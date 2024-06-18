@@ -16,11 +16,6 @@
 	</modules>
 
 	<dependencies>
-		<!-- MSA Board Transaction Core -->
-		<dependency>
-			<groupId>com.jong</groupId>
-			<artifactId>msa-board-core-transaction</artifactId>
-		</dependency>
 		<!-- MSA Board Kafka Core -->
 		<dependency>
 			<groupId>com.jong</groupId>

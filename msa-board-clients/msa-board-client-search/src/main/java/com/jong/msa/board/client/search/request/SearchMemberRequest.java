@@ -20,7 +20,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class SearchMemberRequest extends SearchRequest<MemberSort> {
+public class SearchMemberRequest extends PagingRequest<MemberSort> {
 	
 	@Schema(description = "계정", example = "username")
 	private String username;
@@ -40,16 +40,16 @@ public class SearchMemberRequest extends SearchRequest<MemberSort> {
 	@Schema(description = "상태", example = "ACTIVE")
 	private State state;
 
-	@Schema(description = "생성일자 검색 시작 일자")
+	@Schema(description = "생성 일자 검색 시작 일자")
 	private LocalDate createdDateFrom;
 
-	@Schema(description = "생성일자 검색 종료 일자")
+	@Schema(description = "생성 일자 검색 종료 일자")
 	private LocalDate createdDateTo;
 
-	@Schema(description = "수정일자 검색 시작 일자")
+	@Schema(description = "수정 일자 검색 시작 일자")
 	private LocalDate updatedDateFrom;
 
-	@Schema(description = "수정일자 검색 종료 일자")
+	@Schema(description = "수정 일자 검색 종료 일자")
 	private LocalDate updatedDateTo;
 
 }

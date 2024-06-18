@@ -15,7 +15,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class ListResponse<T> {
+public abstract class PagingListResponse<T> {
 
 	@Schema(description = "전체 데이터 건수")
 	private long totalCount;

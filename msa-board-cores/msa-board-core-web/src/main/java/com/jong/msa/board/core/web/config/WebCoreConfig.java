@@ -21,7 +21,7 @@ import com.jong.msa.board.core.web.converter.LocalDateTimeParamConverter;
 import com.jong.msa.board.core.web.converter.LocalTimeParamConverter;
 
 @Configuration
-@ServletComponentScan(basePackages = "com.jong.msa.board.client.**.filter")
+@ServletComponentScan(basePackages = "com.jong.msa.board.web.**.filter")
 public class WebCoreConfig implements WebMvcConfigurer {
 
 	@Override
