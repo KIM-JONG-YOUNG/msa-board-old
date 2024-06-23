@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.member.feign.MemberFeignClient;
-import com.jong.msa.board.client.member.request.CreateMemberRequest;
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberCreateRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.microservice.member.service.MemberService;
 
@@ -24,7 +24,7 @@ public class MemberRestController implements MemberFeignClient {
 	private final MemberService service;
 
 	@Override
-	public ResponseEntity<Void> createMember(CreateMemberRequest request) {
+	public ResponseEntity<Void> createMember(MemberCreateRequest request) {
 
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.header(HttpHeaders.LOCATION, new StringBuilder()
@@ -34,7 +34,7 @@ public class MemberRestController implements MemberFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyMember(UUID id, ModifyMemberRequest request) {
+	public ResponseEntity<Void> modifyMember(UUID id, MemberModifyRequest request) {
 
 		service.modifyMember(id, request);
 
@@ -45,7 +45,7 @@ public class MemberRestController implements MemberFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyMemberPassword(UUID id, ModifyMemberPasswordRequest request) {
+	public ResponseEntity<Void> modifyMemberPassword(UUID id, MemberPasswordModifyRequest request) {
 
 		service.modifyMemberPassword(id, request);
 
@@ -63,7 +63,7 @@ public class MemberRestController implements MemberFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<MemberDetailsResponse> loginMember(LoginMemberRequest request) {
+	public ResponseEntity<MemberDetailsResponse> loginMember(MemberLoginRequest request) {
 
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.loginMember(request));

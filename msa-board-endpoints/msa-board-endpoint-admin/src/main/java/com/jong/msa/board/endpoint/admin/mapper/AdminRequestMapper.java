@@ -6,44 +6,44 @@ import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.ReportingPolicy;
 
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
-import com.jong.msa.board.client.post.request.CreatePostRequest;
-import com.jong.msa.board.client.post.request.ModifyPostRequest;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
+import com.jong.msa.board.client.post.request.PostCreateRequest;
+import com.jong.msa.board.client.post.request.PostModifyRequest;
+import com.jong.msa.board.client.search.request.MemberSearchRequest;
+import com.jong.msa.board.client.search.request.PostSearchRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPasswordModifyRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyUserRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminUserModifyRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminMemberSearchRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostSearchRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostWriteRequest;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface AdminRequestMapper {
-
-	LoginMemberRequest toRequest(AdminLoginRequest request);
-	
-	ModifyMemberRequest toRequest(AdminModifyRequest request);
-	
-	ModifyMemberRequest toRequest(AdminModifyUserRequest request);
  
-	ModifyMemberPasswordRequest toRequest(AdminModifyPasswordRequest request);
+	MemberLoginRequest toRequest(AdminLoginRequest request);
+	
+	MemberModifyRequest toRequest(AdminModifyRequest request);
+	
+	MemberModifyRequest toRequest(AdminUserModifyRequest request);
 
-	SearchMemberRequest.Condition toCondition(AdminSearchMemberRequest.Condition condition);
+	MemberPasswordModifyRequest toRequest(AdminPasswordModifyRequest request);
 
-	SearchMemberRequest toRequest(AdminSearchMemberRequest request);
+	MemberSearchRequest.Condition toCondition(AdminMemberSearchRequest.Condition condition);
 
-	CreatePostRequest toRequest(AdminWritePostRequest request, UUID writerId);
+	MemberSearchRequest toRequest(AdminMemberSearchRequest request);
 
-	ModifyPostRequest toRequest(AdminModifyPostRequest request);
+	PostCreateRequest toRequest(AdminPostWriteRequest request, UUID writerId);
 
-	SearchPostRequest.Condition toCondition(AdminSearchPostRequest.Condition request);
+	PostModifyRequest toRequest(AdminPostModifyRequest request);
 
-	SearchPostRequest toRequest(AdminSearchPostRequest request);
+	PostSearchRequest.Condition toCondition(AdminPostSearchRequest.Condition condition);
+
+	PostSearchRequest toRequest(AdminPostSearchRequest request);
 
 }

@@ -91,7 +91,3 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
     status-page-url: http://localhost:${server.port}/swagger-ui/index.html
     
-# Feign
-feign:
-  okhttp:
-    enabled: true

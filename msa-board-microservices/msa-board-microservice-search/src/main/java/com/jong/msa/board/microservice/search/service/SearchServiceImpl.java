@@ -1,6 +1,7 @@
 package com.jong.msa.board.microservice.search.service;
 
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -10,8 +11,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.DateRange;
+import com.jong.msa.board.client.search.request.MemberSearchRequest;
+import com.jong.msa.board.client.search.request.PostSearchRequest;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.common.enums.MemberSort;
@@ -64,42 +66,58 @@ public class SearchServiceImpl implements SearchService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public MemberListResponse searchMemberList(SearchMemberRequest request) {
+	public MemberListResponse searchMemberList(MemberSearchRequest request) {
 		
-		BooleanExpression[] searchCondition = new BooleanExpression[] {
+		MemberSearchRequest.Condition condition = request.getCondition();
+		
+		DateRange createdDate = (condition == null) ? null : condition.getCreatedDate();
+		DateRange updatedDate = (condition == null) ? null : condition.getUpdatedDate();
+		
+		BooleanExpression[] searchConditions = (condition == null) ? null : new BooleanExpression[] {
 
-				QueryDslUtils.equalsIfPresent(memberEntity.gender, request.getGender()),
-				QueryDslUtils.equalsIfPresent(memberEntity.group, request.getGroup()),
-				QueryDslUtils.equalsIfPresent(memberEntity.state, request.getState()),
+				QueryDslUtils.equalsIfPresent(memberEntity.gender, condition.getGender()),
+				QueryDslUtils.equalsIfPresent(memberEntity.group, condition.getGroup()),
+				QueryDslUtils.equalsIfPresent(memberEntity.state, condition.getState()),
 
-				QueryDslUtils.containIfPresent(memberEntity.username, request.getUsername()),
-				QueryDslUtils.containIfPresent(memberEntity.name, request.getName()),
-				QueryDslUtils.containIfPresent(memberEntity.email, request.getEmail()),
+				QueryDslUtils.containIfPresent(memberEntity.username, condition.getUsername()),
+				QueryDslUtils.containIfPresent(memberEntity.name, condition.getName()),
+				QueryDslUtils.containIfPresent(memberEntity.email, condition.getEmail()),
 
-				QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, request.getCreatedDateFrom()),
-				QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, request.getCreatedDateTo()),
+				(createdDate == null) ? null 
+						: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, createdDate.getFrom()),
+				(createdDate == null) ? null 
+						: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, createdDate.getTo()),
 
-				QueryDslUtils.afterIfPresent(memberEntity.updatedDateTime, request.getUpdatedDateFrom()),
-				QueryDslUtils.beforeIfPresent(memberEntity.updatedDateTime, request.getUpdatedDateTo()),
+				(updatedDate == null) ? null 
+						: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, updatedDate.getFrom()),
+				(updatedDate == null) ? null 
+						: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, updatedDate.getTo()),
 		};
 
-		MemberSort sort = (request.getSort() != null) ? request.getSort() : MemberSort.USERNAME;
-		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();
-		
-		ComparableExpressionBase<?> column = sortMap.get(sort);
-
-		OrderSpecifier<?> orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
+		OrderSpecifier<?>[] orderConditions = (request.getSortOrderList() == null) 
+				? new OrderSpecifier<?>[] { memberEntity.username.asc() }
+				: request.getSortOrderList().stream().map(x -> {
+					
+					MemberSort sort = (x.getSort() != null) ? x.getSort() : MemberSort.USERNAME;
+					Order order = (x.getOrder() != null) ? x.getOrder() : sort.getDefaultOrder();
+					
+					ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
+					
+					return (order == Order.ASC) ? column.asc() : column.desc();
+				})
+				.collect(Collectors.toCollection(LinkedHashSet::new)).stream()
+				.toArray(OrderSpecifier<?>[]::new);
 		
 		long totalCount = queryFactory
 				.select(memberEntity.count())
 				.from(memberEntity)
-				.where(searchCondition)
+				.where(searchConditions)
 				.fetchOne();
 
 		List<MemberEntity> list = queryFactory
 				.selectFrom(memberEntity)
-				.where(searchCondition)
-				.orderBy(orderCondition)
+				.where(searchConditions)
+				.orderBy(orderConditions)
 				.offset(request.getOffset())
 				.limit(request.getLimit())
 				.fetch(); 
@@ -114,36 +132,52 @@ public class SearchServiceImpl implements SearchService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public PostListResponse searchPostList(SearchPostRequest request) {
+	public PostListResponse searchPostList(PostSearchRequest request) {
 		
-		BooleanExpression[] searchCondition = new BooleanExpression[] {
+		PostSearchRequest.Condition condition = request.getCondition();
 
-				QueryDslUtils.equalsIfPresent(postEntity.state, request.getState()),
+		DateRange createdDate = (condition == null) ? null : condition.getCreatedDate();
+		DateRange updatedDate = (condition == null) ? null : condition.getUpdatedDate();
+		
+		BooleanExpression[] searchConditions = (condition == null) ? null : new BooleanExpression[] {
 
-				QueryDslUtils.containIfPresent(postEntity.title, request.getTitle()),
-				QueryDslUtils.containIfPresent(memberEntity.username, request.getWriterUsername()),
-				QueryDslUtils.containIfPresent(postEntity.content, request.getContent()),
+				QueryDslUtils.equalsIfPresent(postEntity.state, condition.getState()),
 
-				QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, request.getCreatedDateFrom()),
-				QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, request.getCreatedDateTo()),
+				QueryDslUtils.containIfPresent(postEntity.title, condition.getTitle()),
+				QueryDslUtils.containIfPresent(memberEntity.username, condition.getWriterUsername()),
+				QueryDslUtils.containIfPresent(postEntity.content, condition.getContent()),
 
-				QueryDslUtils.afterIfPresent(memberEntity.updatedDateTime, request.getUpdatedDateFrom()),
-				QueryDslUtils.beforeIfPresent(memberEntity.updatedDateTime, request.getUpdatedDateTo()),
+				(createdDate == null) ? null 
+						: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, createdDate.getFrom()),
+				(createdDate == null) ? null 
+						: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, createdDate.getTo()),
+
+				(updatedDate == null) ? null 
+						: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, updatedDate.getFrom()),
+				(updatedDate == null) ? null 
+						: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, updatedDate.getTo()),
 		};
-
-		PostSort sort = (request.getSort() != null) ? request.getSort() : PostSort.CREATED_DATE_TIME;
-		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();
 		
-		ComparableExpressionBase<?> column = sortMap.get(sort);
-
-		OrderSpecifier<?> orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
-		
+		OrderSpecifier<?>[] orderConditions = (request.getSortOrderList() == null) 
+				? new OrderSpecifier<?>[] { postEntity.createdDateTime.desc() }
+				: request.getSortOrderList().stream().map(x -> {
+					 
+					PostSort sort = (x.getSort() != null) ? x.getSort() : PostSort.CREATED_DATE_TIME;
+					Order order = (x.getOrder() != null) ? x.getOrder() : sort.getDefaultOrder();
+					
+					ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
+					
+					return (order == Order.ASC) ? column.asc() : column.desc();
+				})
+				.collect(Collectors.toCollection(LinkedHashSet::new)).stream()
+				.toArray(OrderSpecifier<?>[]::new);
+				
 		long totalCount = queryFactory
 				.select(postEntity.count())
 				.from(postEntity)
 				.leftJoin(memberEntity)
 					.on(postEntity.writerId.eq(memberEntity.id))
-				.where(searchCondition)
+				.where(searchConditions)
 				.fetchOne();		
 
 		List<Tuple> list = queryFactory
@@ -151,8 +185,8 @@ public class SearchServiceImpl implements SearchService {
 				.from(postEntity)
 				.leftJoin(memberEntity)
 					.on(postEntity.writerId.eq(memberEntity.id))
-				.where(searchCondition)
-				.orderBy(orderCondition)
+				.where(searchConditions)
+				.orderBy(orderConditions)
 				.offset(request.getOffset())
 				.limit(request.getLimit())
 				.fetch();		

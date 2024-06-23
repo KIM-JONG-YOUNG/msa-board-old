@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.post.feign.PostFeignClient;
-import com.jong.msa.board.client.post.request.CreatePostRequest;
-import com.jong.msa.board.client.post.request.ModifyPostRequest;
+import com.jong.msa.board.client.post.request.PostCreateRequest;
+import com.jong.msa.board.client.post.request.PostModifyRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.post.response.PostDetailsResponse.Writer;
 import com.jong.msa.board.microservice.post.service.PostService;
@@ -23,7 +23,7 @@ public class PostRestController implements PostFeignClient {
 	private final PostService service;
 
 	@Override
-	public ResponseEntity<Void> createPost(CreatePostRequest request) {
+	public ResponseEntity<Void> createPost(PostCreateRequest request) {
 
 		return ResponseEntity.status(HttpStatus.CREATED)
 				.header(HttpHeaders.LOCATION, new StringBuilder()
@@ -33,7 +33,7 @@ public class PostRestController implements PostFeignClient {
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyPost(UUID id, ModifyPostRequest request) {
+	public ResponseEntity<Void> modifyPost(UUID id, PostModifyRequest request) {
 
 		service.modifyPost(id, request);
 

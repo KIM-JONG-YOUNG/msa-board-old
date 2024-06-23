@@ -1,4 +1,4 @@
-package com.jong.msa.board.client.post.request;
+package com.jong.msa.board.endpoint.admin.request;
 
 import com.jong.msa.board.common.enums.State;
 
@@ -15,7 +15,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class ModifyPostRequest {
+public class AdminPostModifyRequest {
 
 	@Schema(description = "제목", example = "title")
 	private String title;
@@ -25,5 +25,5 @@ public class ModifyPostRequest {
 
 	@Schema(description = "상태", example = "ACTIVE")
 	private State state;
-
+	
 }

@@ -1,5 +1,7 @@
 package com.jong.msa.board.endpoint.user.request;
 
+import com.jong.msa.board.common.enums.Gender;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,12 +15,21 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLoginRequest {
+public class UserJoinRequest {
 
 	@Schema(description = "계정", example = "username")
 	private String username;
 	
 	@Schema(description = "비밀번호" , example = "password")
 	private String password;
+	
+	@Schema(description = "이름", example = "name")
+	private String name;
+	
+	@Schema(description = "성별", example = "MAIL")
+	private Gender gender;
+	
+	@Schema(description = "이메일", example = "test@example.com")
+	private String email;
 	
 }

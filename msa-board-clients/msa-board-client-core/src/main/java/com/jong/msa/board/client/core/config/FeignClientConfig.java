@@ -2,6 +2,7 @@ package com.jong.msa.board.client.core.config;
 
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
+import java.util.EnumSet;
 
 import org.apache.commons.io.IOUtils;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -9,14 +10,17 @@ import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.format.datetime.standard.DateTimeFormatterRegistrar;
+import org.springframework.http.HttpStatus;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.client.core.exception.FeignServiceException;
+import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.core.web.converter.LocalDateParamConverter;
 import com.jong.msa.board.core.web.converter.LocalDateTimeParamConverter;
 import com.jong.msa.board.core.web.converter.LocalTimeParamConverter;
+import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
+import feign.Client;
 import feign.FeignException;
 import feign.Logger;
 import feign.Response;
@@ -30,6 +34,18 @@ public class FeignClientConfig {
 	Logger.Level feginLoggingLevel() {
 		
 		return Logger.Level.FULL;
+	}
+	
+	@Bean
+	okhttp3.OkHttpClient okHttpClient() {
+		
+		return new okhttp3.OkHttpClient.Builder().build();
+	}
+	
+	@Bean
+	Client client(okhttp3.OkHttpClient okHttpClient) {
+		
+		return new feign.okhttp.OkHttpClient(okHttpClient);
 	}
 
 	@Bean
@@ -58,8 +74,16 @@ public class FeignClientConfig {
 				try (Reader reader = response.body().asReader(StandardCharsets.UTF_8)) {
 
 					ErrorResponse errorResponse = objectMapper.readValue(IOUtils.toString(reader), ErrorResponse.class);
-					
-					return new FeignServiceException(response.status(), response.headers(), errorResponse);
+
+					String errorResponseCode = errorResponse.getErrorCode();
+
+					HttpStatus status = HttpStatus.valueOf(response.status());
+
+					ErrorCode errorCode = EnumSet.allOf(ErrorCode.class).stream()
+							.filter(x -> x.getCode().equals(errorResponseCode))
+							.findAny().orElseThrow(() -> new EnumConstantNotPresentException(ErrorCode.class, errorResponseCode));
+
+					return new RestServiceException(status , errorCode, errorResponse.getErrorDetailsList());
 
 				} catch (Exception e) {
 					

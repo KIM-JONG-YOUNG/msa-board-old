@@ -1,48 +1,56 @@
 package com.jong.msa.board.core.web.validator;
 
 import java.util.AbstractMap;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
+import org.springframework.http.HttpStatus;
 
-@SuppressWarnings("unchecked")
+import com.jong.msa.board.common.enums.ErrorCode;
+import com.jong.msa.board.core.web.dto.ErrorDetails;
+import com.jong.msa.board.core.web.exception.RestServiceException;
+
 public abstract class RequestValidator {
 
-    @Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
-    protected void restControllerMethods() {}
+	@Pointcut("@within(org.springframework.web.bind.annotation.RestController)")
+	protected void restControllerMethods() {}
 
-	protected <T> Map.Entry<Predicate<T>, String> createValidEntry(Predicate<T> predicate, String message) {
-
+	protected <T> Map.Entry<Predicate<T>, String> validation(Predicate<T> predicate, String message) {
+ 
 		return new AbstractMap.SimpleEntry<>(predicate, message);
 	}
 
-	protected <T> ObjectError validate(T value, Map.Entry<Predicate<T>, String>... validEntries) {
+	@SuppressWarnings("unchecked")
+	protected <T> ErrorDetails validateField(String field, T value, Map.Entry<Predicate<T>, String>... fieldValidations) {
 
-		for (Map.Entry<Predicate<T>, String> validEntry : validEntries) {
+		for (Map.Entry<Predicate<T>, String> fieldValidation : fieldValidations) {
 			
-			if (validEntry.getKey().test(value)) {
+			if (fieldValidation.getKey().test(value)) {
 				
-				return new ObjectError("request", validEntry.getValue());
+				return ErrorDetails.builder()
+						.field(field)
+						.message(fieldValidation.getValue())
+						.build();
 			}
 		}
-
+		
 		return null;
 	}
+	
+	protected void validateRequest(ErrorDetails... errorDetailsArr) {
 
-	protected <T> FieldError validateField(String field, T value, Map.Entry<Predicate<T>, String>... validEntries) {
-
-		for (Map.Entry<Predicate<T>, String> validEntry : validEntries) {
+		List<ErrorDetails> errorDetailsList = Arrays.stream(errorDetailsArr)
+				.filter(x -> x != null).collect(Collectors.toList());
+		
+		if (errorDetailsList.size() > 0) {
 			
-			if (validEntry.getKey().test(value)) {
-				
-				return new FieldError("request", field, validEntry.getValue());
-			}
-		}
-
-		return null;
+			throw new RestServiceException(
+					HttpStatus.BAD_REQUEST, ErrorCode.INVALID_PARAMETER, errorDetailsList);
+		} 
 	}
 
 }

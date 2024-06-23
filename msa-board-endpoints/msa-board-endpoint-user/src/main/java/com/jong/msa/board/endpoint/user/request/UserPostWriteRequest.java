@@ -13,12 +13,12 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLoginRequest {
+public class UserPostWriteRequest {
 
-	@Schema(description = "계정", example = "username")
-	private String username;
-	
-	@Schema(description = "비밀번호" , example = "password")
-	private String password;
-	
+	@Schema(description = "제목", example = "title")
+	private String title;
+
+	@Schema(description = "내용", example = "content")
+	private String content;
+
 }

@@ -4,41 +4,38 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.member.feign.MemberFeignClient;
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.feign.PostFeignClient;
-import com.jong.msa.board.client.post.request.CreatePostRequest;
-import com.jong.msa.board.client.post.request.ModifyPostRequest;
+import com.jong.msa.board.client.post.request.PostCreateRequest;
+import com.jong.msa.board.client.post.request.PostModifyRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.MemberSearchRequest;
+import com.jong.msa.board.client.search.request.PostSearchRequest;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.ErrorCode;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.security.exception.RevokedJwtException;
 import com.jong.msa.board.core.security.service.TokenService;
 import com.jong.msa.board.core.security.utils.SecurityContextUtils;
-import com.jong.msa.board.core.validation.utils.BindingResultUtils;
 import com.jong.msa.board.core.web.exception.RestServiceException;
-import com.jong.msa.board.endpoint.admin.exception.AdminServiceException;
 import com.jong.msa.board.endpoint.admin.mapper.AdminRequestMapper;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyPasswordRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyPostRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminMemberSearchRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyUserRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchMemberRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminSearchPostRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminWritePostRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPasswordModifyRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostModifyRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostSearchRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminPostWriteRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminUserModifyRequest;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -47,8 +44,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class AdminRestController implements AdminOperations {
-
-	private final Validator validator;
 	
 	private final AdminRequestMapper requestMapper;
 	
@@ -63,31 +58,20 @@ public class AdminRestController implements AdminOperations {
 	@Override
 	public ResponseEntity<Void> loginAdmin(AdminLoginRequest request) {
 
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
-		
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
+		MemberLoginRequest loginRequest = requestMapper.toRequest(request);
 
-			LoginMemberRequest loginRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(loginRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				
-				MemberDetailsResponse member = memberFeignClient.loginMember(loginRequest).getBody();
-				
-				if (member.getGroup() != Group.ADMIN) {
-					throw AdminServiceException.notAdminGroupUsername();
-				} else {
-					return ResponseEntity.status(HttpStatus.NO_CONTENT)
-							.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
-							.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
-							.build();
-				}
-			}
+		MemberDetailsResponse member = memberFeignClient.loginMember(loginRequest).getBody();
+
+		if (member.getGroup() != Group.ADMIN) {
+		
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_ADMIN_USERNAME);
+		
+		} else {
+		
+			return ResponseEntity.status(HttpStatus.NO_CONTENT)
+					.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
+					.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
+					.build();
 		}
 	}
 
@@ -104,78 +88,59 @@ public class AdminRestController implements AdminOperations {
 
 		try {
 
-			MemberDetailsResponse member = tokenService.validateRefreshToken(refreshToken, memberFeignClient::getMember).getBody();
+			UUID id = tokenService.validateRefreshToken(refreshToken);
+			
+			MemberDetailsResponse member = memberFeignClient.getMember(id).getBody();
 
-			if (member.getGroup() != Group.ADMIN) {
-				throw AdminServiceException.notAdminGroupRefreshToken();
-			} else {
-
+			if (member.getGroup() == Group.ADMIN) {
+				
 				tokenService.revokeRefreshToken(refreshToken);
 
 				return ResponseEntity.status(HttpStatus.NO_CONTENT)
 						.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
 						.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
 						.build();
+
+			} else {
+
+				throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.REVOKED_REFRESH_TOKEN);
 			}
 		} catch (ExpiredJwtException e) {
-			throw AdminServiceException.expiredRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.EXPIRED_REFRESH_TOKEN);
+
 		} catch (RevokedJwtException e) {
-			throw AdminServiceException.revokeRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.REVOKED_REFRESH_TOKEN);
+			
 		} catch (JwtException e) {
-			throw AdminServiceException.invalidRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_REFRESH_TOKEN);
 		}
 	}
 
 	@Override
 	public ResponseEntity<Void> modifyAdmin(AdminModifyRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberModifyRequest modifyRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
+		UUID id = SecurityContextUtils.getAuthenticationId();
 
-			ModifyMemberRequest modifyRequest = requestMapper.toRequest(request);
-
-			bindingResult = BindingResultUtils.validate(modifyRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				UUID id = SecurityContextUtils.getAuthenticationId();
-
-				return memberFeignClient.modifyMember(id, modifyRequest);
-			}
-		}
+		return memberFeignClient.modifyMember(id, modifyRequest);
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyAdminPassword(AdminModifyPasswordRequest request) {
+	public ResponseEntity<Void> modifyAdminPassword(AdminPasswordModifyRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberPasswordModifyRequest modifyPasswordRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
+		UUID id = SecurityContextUtils.getAuthenticationId();
 
-			ModifyMemberPasswordRequest modifyPasswordRequest = requestMapper.toRequest(request);
-
-			bindingResult = BindingResultUtils.validate(modifyPasswordRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				UUID id = SecurityContextUtils.getAuthenticationId();
-
-				ResponseEntity<Void> response = memberFeignClient.modifyMemberPassword(id, modifyPasswordRequest);
-				
-				tokenService.revokeTokenAll(id);
-				
-				return response;
-			}
-		}
+		ResponseEntity<Void> response = memberFeignClient.modifyMemberPassword(id, modifyPasswordRequest);
+		
+		tokenService.revokeTokenAll(id);
+		
+		return response;
 	}
 
 	@Override
@@ -185,35 +150,23 @@ public class AdminRestController implements AdminOperations {
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyUser(UUID userId, AdminModifyUserRequest request) {
+	public ResponseEntity<Void> modifyUser(UUID userId, AdminUserModifyRequest request) {
 
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberModifyRequest modifyRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
+		MemberDetailsResponse member = memberFeignClient.getMember(userId).getBody();
 		
-			ModifyMemberRequest modifyRequest = requestMapper.toRequest(request);
-
-			bindingResult = BindingResultUtils.validate(modifyRequest, validator);
+		if (member.getGroup() != Group.USER) {
 			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
+			throw new RestServiceException(HttpStatus.FORBIDDEN, ErrorCode.NOT_USER_GROUP_MEMBER);
 
-				MemberDetailsResponse member = memberFeignClient.getMember(userId).getBody();
-				
-				if (member.getGroup() != Group.USER) {
-					throw AdminServiceException.notUserGroupMember();
-				} else {
-					
-					ResponseEntity<Void> response = memberFeignClient.modifyMember(userId, modifyRequest);
-					
-					tokenService.revokeTokenAll(userId);
-					
-					return response;
-				}
-			}
+		} else {
+			
+			ResponseEntity<Void> response = memberFeignClient.modifyMember(userId, modifyRequest);
+			
+			tokenService.revokeTokenAll(userId);
+			
+			return response;
 		}
 	}
 
@@ -224,81 +177,44 @@ public class AdminRestController implements AdminOperations {
 	} 	
 
 	@Override
-	public ResponseEntity<MemberListResponse> searchMemberList(AdminSearchMemberRequest request) {
+	public ResponseEntity<MemberListResponse> searchMemberList(AdminMemberSearchRequest request) {
 
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberSearchRequest searchRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-		
-			SearchMemberRequest searchRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return searchFeignClient.searchMemberList(searchRequest);
-			}
-		}
+		return searchFeignClient.searchMemberList(searchRequest);
 	}
 
 	@Override
-	public ResponseEntity<Void> writePost(AdminWritePostRequest request) {
+	public ResponseEntity<Void> writePost(AdminPostWriteRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		UUID id = SecurityContextUtils.getAuthenticationId();
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-			
-			UUID id = SecurityContextUtils.getAuthenticationId();
+		PostCreateRequest createRequest = requestMapper.toRequest(request, id);
 
-			CreatePostRequest createRequest = requestMapper.toRequest(request, id);
-			
-			bindingResult = BindingResultUtils.validate(createRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return postFeignClient.createPost(createRequest);
-			}
-		}
+		return postFeignClient.createPost(createRequest);
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyPost(UUID postId, AdminModifyPostRequest request) {
+	public ResponseEntity<Void> modifyPost(UUID postId, AdminPostModifyRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		PostModifyRequest modifyRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
+		PostDetailsResponse.Writer writer = postFeignClient.getPostWriter(postId).getBody();
+		
+		if (writer.getGroup() == Group.ADMIN) {
+		
+			return postFeignClient.modifyPost(postId, modifyRequest);
+			
 		} else {
-
-			 ModifyPostRequest modifyRequest = requestMapper.toRequest(request);
 			
-			bindingResult = BindingResultUtils.validate(modifyRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				PostDetailsResponse.Writer writer = postFeignClient.getPostWriter(postId).getBody();
-				
-				if (writer.getGroup() == Group.ADMIN) {
-					return postFeignClient.modifyPost(postId, modifyRequest);
-				} else {
-					throw AdminServiceException.notAdminGroupPost();
-				}
-			}
+			throw new RestServiceException(HttpStatus.FORBIDDEN, ErrorCode.NOT_ADMIN_POST);
 		}
 	}
 
 	@Override
 	public ResponseEntity<Void> modifyPostState(UUID postId, State state) {
 
-		return postFeignClient.modifyPost(postId, ModifyPostRequest.builder().state(state).build());
+		return postFeignClient.modifyPost(postId, PostModifyRequest.builder().state(state).build());
 	}
 	
 	@Override
@@ -308,24 +224,11 @@ public class AdminRestController implements AdminOperations {
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(AdminSearchPostRequest request) {
+	public ResponseEntity<PostListResponse> searchPostList(AdminPostSearchRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		PostSearchRequest searchRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-			
-			SearchPostRequest searchRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return searchFeignClient.searchPostList(searchRequest);
-			}
-		}
+		return searchFeignClient.searchPostList(searchRequest);
 	}
 
 }

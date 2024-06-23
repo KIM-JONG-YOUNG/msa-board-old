@@ -3,6 +3,7 @@ package com.jong.msa.board.core.security.handler;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,11 +22,10 @@ public class AccessDeniedExceptionHandler {
 	@ExceptionHandler(AccessDeniedException.class)
 	ResponseEntity<ErrorResponse> handleAccessDeniedException(HttpServletRequest request, AccessDeniedException e) {
 
-		ErrorCode errorCode = ErrorCode.NOT_ACCESSIBLE_URL;
-		
-		return ResponseEntity.status(errorCode.getStatusCode())
+		return ResponseEntity.status(HttpStatus.FORBIDDEN)
 				.body(ErrorResponse.builder()
-						.errorCode(errorCode)
+						.errorCode(ErrorCode.NOT_ACCESSIBLE_URL.name())
+						.errorMessage(ErrorCode.NOT_ACCESSIBLE_URL.getMessage())
 						.build());
 	}
 

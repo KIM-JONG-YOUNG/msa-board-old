@@ -45,11 +45,6 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     
-# Feign
-feign:
-  okhttp:
-    enabled: true
-
 # JWT    
 jwt:
   accessToken:

@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @ToString
 @SuperBuilder
-public class PostListResponse extends PagingListResponse<PostListResponse.Item> {
+public class PostListResponse extends ListResponse<PostListResponse.Item> {
 	
 	@Getter
 	@Builder

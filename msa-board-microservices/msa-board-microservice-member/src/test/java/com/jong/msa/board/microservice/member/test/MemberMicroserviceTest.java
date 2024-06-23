@@ -28,10 +28,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jong.msa.board.client.member.request.CreateMemberRequest;
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberCreateRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.common.constants.RedisKeyPrefixes;
 import com.jong.msa.board.common.enums.Gender;
@@ -73,7 +73,7 @@ public class MemberMicroserviceTest {
 	@Test
 	void 회원_생성_테스트() throws Exception {
 		
-		CreateMemberRequest request = CreateMemberRequest.builder()
+		MemberCreateRequest request = MemberCreateRequest.builder()
 				.username("createTester")
 				.password("password")
 				.name("name")
@@ -109,7 +109,7 @@ public class MemberMicroserviceTest {
 				.group(Group.ADMIN)
 				.build());
 		
-		ModifyMemberRequest request = ModifyMemberRequest.builder()
+		MemberModifyRequest request = MemberModifyRequest.builder()
 				.name("update-name")
 				.gender(Gender.FEMAIL)
 				.email("update-test@example.com")
@@ -156,7 +156,7 @@ public class MemberMicroserviceTest {
 
 		mockMvc.perform(patch("/apis/members/" + entity.getId() + "/password")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(ModifyMemberPasswordRequest.builder()
+				.content(objectMapper.writeValueAsString(MemberPasswordModifyRequest.builder()
 						.currentPassword("no-original-password")
 						.newPassword("update-password")
 						.build())))
@@ -164,7 +164,7 @@ public class MemberMicroserviceTest {
 
 		mockMvc.perform(patch("/apis/members/" + entity.getId() + "/password")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(ModifyMemberPasswordRequest.builder()
+				.content(objectMapper.writeValueAsString(MemberPasswordModifyRequest.builder()
 						.currentPassword("original-password")
 						.newPassword("update-password")
 						.build())))
@@ -238,7 +238,7 @@ public class MemberMicroserviceTest {
 				.group(Group.ADMIN)
 				.build());
 
-		LoginMemberRequest request = LoginMemberRequest.builder()
+		MemberLoginRequest request = MemberLoginRequest.builder()
 				.username("loginMemberTester")
 				.password("password")
 				.build();

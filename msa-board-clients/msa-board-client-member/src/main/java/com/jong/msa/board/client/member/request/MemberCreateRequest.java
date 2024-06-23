@@ -18,7 +18,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class CreateMemberRequest {
+public class MemberCreateRequest {
 
 	@Schema(description = "계정", example = "username")
 	private String username;

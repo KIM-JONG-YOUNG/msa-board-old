@@ -5,39 +5,36 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.member.feign.MemberFeignClient;
-import com.jong.msa.board.client.member.request.CreateMemberRequest;
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberCreateRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.client.post.feign.PostFeignClient;
-import com.jong.msa.board.client.post.request.CreatePostRequest;
-import com.jong.msa.board.client.post.request.ModifyPostRequest;
+import com.jong.msa.board.client.post.request.PostCreateRequest;
+import com.jong.msa.board.client.post.request.PostModifyRequest;
 import com.jong.msa.board.client.post.response.PostDetailsResponse;
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.PostSearchRequest;
 import com.jong.msa.board.client.search.response.PostListResponse;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.ErrorCode;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.security.exception.RevokedJwtException;
 import com.jong.msa.board.core.security.service.TokenService;
 import com.jong.msa.board.core.security.utils.SecurityContextUtils;
-import com.jong.msa.board.core.validation.utils.BindingResultUtils;
 import com.jong.msa.board.core.web.exception.RestServiceException;
-import com.jong.msa.board.endpoint.user.exception.UserServiceException;
 import com.jong.msa.board.endpoint.user.mapper.UserRequestMapper;
-import com.jong.msa.board.endpoint.user.request.UserJoinMemberRequest;
+import com.jong.msa.board.endpoint.user.request.UserJoinRequest;
 import com.jong.msa.board.endpoint.user.request.UserLoginRequest;
-import com.jong.msa.board.endpoint.user.request.UserModifyPasswordRequest;
-import com.jong.msa.board.endpoint.user.request.UserModifyPostRequest;
 import com.jong.msa.board.endpoint.user.request.UserModifyRequest;
-import com.jong.msa.board.endpoint.user.request.UserSearchPostRequest;
-import com.jong.msa.board.endpoint.user.request.UserWritePostRequest;
+import com.jong.msa.board.endpoint.user.request.UserPasswordModifyRequest;
+import com.jong.msa.board.endpoint.user.request.UserPostModifyRequest;
+import com.jong.msa.board.endpoint.user.request.UserPostSearchRequest;
+import com.jong.msa.board.endpoint.user.request.UserPostWriteRequest;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -47,8 +44,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserRestController implements UserOperations {
 
-	private final Validator validator;
-	
 	private final UserRequestMapper requestMapper;
 	
 	private final MemberFeignClient memberFeignClient;
@@ -60,54 +55,30 @@ public class UserRestController implements UserOperations {
 	private final TokenService tokenService;
 
 	@Override
-	public ResponseEntity<Void> joinUser(UserJoinMemberRequest request) {
+	public ResponseEntity<Void> joinUser(UserJoinRequest request) {
 
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
-		
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-			
-			CreateMemberRequest createRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(createRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return memberFeignClient.createMember(createRequest);
-			}
-		}
+		MemberCreateRequest createRequest = requestMapper.toRequest(request);
+
+		return memberFeignClient.createMember(createRequest);
 	}
 
 	@Override
 	public ResponseEntity<Void> loginUser(UserLoginRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
-		
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
+		MemberLoginRequest loginRequest = requestMapper.toRequest(request);
+
+		MemberDetailsResponse member = memberFeignClient.loginMember(loginRequest).getBody();
+
+		if (member.getGroup() != Group.USER) {
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_USER_USERNAME);
+			
 		} else {
-			
-			LoginMemberRequest loginRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(loginRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				
-				MemberDetailsResponse member = memberFeignClient.loginMember(loginRequest).getBody();
-				
-				if (member.getGroup() != Group.USER) {
-					throw UserServiceException.notUserGroupUsername();
-				} else {
-					return ResponseEntity.status(HttpStatus.NO_CONTENT)
-							.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
-							.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
-							.build();
-				}
-			}
+		
+			return ResponseEntity.status(HttpStatus.NO_CONTENT)
+					.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
+					.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
+					.build();
 		}
 	}
 
@@ -124,12 +95,11 @@ public class UserRestController implements UserOperations {
 		
 		try {
 
-			MemberDetailsResponse member = tokenService.validateRefreshToken(refreshToken, 
-					id -> memberFeignClient.getMember(id).getBody());
+			UUID id = tokenService.validateRefreshToken(refreshToken);
+			
+			MemberDetailsResponse member = memberFeignClient.getMember(id).getBody();
 
-			if (member.getGroup() != Group.USER) {
-				throw UserServiceException.notUserGroupRefreshToken();
-			} else {
+			if (member.getGroup() == Group.USER) {
 
 				tokenService.revokeRefreshToken(refreshToken);
 
@@ -137,67 +107,47 @@ public class UserRestController implements UserOperations {
 						.header("Access-Token", tokenService.generateAccessToken(member.getId(), member.getGroup()))
 						.header("Refresh-Token", tokenService.generateRefreshToken(member.getId()))
 						.build();
+			} else {
+
+				throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.REVOKED_REFRESH_TOKEN);
 			}
 		} catch (ExpiredJwtException e) {
-			throw UserServiceException.expiredRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.EXPIRED_ACCESS_TOKEN);
+			
 		} catch (RevokedJwtException e) {
-			throw UserServiceException.revokeRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.REVOKED_REFRESH_TOKEN);
+			
 		} catch (JwtException e) {
-			throw UserServiceException.invalidRefreshToken();
+			
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.INVALID_REFRESH_TOKEN);
 		}
 	}
 
 	@Override
 	public ResponseEntity<Void> modifyUser(UserModifyRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberModifyRequest modifyRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
+		UUID id = SecurityContextUtils.getAuthenticationId();
 
-			ModifyMemberRequest modifyRequest = requestMapper.toRequest(request);
-
-			bindingResult = BindingResultUtils.validate(modifyRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				UUID id = SecurityContextUtils.getAuthenticationId();
-
-				return memberFeignClient.modifyMember(id, modifyRequest);
-			}
-		}
+		return memberFeignClient.modifyMember(id, modifyRequest);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public ResponseEntity<Void> modifyUserPassword(UserModifyPasswordRequest request) {
+	public ResponseEntity<Void> modifyUserPassword(UserPasswordModifyRequest request) {
 
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		MemberPasswordModifyRequest modifyPasswordRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-
-			ModifyMemberPasswordRequest modifyPasswordRequest = requestMapper.toRequest(request);
-
-			bindingResult = BindingResultUtils.validate(modifyPasswordRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				UUID id = SecurityContextUtils.getAuthenticationId();
-				
-				ResponseEntity<Void> response = memberFeignClient.modifyMemberPassword(id, modifyPasswordRequest);
-				
-				tokenService.revokeTokenAll(id);
-				
-				return response;
-			}
-		}
+		UUID id = SecurityContextUtils.getAuthenticationId();
+		
+		ResponseEntity<Void> response = memberFeignClient.modifyMemberPassword(id, modifyPasswordRequest);
+		
+		tokenService.revokeTokenAll(id);
+		
+		return response;
 	}
 
 	@Override
@@ -207,57 +157,35 @@ public class UserRestController implements UserOperations {
 	}
 
 	@Override
-	public ResponseEntity<Void> writePost(UserWritePostRequest request) {
-		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+	public ResponseEntity<Void> writePost(UserPostWriteRequest request) {
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-			
-			UUID id = SecurityContextUtils.getAuthenticationId();
-			
-			CreatePostRequest createRequest = requestMapper.toRequest(request, id);
-			
-			bindingResult = BindingResultUtils.validate(createRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return postFeignClient.createPost(createRequest);					
-			}
-		}
+		UUID id = SecurityContextUtils.getAuthenticationId();
+		
+		PostCreateRequest createRequest = requestMapper.toRequest(request, id);
+
+		return postFeignClient.createPost(createRequest);					
 	}
 
 	@Override
-	public ResponseEntity<Void> modifyPost(UUID postId, UserModifyPostRequest request) {
+	public ResponseEntity<Void> modifyPost(UUID postId, UserPostModifyRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		PostModifyRequest modifyRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
+		UUID id = SecurityContextUtils.getAuthenticationId();
+
+		PostDetailsResponse post = postFeignClient.getPost(postId).getBody();
+		
+		if (post.getState() == State.DEACTIVE) {
+			
+			throw new RestServiceException(HttpStatus.GONE, ErrorCode.DEACTIVE_POST);
+			
+		} else if (!post.getWriter().getId().equals(id)) {
+			
+			throw new RestServiceException(HttpStatus.FORBIDDEN, ErrorCode.NOT_POST_WRITER);
+			
 		} else {
-
-			 ModifyPostRequest modifyRequest = requestMapper.toRequest(request);
 			
-			bindingResult = BindingResultUtils.validate(modifyRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-
-				UUID id = SecurityContextUtils.getAuthenticationId();
-
-				PostDetailsResponse post = postFeignClient.getPost(postId).getBody();
-				
-				if (post.getState() == State.DEACTIVE) {
-					throw UserServiceException.deactivePost();
-				} else if (!post.getWriter().getId().equals(id)) {
-					throw UserServiceException.notPostWriter();
-				} else {
-					return postFeignClient.modifyPost(postId, modifyRequest);
-				}
-			}
+			return postFeignClient.modifyPost(postId, modifyRequest);
 		}
 	}
 
@@ -269,9 +197,12 @@ public class UserRestController implements UserOperations {
 		PostDetailsResponse.Writer writer = postFeignClient.getPostWriter(postId).getBody();
 		
 		if (writer.getId().equals(id)) {
-			return postFeignClient.modifyPost(postId, ModifyPostRequest.builder().state(State.DEACTIVE).build());
+		
+			return postFeignClient.modifyPost(postId, PostModifyRequest.builder().state(State.DEACTIVE).build());
+			
 		} else {
-			throw UserServiceException.notPostWriter();
+			
+			throw new RestServiceException(HttpStatus.FORBIDDEN, ErrorCode.NOT_POST_WRITER);
 		}
 	}
 
@@ -281,7 +212,9 @@ public class UserRestController implements UserOperations {
 		PostDetailsResponse post = postFeignClient.getPost(postId).getBody();
 
 		if (post.getState() == State.DEACTIVE) {
-			throw UserServiceException.deactivePost();
+			
+			throw new RestServiceException(HttpStatus.GONE, ErrorCode.DEACTIVE_POST);
+
 		} else {
 			
 			postFeignClient.increasePostViews(postId);
@@ -291,24 +224,11 @@ public class UserRestController implements UserOperations {
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(UserSearchPostRequest request) {
+	public ResponseEntity<PostListResponse> searchPostList(UserPostSearchRequest request) {
 		
-		BindingResult bindingResult = BindingResultUtils.validate(request, validator);
+		PostSearchRequest searchRequest = requestMapper.toRequest(request);
 
-		if (bindingResult.hasErrors()) {
-			throw RestServiceException.invalidParameter(bindingResult);
-		} else {
-			
-			SearchPostRequest searchRequest = requestMapper.toRequest(request);
-			
-			bindingResult = BindingResultUtils.validate(searchRequest, validator);
-			
-			if (bindingResult.hasErrors()) {
-				throw RestServiceException.invalidParameter(bindingResult);
-			} else {
-				return searchFeignClient.searchPostList(searchRequest);
-			}
-		}
+		return searchFeignClient.searchPostList(searchRequest);
 	}
 
 }

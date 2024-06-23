@@ -1,4 +1,4 @@
-package com.jong.msa.board.client.member.request;
+package com.jong.msa.board.endpoint.user.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -13,12 +13,12 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class LoginMemberRequest {
+public class UserPasswordModifyRequest {
 
-	@Schema(description = "계정", example = "username")
-	private String username;
+	@Schema(description = "현재 비밀번호" , example = "currentPassword")
+	private String currentPassword;
 	
-	@Schema(description = "비밀번호" , example = "password")
-	private String password;
-	
+	@Schema(description = "새로운 비밀번호" , example = "newPassword")
+	private String newPassword;
+
 }

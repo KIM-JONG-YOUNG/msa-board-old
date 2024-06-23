@@ -1,13 +1,11 @@
-package com.jong.msa.board.endpoint.admin.request;
+package com.jong.msa.board.client.search.request;
 
-import javax.validation.Valid;
+import java.util.List;
 
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchRequest;
-import com.jong.msa.board.client.search.request.param.DateRange;
-import com.jong.msa.board.common.enums.CodeEnum.Gender;
-import com.jong.msa.board.common.enums.CodeEnum.Group;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.Gender;
+import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.common.enums.MemberSort;
+import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -16,20 +14,33 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 @Getter
+@Builder
 @ToString
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AdminSearchMemberRequest extends SearchRequest<AdminSearchMemberRequest.Condition, SearchMemberRequest.Sort> {
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class MemberSearchRequest {
 	
+	@Builder.Default
+	@Schema(description = "조회 시작 행", example = "1")
+	private long offset = 1;
+ 
+	@Builder.Default
+	@Schema(description = "조회 행의 수", example = "10")
+	private long limit = 10;
+
+	@Schema(description = "정렬 조건 목록")
+	private List<SortOrder<MemberSort>> sortOrderList;
+
+	@Schema(description = "조회 조건", implementation = MemberSearchRequest.Condition.class)
+	private Condition condition; 
+
 	@Getter
 	@Builder
 	@ToString
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor(access = AccessLevel.PROTECTED)
-	@Schema(name = "AdminSearchMemberRequest.Condtion")
 	public static class Condition {
 
 		@Schema(description = "계정", example = "username")
@@ -50,12 +61,10 @@ public class AdminSearchMemberRequest extends SearchRequest<AdminSearchMemberReq
 		@Schema(description = "상태", example = "ACTIVE")
 		private State state;
 
-		@Valid
-		@Schema(description = "생성일자 검색기간")
+		@Schema(description = "생성 일자 검색")
 		private DateRange createdDate;
 
-		@Valid
-		@Schema(description = "수정일자 검색기간")
+		@Schema(description = "생성 일자 검색")
 		private DateRange updatedDate;
 
 	}

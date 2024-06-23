@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -27,12 +28,13 @@ public class TokenAuthenticationErrorFilter extends OncePerRequestFilter {
 
 	private final ObjectMapper objectMapper;
 
-	private void sendError(HttpServletResponse response, ErrorCode errorCode) throws ServletException, IOException {
+	private void sendError(HttpServletResponse response, HttpStatus status, ErrorCode errorCode) throws ServletException, IOException {
 		
-		response.setStatus(errorCode.getStatusCode());
+		response.setStatus(status.value());
 		response.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 		response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.builder()
-				.errorCode(errorCode)
+				.errorCode(errorCode.getCode())
+				.errorMessage(errorCode.getMessage())
 				.build()));
 	}
 	
@@ -46,15 +48,15 @@ public class TokenAuthenticationErrorFilter extends OncePerRequestFilter {
 
 		} catch (ExpiredJwtException e) {
 			
-			sendError(response, ErrorCode.EXPIRED_ACCESS_TOKEN);
+			sendError(response, HttpStatus.UNAUTHORIZED, ErrorCode.EXPIRED_ACCESS_TOKEN);
 			
 		} catch (RevokedJwtException e) {
 
-			sendError(response, ErrorCode.REVOKED_ACCESS_TOKEN);
+			sendError(response, HttpStatus.UNAUTHORIZED, ErrorCode.REVOKED_ACCESS_TOKEN);
 			
 		} catch (JwtException e) {
 
-			sendError(response, ErrorCode.INVALID_ACCESS_TOKEN);
+			sendError(response, HttpStatus.UNAUTHORIZED, ErrorCode.INVALID_ACCESS_TOKEN);
 		}
 	}
 

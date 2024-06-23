@@ -86,8 +86,3 @@ eureka:
       defaultZone: http://msa-board-cloud-eureka:8761/eureka
     register-with-eureka: true
     fetch-registry: true
-
-# Feign
-feign:
-  okhttp:
-    enabled: true

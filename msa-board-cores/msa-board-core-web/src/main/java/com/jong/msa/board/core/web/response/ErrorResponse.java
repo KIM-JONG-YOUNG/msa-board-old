@@ -1,8 +1,9 @@
 package com.jong.msa.board.core.web.response;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import com.jong.msa.board.common.enums.ErrorCode;
+import com.jong.msa.board.core.web.dto.ErrorDetails;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -19,22 +20,14 @@ import lombok.ToString;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponse {
 
-	private ErrorCode errorCode;
+	private String errorCode;
+	
+	private String errorMessage;
 	
 	@Singular("errorDetails")
-	private List<Details> errorDetailsList;
-	
-	@Getter
-	@Builder
-	@ToString
-	@NoArgsConstructor(access = AccessLevel.PROTECTED)
-	@AllArgsConstructor(access = AccessLevel.PROTECTED)
-	public static class Details {
-		
-		private String field;
-		
-		private String message;
-		
-	}
+	private List<ErrorDetails> errorDetailsList;
+
+	@Builder.Default
+	private LocalDateTime timestamp = LocalDateTime.now();
 	
 }

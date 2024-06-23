@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jong.msa.board.client.search.feign.SearchFeignClient;
-import com.jong.msa.board.client.search.request.SearchMemberRequest;
-import com.jong.msa.board.client.search.request.SearchPostRequest;
+import com.jong.msa.board.client.search.request.MemberSearchRequest;
+import com.jong.msa.board.client.search.request.PostSearchRequest;
 import com.jong.msa.board.client.search.response.MemberListResponse;
 import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.microservice.search.service.SearchService;
@@ -20,14 +20,14 @@ public class SearchRestController implements SearchFeignClient {
 	private final SearchService service;
 
 	@Override
-	public ResponseEntity<MemberListResponse> searchMemberList(SearchMemberRequest request) {
+	public ResponseEntity<MemberListResponse> searchMemberList(MemberSearchRequest request) {
 
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.searchMemberList(request));
 	}
 
 	@Override
-	public ResponseEntity<PostListResponse> searchPostList(SearchPostRequest request) {
+	public ResponseEntity<PostListResponse> searchPostList(PostSearchRequest request) {
 
 		return ResponseEntity.status(HttpStatus.OK)
 				.body(service.searchPostList(request));

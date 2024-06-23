@@ -2,22 +2,22 @@ package com.jong.msa.board.microservice.member.service;
 
 import java.util.UUID;
 
-import com.jong.msa.board.client.member.request.CreateMemberRequest;
-import com.jong.msa.board.client.member.request.LoginMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberPasswordRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberCreateRequest;
+import com.jong.msa.board.client.member.request.MemberLoginRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
+import com.jong.msa.board.client.member.request.MemberPasswordModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 
 public interface MemberService {
 
-	UUID createMember(CreateMemberRequest request);
+	UUID createMember(MemberCreateRequest request);
 
-	void modifyMember(UUID id, ModifyMemberRequest request);
+	void modifyMember(UUID id, MemberModifyRequest request);
 
-	void modifyMemberPassword(UUID id, ModifyMemberPasswordRequest request);
+	void modifyMemberPassword(UUID id, MemberPasswordModifyRequest request);
 
 	MemberDetailsResponse getMember(UUID id);
 
-	MemberDetailsResponse loginMember(LoginMemberRequest request);
+	MemberDetailsResponse loginMember(MemberLoginRequest request);
 
 }

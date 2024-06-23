@@ -7,8 +7,8 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-import com.jong.msa.board.client.member.request.CreateMemberRequest;
-import com.jong.msa.board.client.member.request.ModifyMemberRequest;
+import com.jong.msa.board.client.member.request.MemberCreateRequest;
+import com.jong.msa.board.client.member.request.MemberModifyRequest;
 import com.jong.msa.board.client.member.response.MemberDetailsResponse;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 
@@ -16,10 +16,10 @@ import com.jong.msa.board.domain.member.entity.MemberEntity;
 		unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface MemberEntityMapper {
 
-	MemberEntity toEntity(CreateMemberRequest request);
+	MemberEntity toEntity(MemberCreateRequest request);
 
 	@BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-	MemberEntity updateEntity(ModifyMemberRequest request, @MappingTarget MemberEntity entity);
+	MemberEntity updateEntity(MemberModifyRequest request, @MappingTarget MemberEntity entity);
 
 	MemberDetailsResponse toResponse(MemberEntity entity);
 

@@ -1,4 +1,6 @@
-package com.jong.msa.board.endpoint.user.request;
+package com.jong.msa.board.client.post.request;
+
+import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -13,12 +15,15 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserLoginRequest {
+public class PostCreateRequest {
 
-	@Schema(description = "계정", example = "username")
-	private String username;
-	
-	@Schema(description = "비밀번호" , example = "password")
-	private String password;
-	
+	@Schema(description = "제목", example = "title")
+	private String title;
+
+	@Schema(description = "내용", example = "content")
+	private String content;
+
+	@Schema(description = "작성자 ID")
+	private UUID writerId;
+
 }

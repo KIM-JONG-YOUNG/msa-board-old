@@ -1,11 +1,9 @@
-package com.jong.msa.board.endpoint.admin.request;
+package com.jong.msa.board.client.search.request;
 
-import javax.validation.Valid;
+import java.util.List;
 
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.request.SearchRequest;
-import com.jong.msa.board.client.search.request.param.DateRange;
-import com.jong.msa.board.common.enums.CodeEnum.State;
+import com.jong.msa.board.common.enums.PostSort;
+import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -14,20 +12,33 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 @Getter
+@Builder
 @ToString
-@SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AdminSearchPostRequest extends SearchRequest<AdminSearchPostRequest.Condition, SearchPostRequest.Sort> {
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostSearchRequest {
 	
+	@Builder.Default
+	@Schema(description = "조회 시작 행", example = "1")
+	private long offset = 1;
+ 
+	@Builder.Default
+	@Schema(description = "조회 행의 수", example = "10")
+	private long limit = 10;
+
+	@Schema(description = "정렬 조건 목록")
+	private List<SortOrder<PostSort>> sortOrderList;
+
+	@Schema(description = "조회 조건", implementation = PostSearchRequest.Condition.class)
+	private Condition condition;
+
 	@Getter
 	@Builder
 	@ToString
 	@NoArgsConstructor(access = AccessLevel.PROTECTED)
 	@AllArgsConstructor(access = AccessLevel.PROTECTED)
-	@Schema(name = "AdminSearchPostRequest.Condtion")
 	public static class Condition {
 
 		@Schema(description = "제목", example = "title")
@@ -41,15 +52,13 @@ public class AdminSearchPostRequest extends SearchRequest<AdminSearchPostRequest
 
 		@Schema(description = "상태", example = "ACTIVE")
 		private State state;
-
-		@Valid
-		@Schema(description = "생성일자 검색기간")
+		
+		@Schema(description = "생성 일자 검색")
 		private DateRange createdDate;
 
-		@Valid
-		@Schema(description = "수정일자 검색기간")
+		@Schema(description = "생성 일자 검색")
 		private DateRange updatedDate;
-
+		
 	}
 
 }

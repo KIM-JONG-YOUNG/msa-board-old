@@ -1,10 +1,12 @@
 package com.jong.msa.board.endpoint.user.request;
 
+import java.util.List;
+
 import javax.validation.Valid;
 
-import com.jong.msa.board.client.search.request.SearchPostRequest;
-import com.jong.msa.board.client.search.request.SearchRequest;
-import com.jong.msa.board.client.search.request.param.DateRange;
+import com.jong.msa.board.client.search.request.DateRange;
+import com.jong.msa.board.client.search.request.SortOrder;
+import com.jong.msa.board.common.enums.PostSort;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -19,8 +21,22 @@ import lombok.experimental.SuperBuilder;
 @ToString
 @SuperBuilder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserSearchPostRequest extends SearchRequest<UserSearchPostRequest.Condition, SearchPostRequest.Sort> {
-	
+public class UserPostSearchRequest {
+
+	@Builder.Default
+	@Schema(description = "조회 시작 행", example = "1")
+	private long offset = 1;
+
+	@Builder.Default
+	@Schema(description = "조회 행의 수", example = "10")
+	private long limit = 10;
+
+	@Schema(description = "정렬 조건 목록")
+	private List<SortOrder<PostSort>> sortOrderList;
+
+	@Schema(description = "조회 조건", implementation = UserPostSearchRequest.Condition.class)
+	private Condition condition;
+
 	@Getter
 	@Builder
 	@ToString
