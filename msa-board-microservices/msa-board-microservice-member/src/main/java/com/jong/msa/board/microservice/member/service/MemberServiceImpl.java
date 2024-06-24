@@ -136,7 +136,7 @@ public class MemberServiceImpl implements MemberService {
 			}
 		} else {
 			
-			throw new RestServiceException(HttpStatus.GONE, ErrorCode.NOT_FOUND_MEMBER);
+			throw new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_FOUND_MEMBER);
 		}
 	}
 

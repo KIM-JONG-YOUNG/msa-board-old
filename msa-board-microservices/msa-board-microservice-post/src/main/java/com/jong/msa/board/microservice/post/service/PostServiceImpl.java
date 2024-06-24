@@ -45,7 +45,7 @@ public class PostServiceImpl implements PostService {
 		} catch (RestServiceException e) {
 			
 			throw (e.getErrorCode() == ErrorCode.NOT_FOUND_MEMBER) 
-				? new RestServiceException(HttpStatus.BAD_REQUEST, ErrorCode.NOT_FOUND_POST_WRITER)
+				? new RestServiceException(HttpStatus.GONE, ErrorCode.NOT_FOUND_POST_WRITER)
 				: new RestServiceException(HttpStatus.BAD_GATEWAY, ErrorCode.UNCHECKED_EXTERNAL_ERROR);
 		}
 	}

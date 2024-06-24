@@ -1,11 +1,9 @@
 package com.jong.msa.board.endpoint.user.request;
 
-import java.util.List;
-
 import javax.validation.Valid;
 
 import com.jong.msa.board.client.search.request.DateRange;
-import com.jong.msa.board.client.search.request.SortOrder;
+import com.jong.msa.board.common.enums.Order;
 import com.jong.msa.board.common.enums.PostSort;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,9 +29,12 @@ public class UserPostSearchRequest {
 	@Schema(description = "조회 행의 수", example = "10")
 	private long limit = 10;
 
-	@Schema(description = "정렬 조건 목록")
-	private List<SortOrder<PostSort>> sortOrderList;
-
+	@Schema(description = "정렬 필드")
+	private PostSort sort;
+	
+	@Schema(description = "정렬 조건")
+	private Order order;
+	
 	@Schema(description = "조회 조건", implementation = UserPostSearchRequest.Condition.class)
 	private Condition condition;
 

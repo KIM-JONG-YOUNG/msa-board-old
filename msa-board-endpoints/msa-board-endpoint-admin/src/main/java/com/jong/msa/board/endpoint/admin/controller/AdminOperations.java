@@ -20,19 +20,29 @@ import com.jong.msa.board.client.search.response.PostListResponse;
 import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.common.enums.State;
 import com.jong.msa.board.core.web.annotation.APIErrorResponse;
+import com.jong.msa.board.core.web.annotation.APIErrorResponses;
 import com.jong.msa.board.endpoint.admin.request.AdminLoginRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminMemberSearchRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminPasswordModifyRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminPostModifyRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminModifyRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminUserModifyRequest;
-import com.jong.msa.board.endpoint.admin.request.AdminMemberSearchRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminPostSearchRequest;
 import com.jong.msa.board.endpoint.admin.request.AdminPostWriteRequest;
+import com.jong.msa.board.endpoint.admin.request.AdminUserModifyRequest;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name = "관리자 회원 API")
+@APIErrorResponses({
+	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true),
+	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN),
+	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN),
+	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN),
+	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL),
+	@APIErrorResponse(status = HttpStatus.INTERNAL_SERVER_ERROR, errorCode = ErrorCode.UNCHECKED_INTERNAL_ERROR),
+	@APIErrorResponse(status = HttpStatus.BAD_GATEWAY, errorCode = ErrorCode.UNCHECKED_EXTERNAL_ERROR)
+})
 public interface AdminOperations {
 
 	@Operation(summary = "관리자 회원 로그인")
@@ -40,32 +50,29 @@ public interface AdminOperations {
 	@PostMapping(value = "/apis/admins/login",
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_ADMIN_USERNAME)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_MATCHED_PASSWORD)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_ADMIN_USERNAME),
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_FOUND_MEMBER),
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_MATCHED_PASSWORD)
+	})
 	ResponseEntity<Void> loginAdmin(
 			@RequestBody AdminLoginRequest request);
 	
 	@Operation(summary = "관리자 회원 로그아웃")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping(value = "/apis/admins/logout")
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
 	ResponseEntity<Void> logoutAdmin(
 			@RequestHeader(name = "Access-Token") String accessToken);
 
 	@Operation(summary = "관리자 회원 토큰 재발급")
 	@PostMapping(value = "/apis/admins/refresh",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.EXPIRED_REFRESH_TOKEN)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.REVOKED_REFRESH_TOKEN)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_REFRESH_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.EXPIRED_REFRESH_TOKEN),
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.REVOKED_REFRESH_TOKEN),
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_REFRESH_TOKEN),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<Void> refreshAdmin(
 			@RequestHeader(name = "Refresh-Token") String refreshToken);
 
@@ -73,12 +80,9 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping(value = "/apis/admins",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<Void> modifyAdmin(
 			@RequestBody AdminModifyRequest request);
 
@@ -86,13 +90,10 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping(value = "/apis/admins/password",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_MATCHED_PASSWORD)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_MATCHED_PASSWORD),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<Void> modifyAdminPassword(
 			@RequestBody AdminPasswordModifyRequest request);
 
@@ -100,23 +101,19 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping(value = "/apis/admins",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<MemberDetailsResponse> getAdmin();
 
 	@Operation(summary = "일반 회원 정보 수정")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping(value = "/apis/admins/users/{userId}",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_USER_GROUP_MEMBER),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<Void> modifyUser(
 			@PathVariable(name = "userId") UUID userId,
 			@RequestBody AdminUserModifyRequest request);
@@ -125,11 +122,9 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping(value = "/apis/admins/members/{memberId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_MEMBER)
+	})
 	ResponseEntity<MemberDetailsResponse> getMember(
 			@PathVariable(name = "memberId") UUID memberId);
 
@@ -138,11 +133,6 @@ public interface AdminOperations {
 	@PostMapping(value = "/apis/admins/members/search",
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
 	ResponseEntity<MemberListResponse> searchMemberList(
 			@RequestBody AdminMemberSearchRequest request);
 
@@ -150,12 +140,9 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PostMapping(value = "/apis/admins/posts",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_POST_WRITER)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_POST_WRITER)
+	})
 	ResponseEntity<Void> writePost(
 			@RequestBody AdminPostWriteRequest request);
 
@@ -163,14 +150,11 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping(value = "/apis/admins/posts/{postId}",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_POST_WRITER)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ADMIN_POST)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ADMIN_POST),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST_WRITER),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	})
 	ResponseEntity<Void> modifyPost(
 			@PathVariable(name = "postId") UUID postId,
 			@RequestBody AdminPostModifyRequest request);
@@ -179,13 +163,10 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@PatchMapping(value = "/apis/admins/posts/{postId}/state",
 			consumes = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_POST_WRITER)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST_WRITER),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	})
 	ResponseEntity<Void> modifyPostState(
 			@PathVariable(name = "postId") UUID postId,
 			@RequestBody State state);
@@ -194,13 +175,10 @@ public interface AdminOperations {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@GetMapping(value = "/apis/admins/posts/{postId}",
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.NOT_POST_WRITER)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
-	@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	@APIErrorResponses({
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST_WRITER),
+		@APIErrorResponse(status = HttpStatus.GONE, errorCode = ErrorCode.NOT_FOUND_POST)
+	})
 	ResponseEntity<PostDetailsResponse> getPost(
 			@PathVariable(name = "postId") UUID postId);
 
@@ -209,11 +187,6 @@ public interface AdminOperations {
 	@PostMapping(value = "/apis/admins/posts/search",
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	@APIErrorResponse(status = HttpStatus.BAD_REQUEST, errorCode = ErrorCode.INVALID_PARAMETER, useErrorDetailsList = true)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.EXPIRED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.REVOKED_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.UNAUTHORIZED, errorCode = ErrorCode.INVALID_ACCESS_TOKEN)
-	@APIErrorResponse(status = HttpStatus.FORBIDDEN, errorCode = ErrorCode.NOT_ACCESSIBLE_URL)
 	ResponseEntity<PostListResponse> searchPostList(
 			@RequestBody AdminPostSearchRequest request);
 

@@ -1,10 +1,9 @@
 package com.jong.msa.board.client.search.request;
 
-import java.util.List;
-
 import com.jong.msa.board.common.enums.Gender;
 import com.jong.msa.board.common.enums.Group;
 import com.jong.msa.board.common.enums.MemberSort;
+import com.jong.msa.board.common.enums.Order;
 import com.jong.msa.board.common.enums.State;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,8 +29,11 @@ public class MemberSearchRequest {
 	@Schema(description = "조회 행의 수", example = "10")
 	private long limit = 10;
 
-	@Schema(description = "정렬 조건 목록")
-	private List<SortOrder<MemberSort>> sortOrderList;
+	@Schema(description = "정렬 필드")
+	private MemberSort sort;
+	
+	@Schema(description = "정렬 조건")
+	private Order order;
 
 	@Schema(description = "조회 조건", implementation = MemberSearchRequest.Condition.class)
 	private Condition condition; 

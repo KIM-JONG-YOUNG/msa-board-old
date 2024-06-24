@@ -1,7 +1,6 @@
 package com.jong.msa.board.microservice.search.service;
 
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -94,20 +93,13 @@ public class SearchServiceImpl implements SearchService {
 						: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, updatedDate.getTo()),
 		};
 
-		OrderSpecifier<?>[] orderConditions = (request.getSortOrderList() == null) 
-				? new OrderSpecifier<?>[] { memberEntity.username.asc() }
-				: request.getSortOrderList().stream().map(x -> {
-					
-					MemberSort sort = (x.getSort() != null) ? x.getSort() : MemberSort.USERNAME;
-					Order order = (x.getOrder() != null) ? x.getOrder() : sort.getDefaultOrder();
-					
-					ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
-					
-					return (order == Order.ASC) ? column.asc() : column.desc();
-				})
-				.collect(Collectors.toCollection(LinkedHashSet::new)).stream()
-				.toArray(OrderSpecifier<?>[]::new);
+		MemberSort sort = (request.getSort() != null) ? request.getSort() : MemberSort.USERNAME;
+		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();
+
+		ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
 		
+		OrderSpecifier<?> orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
+				
 		long totalCount = queryFactory
 				.select(memberEntity.count())
 				.from(memberEntity)
@@ -117,7 +109,7 @@ public class SearchServiceImpl implements SearchService {
 		List<MemberEntity> list = queryFactory
 				.selectFrom(memberEntity)
 				.where(searchConditions)
-				.orderBy(orderConditions)
+				.orderBy(orderCondition)
 				.offset(request.getOffset())
 				.limit(request.getLimit())
 				.fetch(); 
@@ -158,19 +150,13 @@ public class SearchServiceImpl implements SearchService {
 						: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, updatedDate.getTo()),
 		};
 		
-		OrderSpecifier<?>[] orderConditions = (request.getSortOrderList() == null) 
-				? new OrderSpecifier<?>[] { postEntity.createdDateTime.desc() }
-				: request.getSortOrderList().stream().map(x -> {
-					 
-					PostSort sort = (x.getSort() != null) ? x.getSort() : PostSort.CREATED_DATE_TIME;
-					Order order = (x.getOrder() != null) ? x.getOrder() : sort.getDefaultOrder();
-					
-					ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
-					
-					return (order == Order.ASC) ? column.asc() : column.desc();
-				})
-				.collect(Collectors.toCollection(LinkedHashSet::new)).stream()
-				.toArray(OrderSpecifier<?>[]::new);
+		PostSort sort = (request.getSort() != null) ? request.getSort() : PostSort.CREATED_DATE_TIME;
+		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();
+
+		ComparableExpressionBase<?> column = sortMap.getOrDefault(sort, memberEntity.username);
+		
+		OrderSpecifier<?> orderCondition = (order == Order.ASC) ? column.asc() : column.desc();
+
 				
 		long totalCount = queryFactory
 				.select(postEntity.count())
@@ -186,7 +172,7 @@ public class SearchServiceImpl implements SearchService {
 				.leftJoin(memberEntity)
 					.on(postEntity.writerId.eq(memberEntity.id))
 				.where(searchConditions)
-				.orderBy(orderConditions)
+				.orderBy(orderCondition)
 				.offset(request.getOffset())
 				.limit(request.getLimit())
 				.fetch();		

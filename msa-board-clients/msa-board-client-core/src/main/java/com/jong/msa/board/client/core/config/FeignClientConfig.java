@@ -5,6 +5,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.EnumSet;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignFormatterRegistrar;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +24,6 @@ import com.jong.msa.board.core.web.response.ErrorResponse;
 
 import feign.Client;
 import feign.FeignException;
-import feign.Logger;
 import feign.Response;
 import feign.codec.ErrorDecoder;
 
@@ -31,9 +32,9 @@ import feign.codec.ErrorDecoder;
 public class FeignClientConfig {
 
 	@Bean
-	Logger.Level feginLoggingLevel() {
+	feign.Logger.Level feginLoggingLevel() {
 		
-		return Logger.Level.FULL;
+		return feign.Logger.Level.FULL;
 	}
 	
 	@Bean
@@ -67,6 +68,8 @@ public class FeignClientConfig {
 	ErrorDecoder errorDecoder(ObjectMapper objectMapper) {
 		
 		return new ErrorDecoder() {
+
+			private final Logger log = LoggerFactory.getLogger(ErrorDecoder.class);
 			
 			@Override
 			public Exception decode(String methodKey, Response response) {
@@ -87,7 +90,9 @@ public class FeignClientConfig {
 
 				} catch (Exception e) {
 					
-					return FeignException.errorStatus(methodKey, response);
+					log.error("외부 시스템을 호출하는데 오류가 발생했습니다.", FeignException.errorStatus(methodKey, response));
+					
+					return new RestServiceException(HttpStatus.BAD_GATEWAY , ErrorCode.UNCHECKED_EXTERNAL_ERROR);
 				}
 			}
 		};

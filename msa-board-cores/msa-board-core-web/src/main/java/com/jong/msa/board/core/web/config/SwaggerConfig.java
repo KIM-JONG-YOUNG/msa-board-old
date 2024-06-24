@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jong.msa.board.common.enums.ErrorCode;
 import com.jong.msa.board.core.web.annotation.APIErrorResponse;
+import com.jong.msa.board.core.web.annotation.APIErrorResponses;
 import com.jong.msa.board.core.web.dto.ErrorDetails;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
@@ -25,27 +26,28 @@ import io.swagger.v3.oas.models.Operation;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
-@RequiredArgsConstructor
 public class SwaggerConfig {
 
-	private final ObjectMapper objectMapper;
-	
 	private List<APIErrorResponse> getErrorCodeResponseAnnotation(HandlerMethod handlerMethod) {
-	
-        Class<?>[] interfaces = handlerMethod.getBeanType().getInterfaces();
-        Method method = handlerMethod.getMethod();
+
+        Class<?> targetClass = handlerMethod.getBeanType();
+        Class<?>[] interfaceClasses = targetClass.getInterfaces();
+
+        Method targetMethod = handlerMethod.getMethod();
+
+        List<APIErrorResponses> annotationList = new ArrayList<>();
         
-        List<APIErrorResponse> annotationList = new ArrayList<>();
+        annotationList.addAll(Arrays.asList(targetClass.getAnnotationsByType(APIErrorResponses.class)));
+        annotationList.addAll(Arrays.asList(targetMethod.getAnnotationsByType(APIErrorResponses.class)));
         
-        annotationList.addAll(Arrays.asList(method.getAnnotationsByType(APIErrorResponse.class)));
-        
-        for (Class<?> clazz : interfaces) {
+        for (Class<?> interfaceClass : interfaceClasses) {
 			
         	try {
 
-        		Method interfaceMethod = clazz.getMethod(method.getName(), method.getParameterTypes());
+        		Method interfaceMethod = interfaceClass.getMethod(targetMethod.getName(), targetMethod.getParameterTypes());
 			
-        		annotationList.addAll(Arrays.asList(interfaceMethod.getAnnotationsByType(APIErrorResponse.class)));
+                annotationList.addAll(Arrays.asList(interfaceClass.getAnnotationsByType(APIErrorResponses.class)));
+        		annotationList.addAll(Arrays.asList(interfaceMethod.getAnnotationsByType(APIErrorResponses.class)));
         			
 			} catch (NoSuchMethodException e) {
 				
@@ -53,63 +55,62 @@ public class SwaggerConfig {
 			}
 		}
         
-        return annotationList;
+        return annotationList.stream()
+        		.flatMap(x -> Arrays.stream(x.value()))
+        		.collect(Collectors.toList());
 	} 
 	
 	@Bean
-	OperationCustomizer swaggerCustomizer() {
+	OperationCustomizer swaggerCustomizer(ObjectMapper objectMapper) {
 
 	    return (Operation operation, HandlerMethod handlerMethod) -> {
 	        
 	        List<APIErrorResponse> annotationList = getErrorCodeResponseAnnotation(handlerMethod);
 
-	        Map<HttpStatus, List<APIErrorResponse>> errorResponseMap = annotationList.stream()
+	        Map<HttpStatus, List<APIErrorResponse>> errorCodeResponseMap = annotationList.stream()
 	        		.collect(Collectors.groupingBy(APIErrorResponse::status));
-//	        		.entrySet().stream()
-//	        		.collect(Collectors.toMap(
-//	        				x -> x.getKey(), 
-//	        				x -> x.getValue().stream()
-//	        					.map(APIErrorResponse::errorCode)
-//	        					.collect(Collectors.toCollection(LinkedHashSet::new))));
 
-	        errorResponseMap.entrySet().stream().forEach(errorResponseEntry -> {
+        	io.swagger.v3.oas.models.responses.ApiResponses apiResponses = operation.getResponses();
 
-	        	io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
-	        	io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
+	        errorCodeResponseMap.entrySet().stream().forEach(apiErrorResponseEntry -> {
+
 	        	io.swagger.v3.oas.models.responses.ApiResponse apiResponse = new io.swagger.v3.oas.models.responses.ApiResponse();
+	        	io.swagger.v3.oas.models.media.Content content = new io.swagger.v3.oas.models.media.Content();
+	        	io.swagger.v3.oas.models.media.MediaType mediaType = new io.swagger.v3.oas.models.media.MediaType();
 
-	        	errorResponseEntry.getValue().forEach(errorResponse -> {
+	        	HttpStatus status = apiErrorResponseEntry.getKey();
+
+	        	List<APIErrorResponse> errorCodeResponses = apiErrorResponseEntry.getValue();
+	        	
+	        	errorCodeResponses.forEach(errorCodeResponse -> {
 	        		
+    				ErrorCode errorCode = errorCodeResponse.errorCode();
+
+    				boolean useErrorDetailsList = errorCodeResponse.useErrorDetailsList();
+    	        	
 	        		try {
 
-	        			ErrorCode errorCode = errorResponse.errorCode();
+	        			io.swagger.v3.oas.models.examples.Example example = new io.swagger.v3.oas.models.examples.Example()
+	        					.value(objectMapper.writeValueAsString(ErrorResponse.builder()
+        		        				.errorCode(errorCode.getCode())
+        		        				.errorMessage(errorCode.getMessage())
+        		        				.errorDetailsList(useErrorDetailsList
+        		        						? Arrays.asList(ErrorDetails.builder()
+        		        								.field("field")
+        		        								.message("message")
+        		        								.build())
+        		        						: new ArrayList<>())
+        		        				.build()));
 	        			
-	        			io.swagger.v3.oas.models.examples.Example example = new io.swagger.v3.oas.models.examples.Example();
-
-		        		example.setValue(objectMapper.writeValueAsString(ErrorResponse.builder()
-		        				.errorCode(errorCode.getCode())
-		        				.errorMessage(errorCode.getMessage())
-		        				.errorDetailsList(errorResponse.useErrorDetailsList()
-		        						? Arrays.asList(ErrorDetails.builder()
-		        								.field("field")
-		        								.message("message")
-		        								.build())
-		        						: new ArrayList<>())
-		        				.build()));
-
-		        		mediaType.addExamples(errorCode.getCode(), example);
-			        	
-		        		content.addMediaType(MediaType.APPLICATION_JSON_VALUE, mediaType);
-			        	
-			        	apiResponse.setDescription(errorResponseEntry.getKey().name());
-			        	apiResponse.setContent(content);
-			        	
-			            operation.getResponses().addApiResponse(String.valueOf(errorResponseEntry.getKey().value()), apiResponse);
-			            
+        				mediaType.addExamples(errorCode.getCode(), example);
+	        		
 					} catch (JsonProcessingException e) {
 						
 						throw new RuntimeException(e);
 					}
+        			
+		        	apiResponses.addApiResponse(String.valueOf(status.value()), 
+		        			apiResponse.content(content.addMediaType(MediaType.APPLICATION_JSON_VALUE, mediaType)));
 	        	});
 	        });
 

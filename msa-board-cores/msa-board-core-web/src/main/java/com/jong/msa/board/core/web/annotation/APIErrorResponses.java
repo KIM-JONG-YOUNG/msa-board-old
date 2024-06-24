@@ -6,19 +6,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.http.HttpStatus;
-
-import com.jong.msa.board.common.enums.ErrorCode;
-
 @Inherited
-@Target(ElementType.ANNOTATION_TYPE)
+@Target({ ElementType.TYPE, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
-public @interface APIErrorResponse {
+public @interface APIErrorResponses {
 
-	HttpStatus status();
-
-	ErrorCode errorCode();
-
-	boolean useErrorDetailsList() default false;
-
+	APIErrorResponse[] value();
+	
 }
