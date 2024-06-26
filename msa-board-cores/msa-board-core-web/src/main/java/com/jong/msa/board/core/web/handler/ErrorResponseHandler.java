@@ -41,7 +41,7 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ErrorResponse.builder()
-						.errorCode(ErrorCode.UNCHECKED_INTERNAL_ERROR.name())
+						.errorCode(ErrorCode.UNCHECKED_INTERNAL_ERROR.getCode())
 						.errorMessage(ErrorCode.UNCHECKED_INTERNAL_ERROR.getMessage())
 						.build());
 	}
@@ -54,7 +54,7 @@ public class ErrorResponseHandler extends ResponseEntityExceptionHandler {
 
 		return ResponseEntity.status(status)
 				.body(ErrorResponse.builder()
-						.errorCode(ErrorCode.UNCHECKED_INTERNAL_ERROR.name())
+						.errorCode(ErrorCode.UNCHECKED_INTERNAL_ERROR.getCode())
 						.errorMessage(ErrorCode.UNCHECKED_INTERNAL_ERROR.getMessage())
 						.build());
 	}
