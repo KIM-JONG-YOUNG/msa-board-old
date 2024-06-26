@@ -20,6 +20,11 @@ spring:
     host: localhost
     port: 17617
 
+# Feign
+feign:
+  okhttp:
+    enabled: true
+
 # Swagger
 springdoc:
   swagger-ui:

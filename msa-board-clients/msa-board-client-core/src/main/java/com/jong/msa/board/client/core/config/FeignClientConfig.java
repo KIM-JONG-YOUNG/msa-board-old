@@ -22,7 +22,6 @@ import com.jong.msa.board.core.web.converter.LocalTimeParamConverter;
 import com.jong.msa.board.core.web.exception.RestServiceException;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
-import feign.Client;
 import feign.FeignException;
 import feign.Response;
 import feign.codec.ErrorDecoder;
@@ -37,18 +36,6 @@ public class FeignClientConfig {
 		return feign.Logger.Level.FULL;
 	}
 	
-	@Bean
-	okhttp3.OkHttpClient okHttpClient() {
-		
-		return new okhttp3.OkHttpClient.Builder().build();
-	}
-	
-	@Bean
-	Client client(okhttp3.OkHttpClient okHttpClient) {
-		
-		return new feign.okhttp.OkHttpClient(okHttpClient);
-	}
-
 	@Bean
 	FeignFormatterRegistrar localDateFeignFormatterRegister() {
 

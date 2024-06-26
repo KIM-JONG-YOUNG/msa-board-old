@@ -63,6 +63,11 @@ spring:
     host: msa-board-redis-predixy
     port: 7617
 
+# Feign
+feign:
+  okhttp:
+    enabled: true
+
 # Swagger
 springdoc:
   swagger-ui:
