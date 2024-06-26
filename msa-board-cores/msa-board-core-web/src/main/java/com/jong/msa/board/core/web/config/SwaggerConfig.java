@@ -23,7 +23,6 @@ import com.jong.msa.board.core.web.dto.ErrorDetails;
 import com.jong.msa.board.core.web.response.ErrorResponse;
 
 import io.swagger.v3.oas.models.Operation;
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 public class SwaggerConfig {
