@@ -1,6 +1,7 @@
 package com.jong.msa.board.client.search.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import com.jong.msa.board.common.enums.Group;
@@ -13,12 +14,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 
 @Getter
+@Builder
 @ToString
-@SuperBuilder
-public class PostListResponse extends ListResponse<PostListResponse.Item> {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+public class PostListResponse {
+	
+	@Schema(description = "전체 데이터 건수")
+	private long totalCount;
+	
+	@Schema(description = "목록")
+	private List<Item> list;
 	
 	@Getter
 	@Builder

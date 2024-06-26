@@ -72,26 +72,29 @@ public class SearchServiceImpl implements SearchService {
 		DateRange createdDate = (condition == null) ? null : condition.getCreatedDate();
 		DateRange updatedDate = (condition == null) ? null : condition.getUpdatedDate();
 		
-		BooleanExpression[] searchConditions = (condition == null) ? null : new BooleanExpression[] {
+		BooleanExpression[] searchConditions = (condition == null) 
+				? new BooleanExpression[] {} 
+//				? null
+				: new BooleanExpression[] {
 
-				QueryDslUtils.equalsIfPresent(memberEntity.gender, condition.getGender()),
-				QueryDslUtils.equalsIfPresent(memberEntity.group, condition.getGroup()),
-				QueryDslUtils.equalsIfPresent(memberEntity.state, condition.getState()),
-
-				QueryDslUtils.containIfPresent(memberEntity.username, condition.getUsername()),
-				QueryDslUtils.containIfPresent(memberEntity.name, condition.getName()),
-				QueryDslUtils.containIfPresent(memberEntity.email, condition.getEmail()),
-
-				(createdDate == null) ? null 
-						: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, createdDate.getFrom()),
-				(createdDate == null) ? null 
-						: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, createdDate.getTo()),
-
-				(updatedDate == null) ? null 
-						: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, updatedDate.getFrom()),
-				(updatedDate == null) ? null 
-						: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, updatedDate.getTo()),
-		};
+						QueryDslUtils.equalsIfPresent(memberEntity.gender, condition.getGender()),
+						QueryDslUtils.equalsIfPresent(memberEntity.group, condition.getGroup()),
+						QueryDslUtils.equalsIfPresent(memberEntity.state, condition.getState()),
+		
+						QueryDslUtils.containIfPresent(memberEntity.username, condition.getUsername()),
+						QueryDslUtils.containIfPresent(memberEntity.name, condition.getName()),
+						QueryDslUtils.containIfPresent(memberEntity.email, condition.getEmail()),
+		
+						(createdDate == null) ? null 
+								: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, createdDate.getFrom()),
+						(createdDate == null) ? null 
+								: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, createdDate.getTo()),
+		
+						(updatedDate == null) ? null 
+								: QueryDslUtils.afterIfPresent(memberEntity.createdDateTime, updatedDate.getFrom()),
+						(updatedDate == null) ? null 
+								: QueryDslUtils.beforeIfPresent(memberEntity.createdDateTime, updatedDate.getTo()),
+				};
 
 		MemberSort sort = (request.getSort() != null) ? request.getSort() : MemberSort.USERNAME;
 		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();
@@ -131,24 +134,26 @@ public class SearchServiceImpl implements SearchService {
 		DateRange createdDate = (condition == null) ? null : condition.getCreatedDate();
 		DateRange updatedDate = (condition == null) ? null : condition.getUpdatedDate();
 		
-		BooleanExpression[] searchConditions = (condition == null) ? null : new BooleanExpression[] {
+		BooleanExpression[] searchConditions = (condition == null) 
+				? new BooleanExpression[] {} 
+				: new BooleanExpression[] {
 
-				QueryDslUtils.equalsIfPresent(postEntity.state, condition.getState()),
-
-				QueryDslUtils.containIfPresent(postEntity.title, condition.getTitle()),
-				QueryDslUtils.containIfPresent(memberEntity.username, condition.getWriterUsername()),
-				QueryDslUtils.containIfPresent(postEntity.content, condition.getContent()),
-
-				(createdDate == null) ? null 
-						: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, createdDate.getFrom()),
-				(createdDate == null) ? null 
-						: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, createdDate.getTo()),
-
-				(updatedDate == null) ? null 
-						: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, updatedDate.getFrom()),
-				(updatedDate == null) ? null 
-						: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, updatedDate.getTo()),
-		};
+						QueryDslUtils.equalsIfPresent(postEntity.state, condition.getState()),
+		
+						QueryDslUtils.containIfPresent(postEntity.title, condition.getTitle()),
+						QueryDslUtils.containIfPresent(memberEntity.username, condition.getWriterUsername()),
+						QueryDslUtils.containIfPresent(postEntity.content, condition.getContent()),
+		
+						(createdDate == null) ? null 
+								: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, createdDate.getFrom()),
+						(createdDate == null) ? null 
+								: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, createdDate.getTo()),
+		
+						(updatedDate == null) ? null 
+								: QueryDslUtils.afterIfPresent(postEntity.createdDateTime, updatedDate.getFrom()),
+						(updatedDate == null) ? null 
+								: QueryDslUtils.beforeIfPresent(postEntity.createdDateTime, updatedDate.getTo()),
+				};
 		
 		PostSort sort = (request.getSort() != null) ? request.getSort() : PostSort.CREATED_DATE_TIME;
 		Order order = (request.getOrder() != null) ? request.getOrder() : sort.getDefaultOrder();

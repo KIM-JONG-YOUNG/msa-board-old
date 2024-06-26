@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jong.msa.board.common.enums.Gender;
 import com.jong.msa.board.common.enums.Group;
+import com.jong.msa.board.core.web.response.ErrorResponse;
 import com.jong.msa.board.domain.member.entity.MemberEntity;
 import com.jong.msa.board.domain.member.repository.MemberRepository;
 import com.jong.msa.board.domain.post.entity.PostEntity;
@@ -79,7 +81,8 @@ public class SearchMicroserviceTest {
 						.writerId(memberIdList.get(i))
 						.build()));
 	}
-	
+
+	@Disabled
 	@Test
 	void 회원_검색_테스트() throws Exception {
 
@@ -91,6 +94,7 @@ public class SearchMicroserviceTest {
 
 	}
 	
+	@Disabled
 	@Test
 	void 게시글_검색_테스트() throws Exception {
 

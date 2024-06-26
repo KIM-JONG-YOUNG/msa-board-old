@@ -98,6 +98,12 @@ public class AdminRequestValidator extends RequestValidator {
     	
     	validateRequest(
     			
+    			validateField("offset", request.getOffset(), 
+    					validation(x -> x < 0, "조회 시작 행은 0보다 작을 수 없습니다.")),
+
+    			validateField("limit", request.getLimit(), 
+    					validation(x -> x < 0, "조회 건 수는 0보다 작을 수 없습니다.")),
+
     			(createdDate == null || createdDate.getFrom() == null || createdDate.getTo() == null) ? null
     					: validateField("condition.createdDate", createdDate, 
     							validation(x -> x.getFrom().isAfter(x.getTo()), "검색 시작 일자는 검색 종료 일자 보다 이전일 수 없습니다.")),
@@ -145,6 +151,12 @@ public class AdminRequestValidator extends RequestValidator {
     	
     	validateRequest(
     			
+    			validateField("offset", request.getOffset(), 
+    					validation(x -> x < 0, "조회 시작 행은 0보다 작을 수 없습니다.")),
+
+    			validateField("limit", request.getLimit(), 
+    					validation(x -> x < 0, "조회 건 수는 0보다 작을 수 없습니다.")),
+
     			(createdDate == null || createdDate.getFrom() == null || createdDate.getTo() == null) ? null
     					: validateField("condition.createdDate", createdDate, 
     							validation(x -> x.getFrom().isAfter(x.getTo()), "검색 시작 일자는 검색 종료 일자 보다 이전일 수 없습니다.")),

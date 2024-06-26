@@ -20,8 +20,8 @@ import lombok.ToString;
 public class PostSearchRequest {
 	
 	@Builder.Default
-	@Schema(description = "조회 시작 행", example = "1")
-	private long offset = 1;
+	@Schema(description = "조회 시작 행", example = "0")
+	private long offset = 0;
  
 	@Builder.Default
 	@Schema(description = "조회 행의 수", example = "10")
